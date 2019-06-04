@@ -1,0 +1,9 @@
+{% block filter_settings %}
+filter: {{ filter.vars.filter_type|json_encode|raw }},
+filterParams: {
+	{% block filter_params %}
+    debounceMs: 100,
+    apply: true
+	{% endblock filter_params %}
+},
+{% endblock filter_settings %}

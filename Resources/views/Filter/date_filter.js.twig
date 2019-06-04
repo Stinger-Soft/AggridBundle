@@ -1,0 +1,22 @@
+{% extends 'StingerSoftAggridBundle:Filter:filter.js.twig' %}
+{% block filter_params %}
+	comparator: function(filterLocalDateAtMidnight, cellValue) {
+		//using moment js
+		var dateAsString = moment(cellValue.date).format('DD/MM/YYYY');
+		var dateParts = dateAsString.split("/");
+		var cellDate = new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0]));
+
+		if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
+			return 0;
+		}
+
+		if (cellDate < filterLocalDateAtMidnight) {
+			return -1;
+		}
+
+		if (cellDate > filterLocalDateAtMidnight) {
+			return 1;
+		}
+	},
+{{ parent() }}
+{% endblock %}

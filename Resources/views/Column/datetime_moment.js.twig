@@ -1,0 +1,41 @@
+{% extends 'StingerSoftAggridBundle:Column:column.js.twig' %}
+{% block column_def_start %}
+valueFormatter: function (params) {
+    if (typeof params.value === "undefined" || params.value === null) {
+        return null;
+    }
+    if (typeof moment !== "undefined") {
+        return moment(params.value.date).format({{ column.vars.date_format|json_encode|raw }});
+    } else {
+        console.log('Please add moment.js to support the formatting of dates!');
+        return params.date.value;
+    }
+},
+{#valueParser: function (params) {#}
+{#    return 'asd';#}
+{#},#}
+cellEditor: 'datePicker',
+comparator: function(dateA, dateB) {
+    if (dateA == dateB) {
+        return 0;
+    }
+    if(typeof dateB === 'undefined' || dateB === null) {
+        return 1;
+    }
+    if(typeof dateA === 'undefined' || dateA === null) {
+        return -1;
+    }
+
+    if (dateA.date == dateB.date) {
+        return 0;
+    }
+
+    if (dateA.date < dateB.date) {
+        return -1;
+    }
+
+    if (dateA.date > dateB.date) {
+        return 1;
+    }
+},
+{% endblock column_def_start %}

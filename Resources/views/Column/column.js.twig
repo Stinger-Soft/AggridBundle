@@ -1,0 +1,31 @@
+{
+	{% block column_def_start %}
+	{% endblock column_def_start %}
+	{% set label = column.vars.label %}
+	{% set labelIsTranslatable = column.vars.label is not same as(null) %}
+	{% if column.vars.label is empty and column.vars.label is not same as(null) %}
+	{% set label = column.path|replace({'.': '_'})|humanize %}
+	{% set labelIsTranslatable = false %}
+	{% endif %}
+
+	{% set translated_label = label %}
+	{% if column.vars.translation_domain is not same as(false) and labelIsTranslatable %}
+	{% set translated_label = label|trans({}, column.vars.translation_domain) %}
+	{% endif %}
+    headerName: {{ translated_label|json_encode|raw }},
+    field: {{ column.path|json_encode|raw }},
+    sortable: {{ column.vars.orderable|json_encode|raw }},
+	{% if column.filter %}
+	{% include column.filter.jsTemplate with {'column': column, 'filter':  column.filter} %}
+	{% else %}
+    filter: {{ column.vars.filterable|json_encode|raw }},
+	{% endif %}
+    hide: {{ (not column.vars.visible)|json_encode|raw }},
+    rowGroup: {{ column.vars.rowGroup|json_encode|raw }},
+    enableRowGroup: {{ column.vars.enableRowGroup|json_encode|raw }},
+    pivot: {{ column.vars.pivot|json_encode|raw }},
+    enablePivot: {{ column.vars.enablePivot|json_encode|raw }},
+    aggFunc: {{ column.vars.aggFunc|json_encode|raw }},
+    resizable: {{ column.vars.resizable|json_encode|raw }},
+    editable: {{ column.vars.editable|json_encode|raw }}
+}

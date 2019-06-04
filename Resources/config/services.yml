@@ -1,0 +1,38 @@
+parameters:
+  stingersoft_aggrid.twig.grid_template_html: 'StingerSoftAggridBundle:Grid:grid.html.twig'
+  stingersoft_aggrid.twig.grid_template_js: 'StingerSoftAggridBundle:Grid:grid.js.twig'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  StingerSoft\AggridBundle\Grid\:
+    resource: '../../Grid/*'
+
+  StingerSoft\AggridBundle\Column\:
+    resource: '../../Column/*'
+
+  StingerSoft\AggridBundle\Filter\:
+    resource: '../../Filter/*'
+
+  StingerSoft\AggridBundle\Transformer\:
+    resource: '../../Transformer/*'
+
+  StingerSoft\AggridBundle\Service\:
+    resource: '../../Service/*'
+
+  StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface: '@StingerSoft\AggridBundle\Service\DependencyInjectionExtension'
+
+
+  StingerSoft\AggridBundle\Twig\GridRenderExtension:
+    tags:
+      - { name: "twig.extension" }
+    arguments:
+      - '@twig'
+      - '%stingersoft_aggrid.twig.grid_template_html%'
+      - '%stingersoft_aggrid.twig.grid_template_js%'
+
+#  StingerSoft\AggridBundle\Ser\DependencyInjectionExtensionInterface:
+#    class: StingerSoft\AggridBundle\Helper\DependencyInjectionExtension
+

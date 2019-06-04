@@ -1,0 +1,13 @@
+{% javascripts
+	'assets/npm-asset/ag-grid-enterprise/dist/ag-grid-enterprise.noStyle.js'
+	'bundles/stingermomentjs/js/moment-with-locales.min.js'
+	'bundles/stingersoftaggrid/scripts/StingerSoftAggrid.js'
+%}
+	<script src="{{ asset_url }}"></script>
+{% endjavascripts %}
+
+<script type="text/javascript">
+    jQuery(document).ready(function(){
+        moment.locale('{{app.request.locale|default('en')}}');
+    });
+</script>

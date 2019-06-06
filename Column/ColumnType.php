@@ -133,27 +133,57 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		));
+		$resolver->setNormalizer('rowGroup', static function(Options $options, $value) use ($gridOptions) {
+			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
+				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
+			}
+			return $value;
+		});
 
 		$resolver->setDefault('enableRowGroup', false);
 		$resolver->setAllowedValues('enableRowGroup', array(
 			true,
 			false,
 		));
+		$resolver->setNormalizer('enableRowGroup', static function(Options $options, $value) use ($gridOptions) {
+			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
+				throw new InvalidArgumentException('enableRowGroup is only available in the enterprise edition. Please set a license key!');
+			}
+			return $value;
+		});
 
 		$resolver->setDefault('pivot', false);
 		$resolver->setAllowedValues('pivot', array(
 			true,
 			false,
 		));
+		$resolver->setNormalizer('pivot', static function(Options $options, $value) use ($gridOptions) {
+			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
+				throw new InvalidArgumentException('pivot is only available in the enterprise edition. Please set a license key!');
+			}
+			return $value;
+		});
 
 		$resolver->setDefault('enablePivot', false);
 		$resolver->setAllowedValues('enablePivot', array(
 			true,
 			false,
 		));
+		$resolver->setNormalizer('enablePivot', static function(Options $options, $value) use ($gridOptions) {
+			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
+				throw new InvalidArgumentException('enablePivot is only available in the enterprise edition. Please set a license key!');
+			}
+			return $value;
+		});
 
 		$resolver->setDefault('aggFunc', false);
 		$resolver->setAllowedTypes('aggFunc', ['bool', 'string']);
+		$resolver->setNormalizer('aggFunc', static function(Options $options, $value) use ($gridOptions) {
+			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
+				throw new InvalidArgumentException('aggFunc is only available in the enterprise edition. Please set a license key!');
+			}
+			return $value;
+		});
 
 
 
@@ -177,6 +207,24 @@ class ColumnType extends AbstractColumnType {
 				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
 			}
 			return $value;
+		});
+
+		$resolver->setDefault('position', null);
+		$resolver->setAllowedTypes('position', array(
+			'null',
+			'string',
+			'array'
+		));
+		$resolver->setAllowedValues('position', static function ($valueToCheck) {
+			if(is_string($valueToCheck)) {
+				return !($valueToCheck !== 'last' && $valueToCheck !== 'first');
+			}
+			if(is_array($valueToCheck)) {
+				return isset($valueToCheck['before']) || isset($valueToCheck['after']);
+			}
+			if($valueToCheck === null)
+				return true;
+			return false;
 		});
 
 	}

@@ -14,6 +14,7 @@ namespace StingerSoft\AggridBundle\Grid;
 
 use Doctrine\ORM\QueryBuilder;
 use StingerSoft\AggridBundle\View\GridView;
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -115,7 +116,7 @@ class GridType extends AbstractGridType {
 			'null'
 		));
 
-		$resolver->setNormalizer('ajax_url', function(Options $options, $valueToNormalize) {
+		$resolver->setNormalizer('ajax_url', static function(Options $options, $valueToNormalize) {
 			if($valueToNormalize === null && $options['dataMode'] !== self::DATA_MODE_INLINE) {
 				throw new InvalidOptionsException('When using "dataMode"  with a value of ajax or enterprise you must set "ajax_url"!');
 			}
@@ -139,6 +140,12 @@ class GridType extends AbstractGridType {
 			true,
 			false,
 		));
+		$resolver->setNormalizer('treeData', static function(Options $options, $value)  {
+			if($value !== false && !isset($options['enterpriseLicense'])) {
+				throw new InvalidArgumentException('treeData is only available in the enterprise edition. Please set a license key!');
+			}
+			return $value;
+		});
 
 		$resolver->setDefault('sideBar', false);
 		$resolver->setAllowedValues('sideBar', array(
@@ -147,6 +154,12 @@ class GridType extends AbstractGridType {
 			'columns',
 			'filters'
 		));
+		$resolver->setNormalizer('sideBar', static function(Options $options, $value)  {
+			if($value !== false && !isset($options['enterpriseLicense'])) {
+				throw new InvalidArgumentException('sideBar is only available in the enterprise edition. Please set a license key!');
+			}
+			return $value;
+		});
 
 	}
 }

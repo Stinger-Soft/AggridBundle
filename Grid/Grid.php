@@ -549,7 +549,7 @@ class Grid implements GridInterface {
 		return $options;
 	}
 
-	protected function buildView(GridView $view, GridTypeInterface $gridType) {
+	protected function buildView(GridView $view, GridTypeInterface $gridType): void {
 		if($gridType->getParent()) {
 			$parentType = $this->dependencyInjectionExtension->resolveGridType($gridType->getParent());
 			$this->buildView($view, $parentType);
@@ -557,8 +557,24 @@ class Grid implements GridInterface {
 		$gridType->buildView($view, $this, $this->options, $this->columns);
 	}
 
-	protected function orderColumns() {
+	protected function orderColumns(): void {
+		// order columns according to position!
+		$tmpColumns = $this->columns;
+		$newColumnKeys = $this->orderer->order($this);
+		$this->columns = array();
 
+		foreach($newColumnKeys as $name) {
+			if(!isset($tmpColumns[$name])) {
+				continue;
+			}
+
+			$this->columns[$name] = $tmpColumns[$name];
+			unset($tmpColumns[$name]);
+		}
+
+		foreach($tmpColumns as $name => $child) {
+			$this->columns[$name] = $child;
+		}
 	}
 
 	protected function getPaginationOptions() {

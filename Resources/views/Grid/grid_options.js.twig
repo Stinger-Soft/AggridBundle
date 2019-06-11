@@ -1,0 +1,52 @@
+{
+	columnDefs: [
+	{% for column in grid.columns %}
+		{% include column.template with {'column': column} %}{% if not loop.last %},{% endif %}
+	{% endfor %}
+	],
+	multiSortKey: 'ctrl',
+	components: {
+		datePicker: StingerSoftAggrid.Editor.DatePicker
+	}
+	{% if grid.vars.pagination %}
+		, pagination: true
+	{% endif %}
+	{% if grid.vars.paginationPageSize is defined and grid.vars.paginationPageSize is not same as(null) %}
+		, paginationPageSize: {{ grid.vars.paginationPageSize|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.paginationAutoPageSize is defined and grid.vars.paginationAutoPageSize is not same as(null) %}
+		, paginationAutoPageSize: {{ grid.vars.paginationAutoPageSize|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.paginationAutoPageSize is defined and grid.vars.suppressPaginationPanel is not same as(null) %}
+		, suppressPaginationPanel: {{ grid.vars.paginationAutoPageSize|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.dataMode == 'inline' %}
+		, rowData: {{ grid.inlineData|raw }}
+	{% endif %}
+	{% if grid.vars.sideBar != false %}
+		, sideBar: {{ grid.vars.sideBar|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.dataMode == 'enterprise' %}
+		, rowModelType: 'serverSide'
+		, cacheBlockSize: {{ grid.vars.cacheBlockSize|json_encode|raw }}
+		, blockLoadDebounceMillis: 500
+	{% endif %}
+	{% if grid.vars.treeData %}
+		, treeData: true,
+		getDataPath: function (data) {
+			return data.orgHierarchy;
+		},
+		autoGroupColumnDef: {
+			headerName: "Path",
+			filter: true,
+			resizable: true,
+			valueGetter: function(params) {
+				var label = params.node.key;
+				if(label.includes('$$')) {
+					label = label.split('$$')[1];
+				}
+				return label;
+			}
+		}
+		{% endif %}
+}

@@ -209,6 +209,9 @@ class ColumnType extends AbstractColumnType {
 			return $value;
 		});
 
+		$resolver->setDefault('valueFormatter', null);
+		$resolver->setAllowedTypes('valueFormatter',  ['null', 'string']);
+
 		$resolver->setDefault('position', null);
 		$resolver->setAllowedTypes('position', array(
 			'null',
@@ -250,6 +253,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['resizable'] = $options['resizable'];
 		$view->vars['visible'] = $options['visible'] && !$options['rowGroup'];
 		$view->vars['editable'] = $options['editable'];
+		$view->vars['valueFormatter'] = $options['valueFormatter'];
 	}
 
 	/**

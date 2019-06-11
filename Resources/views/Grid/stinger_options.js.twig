@@ -1,0 +1,11 @@
+{
+	{% if grid.vars.enterpriseLicense is defined and grid.vars.enterpriseLicense is not same as(null) %}
+	enterpriseLicense: {{ grid.vars.enterpriseLicense|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.dataMode is defined and grid.vars.dataMode is not same as(null) %}
+	, dataMode: {{ grid.vars.dataMode|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.ajax_url is defined and grid.vars.ajax_url is not same as(null) %}
+	, ajaxUrl: {{ grid.vars.ajax_url|json_encode|raw }}
+	{% endif %}
+}

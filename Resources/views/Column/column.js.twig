@@ -12,6 +12,9 @@
 	{% if column.vars.translation_domain is not same as(false) and labelIsTranslatable %}
 	{% set translated_label = label|trans({}, column.vars.translation_domain) %}
 	{% endif %}
+	{% if column.vars.colId is defined %}
+	colId: {{ column.vars.colId|json_encode|raw }},
+	{% endif %}
 	headerName: {{ translated_label|json_encode|raw }},
 	field: {{ column.path|json_encode|raw }},
 	sortable: {{ column.vars.orderable|json_encode|raw }},
@@ -25,6 +28,56 @@
 	{% else %}
 	filter: {{ column.vars.filterable|json_encode|raw }},
 	{% endif %}
+	{% if column.vars.width is defined and column.vars.width is not same as(null) %}
+	width: {{ column.vars.width|json_encode|raw }},
+	{% endif %}
+	{% if column.vars.pinned is defined and column.vars.pinned is not same as(null) %}
+	pinned: {{ column.vars.pinned|json_encode|raw }},
+	{% endif %}
+	{% if column.vars.menuTabs is defined and column.vars.menuTabs is not same as(null) %}
+	menuTabs: [
+		{% for menuTab in column.vars.menuTabs %}
+			{{ menuTab|json_encode|raw }},
+		{% endfor %}
+	],{% endif %}
+	suppressMenu: {{ column.vars.suppressMenu|default(false)|json_encode|raw }},
+	{% if column.vars.autoHeight is defined and column.vars.autoHeight is not same as(null) %}
+	autoHeight: {{ column.vars.autoHeight|default(true)|json_encode|raw }},
+	{% endif %}
+	{% if column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
+	valueGetter: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}"),
+	{% endif %}
+	{% if column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
+	valueFormatter: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}"),
+	{% endif %}
+	{% if column.vars.cellRenderer is defined and column.vars.cellRenderer is not same as(null) %}
+	cellRenderer: StingerSoftAggrid.Renderer.getRenderer("{{ column.vars.cellRenderer }}"),
+	{% endif %}
+	{% if column.vars.cellRendererParams is defined and column.vars.cellRendererParams is not same as(null) %}
+	cellRendererParams: {{ column.vars.cellRendererParams|json_encode|raw }},
+	{% endif %}
+	{% if column.vars.quickFilter is defined and column.vars.quickFilter is not same as(null) %}
+	getQuickFilterText: StingerSoftAggrid.Filter.getFilter("{{ column.vars.quickFilter }}"),
+	{% elseif column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
+	getQuickFilterText: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}"),
+	{% elseif column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
+	getQuickFilterText: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}"),
+	{% endif %}
+	{% if column.vars.keyCreator is defined and column.vars.keyCreator is not same as(null) %}
+	keyCreator: StingerSoftAggrid.Creator.getKeyCreator("{{ column.vars.keyCreator }}"),
+	{% endif %}
+	{% if column.vars.tooltipField is defined and column.vars.tooltipField is not same as(null) %}
+	tooltipField: {{ column.vars.tooltipField|json_encode|raw }},
+	{% endif %}
+	{% if column.vars.tooltip is defined and column.vars.tooltip is not same as(null) %}
+	tooltip: StingerSoftAggrid.Tooltip.getTooltip("{{ column.vars.tooltip }}"),
+	{% endif %}
+	{%- block column_checkbox_selection -%}
+	checkboxSelection: {{ column.vars.checkboxSelection|default(false)|json_encode|raw }},
+	{%- endblock column_checkbox_selection -%}
+	headerCheckboxSelection: {{ column.vars.headerCheckboxSelection|default(false)|json_encode|raw }},
+	headerCheckboxSelectionFilteredOnly: {{ column.vars.headerCheckboxSelectionFilteredOnly|default(false)|json_encode|raw }},
+	suppressFilter: {{ column.vars.suppressFilter|default(false)|json_encode|raw }},
 	hide: {{ (not column.vars.visible)|json_encode|raw }},
 	rowGroup: {{ column.vars.rowGroup|json_encode|raw }},
 	enableRowGroup: {{ column.vars.enableRowGroup|json_encode|raw }},
@@ -32,5 +85,18 @@
 	enablePivot: {{ column.vars.enablePivot|json_encode|raw }},
 	aggFunc: {{ column.vars.aggFunc|json_encode|raw }},
 	resizable: {{ column.vars.resizable|json_encode|raw }},
-	editable: {{ column.vars.editable|json_encode|raw }}
+	editable: {{ column.vars.editable|json_encode|raw }},
+	{% if column.children is defined and column.children and column.children|length > 0 %}
+	{% if column.vars.groupId is defined and column.vars.groupId is not same as(null) %}
+	groupId: {{ column.vars.groupId|json_encode|raw }},
+	{% endif %}
+	{% if column.vars.marryChildren is defined and column.vars.marryChildren is not same as(null) %}
+	marryChildren: {{ column.vars.marryChildren|json_encode|raw }},
+	{% endif %}
+	children: [
+	{% for child in column.children %}
+		{% include child.vars.template|default('@StingerSoftAggrid/Column/column.js.twig') with { 'column': child } %},
+	{% endfor %}
+	]
+	{% endif %}
 }

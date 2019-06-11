@@ -1,19 +1,6 @@
 {% extends '@StingerSoftAggrid/Column/column.js.twig' %}
 {% block column_def_start %}
-valueFormatter: function (params) {
-    if (typeof params.value === "undefined" || params.value === null) {
-        return null;
-    }
-    if (typeof moment !== "undefined") {
-        return moment(params.value.date).format({{ column.vars.date_format|json_encode|raw }});
-    } else {
-        console.log('Please add moment.js to support the formatting of dates!');
-        return params.date.value;
-    }
-},
-{#valueParser: function (params) {#}
-{#    return 'asd';#}
-{#},#}
+dateFormat: {{ column.vars.date_format|json_encode|raw }},
 cellEditor: 'datePicker',
 comparator: function(dateA, dateB) {
     if (dateA == dateB) {

@@ -45,19 +45,6 @@ class DateTimeColumnType extends AbstractColumnType {
 		$resolver->setDefault('format', null);
 		$resolver->setDefault('calendar', 'gregorian');
 		$resolver->setAllowedValues('calendar', array('gregorian', 'traditional'));
-
-		$resolver->setDefault('order_client_delegate', function($item, $path, $value) {
-			if($value instanceof \DateTime) {
-				return $value->getTimestamp();
-			}
-			return null;
-		});
-		$resolver->setDefault('search_client_delegate', function($item, $path, $value) {
-			if($value instanceof \DateTime) {
-				return $value->format('d.m.Y');
-			}
-			return null;
-		});
 	}
 
 	/**

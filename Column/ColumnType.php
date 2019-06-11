@@ -82,7 +82,7 @@ class ColumnType extends AbstractColumnType {
 			'string'
 		));
 
-		$resolver->setDefault('js_column_template', 'StingerSoftAggridBundle:Column:column.js.twig');
+		$resolver->setDefault('js_column_template', '@StingerSoftAggrid/Column/column.js.twig');
 		$resolver->setAllowedTypes('js_column_template', 'string');
 
 		$resolver->setDefault('orderable', true);

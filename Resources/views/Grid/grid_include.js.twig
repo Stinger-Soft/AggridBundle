@@ -2,95 +2,111 @@
 var jQueryGrid_{{ jQueryGridVarName }};
 jQuery(document).ready(function () {
 
-    var columnDefs = [
+	if(typeof moment !== 'undefined') {
+		moment.locale('{{ app.request.locale|default('en') }}');
+	}
+
+	var columnDefs = [
 		{% for column in grid.columns %}
 		{% include column.template with {'column': column} %}{% if not loop.last %},{% endif %}
 		{% endfor %}
-    ];
+	];
 
-    // let the grid know which columns and what data to use
-    var gridOptions = {
-        columnDefs: columnDefs,
+	// let the grid know which columns and what data to use
+	var gridOptions = {
+		columnDefs: columnDefs,
 		multiSortKey: 'ctrl',
 		components:{
 			datePicker: StingerSoft.aggrid.editors.DatePicker
 		}
+		{% if grid.vars.pagination %}
+		, pagination: true
+		{% endif %}
+		{% if grid.vars.paginationPageSize is defined and grid.vars.paginationPageSize is not same as(null) %}
+		, paginationPageSize: {{ grid.vars.paginationPageSize|json_encode|raw }}
+		{% endif %}
+		{% if grid.vars.paginationAutoPageSize is defined and grid.vars.paginationAutoPageSize is not same as(null) %}
+		, paginationAutoPageSize: {{ grid.vars.paginationAutoPageSize|json_encode|raw }}
+		{% endif %}
+		{% if grid.vars.paginationAutoPageSize is defined and grid.vars.suppressPaginationPanel is not same as(null) %}
+		, suppressPaginationPanel: {{ grid.vars.paginationAutoPageSize|json_encode|raw }}
+		{% endif %}
 		{% if grid.vars.dataMode == 'inline' %}
-        , rowData: {{ grid.inlineData|raw }}
+		, rowData: {{ grid.inlineData|raw }}
 		{% endif %}
 		{% if grid.vars.sideBar != false %}
-        , sideBar: {{ grid.vars.sideBar|json_encode|raw }}
+		, sideBar: {{ grid.vars.sideBar|json_encode|raw }}
 		{% endif %}
-    };
+	};
 	{% if grid.vars.enterpriseLicense is defined and grid.vars.enterpriseLicense is not same as(null) %}
-    agGrid.LicenseManager.setLicenseKey({{ grid.vars.enterpriseLicense|json_encode|raw }});
+	agGrid.LicenseManager.setLicenseKey({{ grid.vars.enterpriseLicense|json_encode|raw }});
 	{% endif %}
 
 
 	{% if grid.vars.treeData %}
-    gridOptions.treeData = true;
-    gridOptions.getDataPath = function (data) {
-        return data.orgHierarchy;
-    };
-    gridOptions.autoGroupColumnDef = {
-        headerName: "Path",
+	gridOptions.treeData = true;
+	gridOptions.getDataPath = function (data) {
+		return data.orgHierarchy;
+	};
+	gridOptions.autoGroupColumnDef = {
+		headerName: "Path",
 		filter: true,
 		resizable: true,
-        valueGetter: function(params) {
-            var label = params.node.key;
-            if(label.includes('$$')) {
-                label = label.split('$$')[1];
+		valueGetter: function(params) {
+			var label = params.node.key;
+			if(label.includes('$$')) {
+				label = label.split('$$')[1];
 			}
-            return label;
+			return label;
 		}
-    }
+	}
 	{% endif %}
 
 	{% if grid.vars.dataMode == 'enterprise' %}
-    gridOptions.rowModelType = 'serverSide';
+	gridOptions.rowModelType = 'serverSide';
 	{% endif %}
 
-    // lookup the container we want the Grid to use
-    var eGridDiv = document.querySelector('#{{ jQueryGridVarName }}');
+	// lookup the container we want the Grid to use
+	var eGridDiv = document.querySelector('#{{ jQueryGridVarName }}');
 
-    // create the grid passing in the div to use together with the columns & data we want to use
-    new agGrid.Grid(eGridDiv, gridOptions);
+	// create the grid passing in the div to use together with the columns & data we want to use
+	new agGrid.Grid(eGridDiv, gridOptions);
 
 	{% if grid.vars.dataMode == 'ajax' %}
-    jQuery.getJSON({{ grid.vars.ajax_url|json_encode|raw }}, function (data) {
-        gridOptions.api.setRowData(data.items);
-    });
+	jQuery.getJSON({{ grid.vars.ajax_url|json_encode|raw }}, function (data) {
+		gridOptions.api.setRowData(data.items);
+	});
 	{% endif %}
 
 	{% if grid.vars.dataMode == 'enterprise' %}
-    gridOptions.rowModelType = 'serverSide';
-    // fetch 100 rows per at a time
-    gridOptions.cacheBlockSize = 500;
+	gridOptions.rowModelType = 'serverSide';
+	// fetch 100 rows per at a time
+	gridOptions.cacheBlockSize = {{ grid.vars.cacheBlockSize|json_encode|raw }};
 
-    // Update after the user stopped scrolling
-    gridOptions.blockLoadDebounceMillis = 500;
-    // only keep 10 blocks of rows
-    //gridOptions.maxBlocksInCache = 10;
+	// Update after the user stopped scrolling
+	gridOptions.blockLoadDebounceMillis = 500;
+	// only keep 10 blocks of rows
+	//gridOptions.maxBlocksInCache = 10;
 
 
-    // create ServerSideDatasource with a reference to your server
-    function ServerSideDatasource(url) {
-        this.url = url;
-        this.ajaxReq = null;
-    }
+	// create ServerSideDatasource with a reference to your server
+	function ServerSideDatasource(url) {
+		this.url = url;
+		this.ajaxReq = null;
+	}
 
-    ServerSideDatasource.prototype.getRows = function (params) {
-        if (this.ajaxReq !== null) {
+	ServerSideDatasource.prototype.getRows = function (params) {
+		if (this.ajaxReq !== null) {
 			{#this.ajaxReq.abort();#}
-        }
-        this.ajaxReq = jQuery.post(this.url, {'agGrid': JSON.stringify(params.request)}, function (data) {
-            params.successCallback(data.items, data.total);
-        }, "json").fail(params.failCallback);
+		}
+		this.ajaxReq = jQuery.post(this.url, {'agGrid': JSON.stringify(params.request)}, function (data) {
+			params.successCallback(data.items, data.total);
+		}, "json").fail(params.failCallback);
 
-    };
+	};
 
-    var datasource = new ServerSideDatasource({{ grid.vars.ajax_url|json_encode|raw }});
-    gridOptions.api.setServerSideDatasource(datasource);
+	var datasource = new ServerSideDatasource({{ grid.vars.ajax_url|json_encode|raw }});
+	gridOptions.api.setServerSideDatasource(datasource);
 
 	{% endif %}
 })

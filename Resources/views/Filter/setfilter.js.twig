@@ -1,4 +1,4 @@
-{% extends 'StingerSoftAggridBundle:Filter:filter.js.twig' %}
+{% extends '@StingerSoftAggrid/Filter/filter.js.twig' %}
 {% block filter_params %}
 {% if filter.vars.data is not same as (false) %}
 values: {{ filter.vars.data|json_encode|raw }},

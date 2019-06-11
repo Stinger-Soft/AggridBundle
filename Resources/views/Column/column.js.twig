@@ -12,20 +12,25 @@
 	{% if column.vars.translation_domain is not same as(false) and labelIsTranslatable %}
 	{% set translated_label = label|trans({}, column.vars.translation_domain) %}
 	{% endif %}
-    headerName: {{ translated_label|json_encode|raw }},
-    field: {{ column.path|json_encode|raw }},
-    sortable: {{ column.vars.orderable|json_encode|raw }},
+	headerName: {{ translated_label|json_encode|raw }},
+	field: {{ column.path|json_encode|raw }},
+	sortable: {{ column.vars.orderable|json_encode|raw }},
+	{% if column.vars.render_html is defined and column.vars.render_html %}
+	cellRenderer: function(params) {
+		return params.value ? params.value : '';
+	},
+	{% endif %}
 	{% if column.filter %}
 	{% include column.filter.jsTemplate with {'column': column, 'filter':  column.filter} %}
 	{% else %}
-    filter: {{ column.vars.filterable|json_encode|raw }},
+	filter: {{ column.vars.filterable|json_encode|raw }},
 	{% endif %}
-    hide: {{ (not column.vars.visible)|json_encode|raw }},
-    rowGroup: {{ column.vars.rowGroup|json_encode|raw }},
-    enableRowGroup: {{ column.vars.enableRowGroup|json_encode|raw }},
-    pivot: {{ column.vars.pivot|json_encode|raw }},
-    enablePivot: {{ column.vars.enablePivot|json_encode|raw }},
-    aggFunc: {{ column.vars.aggFunc|json_encode|raw }},
-    resizable: {{ column.vars.resizable|json_encode|raw }},
-    editable: {{ column.vars.editable|json_encode|raw }}
+	hide: {{ (not column.vars.visible)|json_encode|raw }},
+	rowGroup: {{ column.vars.rowGroup|json_encode|raw }},
+	enableRowGroup: {{ column.vars.enableRowGroup|json_encode|raw }},
+	pivot: {{ column.vars.pivot|json_encode|raw }},
+	enablePivot: {{ column.vars.enablePivot|json_encode|raw }},
+	aggFunc: {{ column.vars.aggFunc|json_encode|raw }},
+	resizable: {{ column.vars.resizable|json_encode|raw }},
+	editable: {{ column.vars.editable|json_encode|raw }}
 }

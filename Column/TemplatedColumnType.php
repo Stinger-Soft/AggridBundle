@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Column;
 
 use StingerSoft\AggridBundle\Helper\TemplatingTrait;
+use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Templating\EngineInterface;
 use Twig\Environment;
@@ -38,6 +39,9 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('mapped', false);
 		$resolver->setAllowedTypes('mapped', 'boolean');
 
+		$resolver->setDefault('render_html', true);
+		$resolver->setAllowedTypes('render_html', 'boolean');
+
 		$resolver->setDefault('additionalContext', array());
 		$resolver->setAllowedTypes('additionalContext', 'array');
 
@@ -57,4 +61,7 @@ class TemplatedColumnType extends AbstractColumnType {
 		});
 	}
 
+	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
+		$view->vars['render_html'] = $options['render_html'];
+	}
 }

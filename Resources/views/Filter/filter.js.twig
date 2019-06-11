@@ -2,8 +2,16 @@
 filter: {{ filter.vars.filter_type|json_encode|raw }},
 filterParams: {
 	{% block filter_params %}
-    debounceMs: 100,
-    apply: true
+	{% if column.vars.render_html is defined and column.vars.render_html %}
+	cellRenderer: function(params) {
+		return params.value ? params.value : '';
+	},
+	{% endif %}
+	{% if filter.vars.newRowsAction is defined and filter.vars.newRowsAction is not same as(null) %}
+	newRowsAction: 'keep',
+	{% endif %}
+	debounceMs: 100,
+	apply: true
 	{% endblock filter_params %}
 },
 {% endblock filter_settings %}

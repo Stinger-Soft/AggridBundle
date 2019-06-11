@@ -8,17 +8,16 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DateFilterType extends AbstractFilterType {
 
-	public function configureOptions(OptionsResolver $resolver, array $columnOptions = array(), array $gridOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $columnOptions = [], array $gridOptions = []): void {
 		$resolver->setDefault('filter_type', 'agDateColumnFilter');
 		$resolver->setDefault('date_format', $columnOptions['date_format'] ?? null);
-		$resolver->setDefault('jsTemplate', 'StingerSoftAggridBundle:Filter:date_filter.js.twig');
+		$resolver->setDefault('jsTemplate', '@StingerSoftAggrid/Filter/date_filter.js.twig');
 	}
 
 	/**
-	 * @inheritdoc
-	 * @see AbstractFilterType::buildView()
+	 * {@inheritdoc}
 	 */
-	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, $queryPath, $rootAlias): void {
+	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void {
 		$view->vars['date_format'] = $options['date_format'];
 	}
 

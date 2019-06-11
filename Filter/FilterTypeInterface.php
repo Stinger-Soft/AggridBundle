@@ -98,13 +98,13 @@ interface FilterTypeInterface {
 	 * This method is called for each type in the hierarchy starting from the
 	 * top most type. It allows adding more variables to the given view which may be used during rendering of the filter.
 	 *
-	 * @param FilterView $view the filter view to add any additional information to
-	 * @param FilterInterface $filter the filter instance the view belongs to
-	 * @param array $options the options of the column, previously configured by the #configureOptions method
+	 * @param FilterView         $view       the filter view to add any additional information to
+	 * @param FilterInterface    $filter     the filter instance the view belongs to
+	 * @param array              $options    the options of the column, previously configured by the #configureOptions method
 	 * @param QueryBuilder|array $dataSource the data source of the underlying grid and column
-	 * @param string $queryPath the query path under which the column is accessible in the query builder,
+	 * @param string             $queryPath  the query path under which the column is accessible in the query builder,
 	 *                                       allowing for actual filtering by adding comparison expression on the query path
-	 * @param string $rootAlias the root alias of the type contained in the grid whose column is to be filtered
+	 * @param string             $rootAlias  the root alias of the type contained in the grid whose column is to be filtered
 	 * @return void
 	 */
 	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void;

@@ -47,7 +47,7 @@ class AbridgedStringDataTransformer implements DataTransformerInterface {
 		$options = $column->getColumnOptions();
 		$path = $column->getPath();
 		$value = $value ?: $this->getDelegateValueOrScalar('empty_value', $item, $path, $options);
-		return $this->environment->render('PecDatatableBundle:Column:abridged_string.html.twig', array(
+		return $this->environment->render('@PecDatatable/Column/abridged_string.html.twig', array(
 			'item' => $item,
 			'path' => $path,
 			'max' => $this->getDelegateValueOrScalar('max', $item, $path, $options),

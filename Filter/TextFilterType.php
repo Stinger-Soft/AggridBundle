@@ -8,7 +8,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class TextFilterType extends AbstractFilterType {
 
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void {
 

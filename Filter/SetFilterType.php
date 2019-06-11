@@ -12,17 +12,16 @@ class SetFilterType extends AbstractFilterType {
 
 	public function configureOptions(OptionsResolver $resolver, array $columnOptions = array(), array $gridOptions = array()): void {
 		$resolver->setDefault('filter_type', 'agSetColumnFilter');
-		$resolver->setDefault('jsTemplate', 'StingerSoftAggridBundle:Filter:setfilter.js.twig');
+		$resolver->setDefault('jsTemplate', '@StingerSoftAggrid/Filter/setfilter.js.twig');
 
 		$resolver->setDefault('data', $gridOptions['dataMode'] === GridType::DATA_MODE_ENTERPRISE);
 		$resolver->setAllowedTypes('data', array('null', 'array', 'boolean', 'callable'));
 	}
 
 	/**
-	 * @inheritdoc
-	 * @see AbstractFilterType::buildView()
+	 * {@inheritdoc}
 	 */
-	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, $queryPath, $rootAlias) : void {
+	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias) : void {
 		$rawData = $options['data'];
 
 		if($options['data'] === true) {

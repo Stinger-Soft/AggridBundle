@@ -31,7 +31,7 @@ class FontAwesomeColumnType extends AbstractColumnType {
 			'null',
 			'string'
 		));
-		$resolver->setDefault('template', 'StingerSoftAggridBundle:Column:fontawesome_icon.html.twig');
+		$resolver->setDefault('template', '@StingerSoftAggrid/Column/fontawesome_icon.html.twig');
 	}
 
 	/**

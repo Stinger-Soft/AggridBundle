@@ -68,22 +68,22 @@ class Filter implements FilterInterface {
 	/**
 	 * Filter constructor.
 	 *
-	 * @param FilterTypeInterface $filterType
+	 * @param FilterTypeInterface  $filterType
 	 *            the filter type for this filter
-	 * @param array $filterTypeOptions
+	 * @param array                $filterTypeOptions
 	 *            the options for the filter type
-	 * @param array $columnOptions
+	 * @param array                $columnOptions
 	 *            the options of the column the filter belongs to
-	 * @param array $gridOptions
+	 * @param array                $gridOptions
 	 *            the options of the table the filter belongs to
-	 * @param QueryBuilder|array $dataSource
+	 * @param QueryBuilder|array   $dataSource
 	 *            the data source of the table the column and this the filter will be attached to.
 	 *            In case it is a query builder, it will be cloned in order to allow the filter to
 	 *            modify it if necessary.
 	 * @param FilterInterface|null $parent
 	 *            the parent filter (if any) or null.
 	 */
-	public function __construct(FilterTypeInterface $filterType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $filterTypeOptions = array(), array $columnOptions = array(), array $gridOptions = array(), $dataSource = null, FilterInterface $parent = null) {
+	public function __construct(FilterTypeInterface $filterType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $filterTypeOptions = [], array $columnOptions = [], array $gridOptions = [], $dataSource = null, FilterInterface $parent = null) {
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->columnOptions = $columnOptions;
 		$this->gridOptions = $gridOptions;
@@ -179,8 +179,7 @@ class Filter implements FilterInterface {
 		return $view;
 	}
 
-
-	public function applyFilter(QueryBuilder $queryBuilder, $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias){
+	public function applyFilter(QueryBuilder $queryBuilder, $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
 		$delegate = $this->filterDelegate;
 		if($delegate && is_callable($delegate)) {
 			return $delegate($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias);
@@ -193,7 +192,7 @@ class Filter implements FilterInterface {
 	 * Configures any fields of the filter according to the internal filter options, such as filter delegate defined
 	 * on the column etc.
 	 */
-	protected function configureFilter() : void {
+	protected function configureFilter(): void {
 		if(isset($this->columnOptions['filter_server_delegate'])) {
 			$this->filterDelegate = $this->columnOptions['filter_server_delegate'];
 		}
@@ -202,20 +201,20 @@ class Filter implements FilterInterface {
 	/**
 	 * Updates the given view.
 	 *
-	 * @param FilterView $filterView
+	 * @param FilterView          $filterView
 	 *            the view to be updated
 	 * @param FilterTypeInterface $filterType
 	 *            the filter type containing the information that may be relevant for the view
-	 * @param array $filterOptions
+	 * @param array               $filterOptions
 	 *            the options defined for the filter type, containing information
 	 *            such as the filter_server_delegate etc.
 	 */
-	protected function buildView(FilterView $filterView, FilterTypeInterface $filterType, array $filterOptions = array()) {
+	protected function buildView(FilterView $filterView, FilterTypeInterface $filterType, array $filterOptions = []): void {
 		if($filterType->getParent()) {
 			$parentType = $this->dependencyInjectionExtension->resolveFilterType($filterType->getParent());
 			$this->buildView($filterView, $parentType, $filterOptions);
 		}
-		$rootAliases = $this->queryBuilder ? $this->queryBuilder->getRootAliases() : array();
+		$rootAliases = $this->queryBuilder ? $this->queryBuilder->getRootAliases() : [];
 		if($this->columnOptions['filter_query_path'] !== null) {
 			$path = $this->columnOptions['filter_query_path'];
 		} else if($this->columnOptions['query_path'] !== null) {
@@ -237,11 +236,12 @@ class Filter implements FilterInterface {
 	 * @param FilterTypeInterface $filterType
 	 *            the type to resolve the options for, also used for determining any parents
 	 *            whose options are to be resolved as well
-	 * @param array $options
+	 * @param array               $options
 	 *            the initial options to also be resolved (if any).
 	 * @return array the resolved options for the given filter type.
+	 * @throws InvalidArgumentTypeException
 	 */
-	protected function setupFilterOptionsResolver(FilterTypeInterface $filterType, array $options = array()) {
+	protected function setupFilterOptionsResolver(FilterTypeInterface $filterType, array $options = []): array {
 		$resolver = new OptionsResolver();
 		$this->resolveOptions($filterType, $resolver);
 		return $resolver->resolve($options);
@@ -252,7 +252,7 @@ class Filter implements FilterInterface {
 	 *
 	 * @param FilterTypeInterface $filterType
 	 *            the filter type to resolve the options from
-	 * @param OptionsResolver $resolver
+	 * @param OptionsResolver     $resolver
 	 *            the resolver used for checking option values and defaults etc.
 	 * @throws InvalidArgumentTypeException
 	 */
@@ -270,9 +270,8 @@ class Filter implements FilterInterface {
 	 * @param string $class
 	 *            Class name of the filter type
 	 * @return object|FilterTypeInterface an instance of the given filter type
-	 * @throws InvalidArgumentTypeException in case the given class does not implement the FilterTypeInterface interface
 	 */
-	private function getFilterTypeInstance($class) : FilterTypeInterface {
+	private function getFilterTypeInstance($class): FilterTypeInterface {
 		return $this->dependencyInjectionExtension->resolveFilterType($class);
 	}
 }

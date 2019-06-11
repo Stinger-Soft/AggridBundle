@@ -26,7 +26,7 @@ class MomentDateTimeColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('date_format', array(
 			'string'
 		));
-		$resolver->setDefault('js_column_template', 'StingerSoftAggridBundle:Column:datetime_moment.js.twig');
+		$resolver->setDefault('js_column_template', '@StingerSoftAggrid/Column/datetime_moment.js.twig');
 	}
 
 	/**

@@ -58,8 +58,8 @@ class GridType extends AbstractGridType {
 		$view->vars['id'] = $gridOptions['attr']['id'] = $view->getGridId();
 		$view->vars['ajax_url'] = $gridOptions['ajax_url'];
 		$view->vars['dataMode'] = $gridOptions['dataMode'];
-		$gridOptions['attr']['style'] = 'height: '.$gridOptions['height'];
-		$gridOptions['attr']['class'] =  'ag-theme-balham';
+		$gridOptions['attr']['style'] = 'height: ' . $gridOptions['height'];
+		$gridOptions['attr']['class'] = 'ag-theme-balham';
 		$view->vars['attr'] = $gridOptions['attr'];
 
 	}
@@ -68,7 +68,11 @@ class GridType extends AbstractGridType {
 		$view->vars['enterpriseLicense'] = $gridOptions['enterpriseLicense'];
 		$view->vars['treeData'] = $gridOptions['treeData'];
 		$view->vars['sideBar'] = $gridOptions['sideBar'];
-
+		$view->vars['cacheBlockSize'] = $gridOptions['cacheBlockSize'];
+		$view->vars['pagination'] = $gridOptions['pagination'];
+		$view->vars['paginationPageSize'] = $gridOptions['paginationPageSize'];
+		$view->vars['paginationAutoPageSize'] = $gridOptions['paginationAutoPageSize'];
+		$view->vars['suppressPaginationPanel'] = $gridOptions['suppressPaginationPanel'];
 	}
 
 	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
@@ -81,42 +85,42 @@ class GridType extends AbstractGridType {
 
 	private function configureStingerOptions(OptionsResolver $resolver): void {
 		$resolver->setDefault('translation_domain', 'messages');
-		$resolver->setAllowedTypes('translation_domain', array(
+		$resolver->setAllowedTypes('translation_domain', [
 			'string',
 			'null',
-			'boolean'
-		));
+			'boolean',
+		]);
 		$resolver->setDefault('total_results_query_builder', null);
-		$resolver->setAllowedTypes('total_results_query_builder', array('null', QueryBuilder::class));
+		$resolver->setAllowedTypes('total_results_query_builder', ['null', QueryBuilder::class]);
 
 		$resolver->setDefault('default_order_property', 'id');
-		$resolver->setAllowedTypes('default_order_property', array('string', 'null'));
+		$resolver->setAllowedTypes('default_order_property', ['string', 'null']);
 		$resolver->setDefault('default_order_direction', 'asc');
-		$resolver->setAllowedValues('default_order_direction', array('asc', 'desc'));
+		$resolver->setAllowedValues('default_order_direction', ['asc', 'desc']);
 
 		$resolver->setDefault('height', '500px');
 
 		$resolver->setDefault('hydrateAsObject', true);
-		$resolver->setAllowedTypes('hydrateAsObject', array(
-			'boolean'
-		));
+		$resolver->setAllowedTypes('hydrateAsObject', [
+			'boolean',
+		]);
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {
 		$resolver->setDefault('dataMode', self::DATA_MODE_INLINE);
-		$resolver->setAllowedValues('dataMode', array(
+		$resolver->setAllowedValues('dataMode', [
 			self::DATA_MODE_INLINE,
 			self::DATA_MODE_AJAX,
 			self::DATA_MODE_ENTERPRISE,
-		));
+		]);
 
 		$resolver->setDefault('ajax_url', null);
-		$resolver->setAllowedTypes('ajax_url', array(
+		$resolver->setAllowedTypes('ajax_url', [
 			'string',
-			'null'
-		));
+			'null',
+		]);
 
-		$resolver->setNormalizer('ajax_url', static function(Options $options, $valueToNormalize) {
+		$resolver->setNormalizer('ajax_url', static function (Options $options, $valueToNormalize) {
 			if($valueToNormalize === null && $options['dataMode'] !== self::DATA_MODE_INLINE) {
 				throw new InvalidOptionsException('When using "dataMode"  with a value of ajax or enterprise you must set "ajax_url"!');
 			}
@@ -124,23 +128,23 @@ class GridType extends AbstractGridType {
 		});
 
 		$resolver->setDefault('ajax_method', 'POST');
-		$resolver->setAllowedValues('ajax_method', array(
+		$resolver->setAllowedValues('ajax_method', [
 			'GET',
-			'POST'
-		));
+			'POST',
+		]);
 
 		$resolver->setDefault('enterpriseLicense', null);
-		$resolver->setAllowedTypes('enterpriseLicense', array(
+		$resolver->setAllowedTypes('enterpriseLicense', [
 			'string',
-			'null'
-		));
+			'null',
+		]);
 
 		$resolver->setDefault('treeData', false);
-		$resolver->setAllowedValues('treeData', array(
+		$resolver->setAllowedValues('treeData', [
 			true,
 			false,
-		));
-		$resolver->setNormalizer('treeData', static function(Options $options, $value)  {
+		]);
+		$resolver->setNormalizer('treeData', static function (Options $options, $value) {
 			if($value !== false && !isset($options['enterpriseLicense'])) {
 				throw new InvalidArgumentException('treeData is only available in the enterprise edition. Please set a license key!');
 			}
@@ -148,18 +152,32 @@ class GridType extends AbstractGridType {
 		});
 
 		$resolver->setDefault('sideBar', false);
-		$resolver->setAllowedValues('sideBar', array(
+		$resolver->setAllowedValues('sideBar', [
 			true,
 			false,
 			'columns',
-			'filters'
-		));
-		$resolver->setNormalizer('sideBar', static function(Options $options, $value)  {
+			'filters',
+		]);
+		$resolver->setNormalizer('sideBar', static function (Options $options, $value) {
 			if($value !== false && !isset($options['enterpriseLicense'])) {
 				throw new InvalidArgumentException('sideBar is only available in the enterprise edition. Please set a license key!');
 			}
 			return $value;
 		});
 
+		$resolver->setDefault('cacheBlockSize', 100);
+		$resolver->setAllowedTypes('cacheBlockSize', 'int');
+
+		$resolver->setDefault('pagination', false);
+		$resolver->setAllowedValues('pagination', [
+			true,
+			false,
+		]);
+		$resolver->setDefault('paginationPageSize', 100);
+		$resolver->setAllowedTypes('paginationPageSize','int');
+		$resolver->setDefault('paginationAutoPageSize', false);
+		$resolver->setAllowedTypes('paginationAutoPageSize','bool');
+		$resolver->setDefault('suppressPaginationPanel', false);
+		$resolver->setAllowedTypes('suppressPaginationPanel','bool');
 	}
 }

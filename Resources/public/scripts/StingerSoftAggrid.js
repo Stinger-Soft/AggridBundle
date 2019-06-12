@@ -86,6 +86,17 @@ StingerSoftAggrid.prototype.init = function (gridOptions, stingerOptions) {
 
 	//Init
 	this.registerListeners();
+	this.handleStingerOptions();
+	return this;
+};
+
+StingerSoftAggrid.prototype.handleStingerOptions = function() {
+	if(this.options.hasOwnProperty('persistState')) {
+		this.persistState = this.options.persistState;
+	}
+	if(this.options.hasOwnProperty('versionHash')) {
+		this.versionHash = this.options.versionHash;
+	}
 	if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
 		if (this.options.hasOwnProperty('ajaxUrl')) {
 			var that = this;
@@ -109,7 +120,6 @@ StingerSoftAggrid.prototype.init = function (gridOptions, stingerOptions) {
 		};
 		this.gridOptions.api.setServerSideDatasource(serverSideDatasource);
 	}
-	return this;
 };
 
 /**
@@ -251,20 +261,20 @@ StingerSoftAggrid.prototype.refresh = function (force) {
  * @param {agGrid.GridApi} gridApi
  */
 StingerSoftAggrid.prototype.save = function (columnApi, gridApi) {
-	if (window.localStorage) {
+	if (window.localStorage && this.persistState) {
 		var storage = window.localStorage;
 		var _columnApi = this.getColumnApi(columnApi);
 		var _gridApi = this.getGridApi(gridApi);
-		//
-		var columnState = _columnApi.getColumnState();
-		var columnGroupState = _columnApi.getColumnGroupState();
-		var sortModel = _gridApi.getSortModel();
-		var filterModel = _gridApi.getFilterModel();
-		//
-		storage.setItem(this.stateSavePrefix + this.stateSaveKey + "_columns", JSON.stringify(columnState));
-		storage.setItem(this.stateSavePrefix + this.stateSaveKey + "_groups", JSON.stringify(columnGroupState));
-		storage.setItem(this.stateSavePrefix + this.stateSaveKey + "_sorts", JSON.stringify(sortModel));
-		storage.setItem(this.stateSavePrefix + this.stateSaveKey + "_filters", JSON.stringify(filterModel));
+
+		var storageKey = this.stateSavePrefix + this.stateSaveKey;
+		var storageObject = {
+			columns:  _columnApi.getColumnState(),
+			groups: _columnApi.getColumnGroupState(),
+			sorts: _gridApi.getSortModel(),
+			filters: _gridApi.getFilterModel(),
+			version: this.versionHash
+		};
+		storage.setItem(storageKey, JSON.stringify(storageObject));
 	}
 };
 
@@ -274,27 +284,32 @@ StingerSoftAggrid.prototype.save = function (columnApi, gridApi) {
  * @param {agGrid.GridApi} gridApi
  */
 StingerSoftAggrid.prototype.load = function (columnApi, gridApi) {
-	if (window.localStorage) {
+	if (window.localStorage && this.persistState) {
 		var storage = window.localStorage;
 		var _columnApi = this.getColumnApi(columnApi);
 		var _gridApi = this.getGridApi(gridApi);
-		//
-		var columnState = JSON.parse(storage.getItem(this.stateSavePrefix + this.stateSaveKey + "_columns"));
-		var columnGroupState = JSON.parse(storage.getItem(this.stateSavePrefix + this.stateSaveKey + "_groups"));
-		var sortModel = JSON.parse(storage.getItem(this.stateSavePrefix + this.stateSaveKey + "_sorts"));
-		var filterModel = JSON.parse(storage.getItem(this.stateSavePrefix + this.stateSaveKey + "_filters"));
-		//
-		if (columnState && Array.isArray(columnState) && columnState.length) {
-			_columnApi.setColumnState(columnState);
-		}
-		if (columnGroupState && Array.isArray(columnGroupState) && columnGroupState.length) {
-			_columnApi.setColumnGroupState(columnGroupState);
-		}
-		if (sortModel && Array.isArray(sortModel) && sortModel.length) {
-			_gridApi.setSortModel(sortModel);
-		}
-		if (filterModel && Object.keys(filterModel).length !== 0) {
-			_gridApi.setFilterModel(filterModel);
+
+		var storageKey = this.stateSavePrefix + this.stateSaveKey;
+		var storageObject = JSON.parse(storage.getItem(storageKey));
+		if(typeof storageObject === 'object' && storageObject.hasOwnProperty('version')) {
+			if(storageObject.version === this.versionHash) {
+				var columnState = storageObject.hasOwnProperty('columns') && storageObject.columns ? storageObject.columns : [];
+				var columnGroupState = storageObject.hasOwnProperty('groups') && storageObject.groups ? storageObject.groups : [];
+				var sortModel = storageObject.hasOwnProperty('sorts') && storageObject.sorts ? storageObject.sorts : [];
+				var filterModel = storageObject.hasOwnProperty('filters') && storageObject.filters ? storageObject.filters : {};
+				if (columnState && Array.isArray(columnState) && columnState.length) {
+					_columnApi.setColumnState(columnState);
+				}
+				if (columnGroupState && Array.isArray(columnGroupState) && columnGroupState.length) {
+					_columnApi.setColumnGroupState(columnGroupState);
+				}
+				if (sortModel && Array.isArray(sortModel) && sortModel.length) {
+					_gridApi.setSortModel(sortModel);
+				}
+				if (filterModel && Object.keys(filterModel).length !== 0) {
+					_gridApi.setFilterModel(filterModel);
+				}
+			}
 		}
 	}
 };

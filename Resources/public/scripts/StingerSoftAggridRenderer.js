@@ -19,9 +19,24 @@
 /**
  * @return {function(*): string}
  */
-StingerSoftAggrid.Renderer.RawHtmlRenderer = function(rendererParams) {
-	return function(params) {
+StingerSoftAggrid.Renderer.RawHtmlRenderer = function (rendererParams) {
+	return function (params) {
 		return params.value ? params.value : '';
+	};
+};
+
+StingerSoftAggrid.Renderer.KeyValueMappingRenderer = function (rendererParams) {
+	return function (params) {
+		var val = params.value;
+		var translationDomain = rendererParams.hasOwnProperty('translation_domain') && rendererParams.translation_domain ? rendererParams.translation_domain : 'messages';
+		var keyValueMapping = rendererParams.hasOwnProperty('keyValueMapping') && rendererParams.keyValueMapping ? rendererParams.keyValueMapping : {};
+		if(val && keyValueMapping.hasOwnProperty(val)) {
+			if(translationDomain) {
+				return Translator.trans(keyValueMapping[val], {}, translationDomain);
+			}
+			return keyValueMapping[val];
+		}
+		return val ? val : '';
 	};
 };
 
@@ -29,7 +44,7 @@ StingerSoftAggrid.Renderer.RawHtmlRenderer = function(rendererParams) {
  *
  * @returns StingerSoftAggrid.Renderer.AbridgedRenderer
  */
-StingerSoftAggrid.Renderer.AbridgedRenderer =  function(rendererParams) {
+StingerSoftAggrid.Renderer.AbridgedRenderer = function (rendererParams) {
 	this.eGui = document.createElement('abbr');
 };
 
@@ -37,8 +52,8 @@ StingerSoftAggrid.Renderer.AbridgedRenderer =  function(rendererParams) {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.init = function(params) {
-	if(params.value !== "" && params.value !== undefined && params.value !== null) {
+StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.init = function (params) {
+	if (params.value !== "" && params.value !== undefined && params.value !== null) {
 		var $td = jQuery(this.eGui);
 		$td.attr('data-toggle', 'tooltip');
 		$td.attr('data-container', 'body');
@@ -52,7 +67,7 @@ StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.init = function(params) {
  *
  * @returns {HTMLElement | *}
  */
-StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.getGui = function() {
+StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.getGui = function () {
 	return this.eGui;
 };
 
@@ -60,7 +75,7 @@ StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.getGui = function() {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.refresh = function(params) {
+StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.refresh = function (params) {
 	this.init(params);
 };
 
@@ -68,7 +83,7 @@ StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.refresh = function(params)
  * @returns StingerSoftAggrid.Renderer.YesNoRenderer
  * @constructor
  */
-StingerSoftAggrid.Renderer.YesNoRenderer = function(rendererParams) {
+StingerSoftAggrid.Renderer.YesNoRenderer = function (rendererParams) {
 	//"Constants"
 	this.TYPE_ICON_ONLY = 0;
 	this.TYPE_ICON_TOOLTIP = 1;
@@ -88,13 +103,13 @@ StingerSoftAggrid.Renderer.YesNoRenderer = function(rendererParams) {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.YesNoRenderer.prototype.init = function(params) {
-	if(params.value !== "" && params.value !== undefined && params.value !== null) {
+StingerSoftAggrid.Renderer.YesNoRenderer.prototype.init = function (params) {
+	if (params.value !== "" && params.value !== undefined && params.value !== null) {
 		StingerSoft.mapValuesToObject(params, this);
 
-		if(params.value == this.noValue) {
+		if (params.value == this.noValue) {
 			this.eGui.className = this.noIconClass;
-		} else if(params.value == this.yesValue) {
+		} else if (params.value == this.yesValue) {
 			this.eGui.className = this.yesIconClass;
 		}
 	}
@@ -104,7 +119,7 @@ StingerSoftAggrid.Renderer.YesNoRenderer.prototype.init = function(params) {
  *
  * @returns {HTMLElement | *}
  */
-StingerSoftAggrid.Renderer.YesNoRenderer.prototype.getGui = function() {
+StingerSoftAggrid.Renderer.YesNoRenderer.prototype.getGui = function () {
 	return this.eGui;
 };
 
@@ -112,7 +127,7 @@ StingerSoftAggrid.Renderer.YesNoRenderer.prototype.getGui = function() {
  *
  * @returns StingerSoftAggrid.Renderer.ProgressBarRenderer
  */
-StingerSoftAggrid.Renderer.ProgressBarRenderer = function(rendererParams) {
+StingerSoftAggrid.Renderer.ProgressBarRenderer = function (rendererParams) {
 	this.eGui = document.createElement('div');
 	this.innerDiv = document.createElement('div');
 
@@ -124,8 +139,8 @@ StingerSoftAggrid.Renderer.ProgressBarRenderer = function(rendererParams) {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.init = function(params) {
-	if(params.value !== "" && params.value !== undefined && params.value !== null) {
+StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.init = function (params) {
+	if (params.value !== "" && params.value !== undefined && params.value !== null) {
 		StingerSoftAggrid.mapValuesToObject(params, this);
 		//Inner
 		var $inner = jQuery(this.innerDiv);
@@ -152,7 +167,7 @@ StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.init = function(params)
  *
  * @returns {HTMLElement | *}
  */
-StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.getGui = function() {
+StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.getGui = function () {
 	return this.eGui;
 };
 
@@ -160,7 +175,7 @@ StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.getGui = function() {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.refresh = function(params) {
+StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.refresh = function (params) {
 	this.init(params);
 };
 
@@ -168,7 +183,7 @@ StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.refresh = function(para
  *
  * @returns StingerSoftAggrid.Renderer.UserRenderer
  */
-StingerSoftAggrid.Renderer.UserRenderer = function(rendererParams) {
+StingerSoftAggrid.Renderer.UserRenderer = function (rendererParams) {
 	this.eGui = document.createElement('abbr');
 };
 
@@ -176,14 +191,14 @@ StingerSoftAggrid.Renderer.UserRenderer = function(rendererParams) {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.UserRenderer.prototype.init = function(params) {
-	if(params.value !== "" && params.value !== undefined && params.value !== null) {
+StingerSoftAggrid.Renderer.UserRenderer.prototype.init = function (params) {
+	if (params.value !== "" && params.value !== undefined && params.value !== null) {
 		try {
 			var userUrl = Routing.generate('pec_social_popover', {
 				'user': params.value.id,
 				'username': params.value.username
 			});
-		} catch(err) {
+		} catch (err) {
 		}
 
 		//
@@ -194,7 +209,7 @@ StingerSoftAggrid.Renderer.UserRenderer.prototype.init = function(params) {
 		$abbr.attr('data-placement', 'left');
 		$abbr.attr('data-id', params.value.id);
 		$abbr.attr('data-username', params.value.username);
-		if(typeof userUrl !== "undefined") {
+		if (typeof userUrl !== "undefined") {
 			this.eGui.className = "platform-user-name popover-ajax hover-stay";
 			$abbr.attr('data-html', true);
 			$abbr.attr('data-trigger', "hover");
@@ -203,7 +218,7 @@ StingerSoftAggrid.Renderer.UserRenderer.prototype.init = function(params) {
 		} else {
 			this.eGui.className = "platform-user-name";
 		}
-		if("firstname" in params.value) {
+		if ("firstname" in params.value) {
 			this.eGui.innerHTML = (params.value.firstname || "") + " " + (params.value.surname || "");
 		} else {
 			this.eGui.innerHTML = params.value.username;
@@ -215,7 +230,7 @@ StingerSoftAggrid.Renderer.UserRenderer.prototype.init = function(params) {
  *
  * @returns {HTMLElement | *}
  */
-StingerSoftAggrid.Renderer.UserRenderer.prototype.getGui = function() {
+StingerSoftAggrid.Renderer.UserRenderer.prototype.getGui = function () {
 	return this.eGui;
 };
 
@@ -223,7 +238,7 @@ StingerSoftAggrid.Renderer.UserRenderer.prototype.getGui = function() {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.UserRenderer.prototype.refresh = function(params) {
+StingerSoftAggrid.Renderer.UserRenderer.prototype.refresh = function (params) {
 	this.init(params);
 };
 
@@ -232,7 +247,7 @@ StingerSoftAggrid.Renderer.UserRenderer.prototype.refresh = function(params) {
  *
  * @returns StingerSoftAggrid.Renderer.UserFilterRenderer
  */
-StingerSoftAggrid.Renderer.UserFilterRenderer = function(rendererParams) {
+StingerSoftAggrid.Renderer.UserFilterRenderer = function (rendererParams) {
 	this.eGui = document.createElement('span');
 };
 
@@ -240,10 +255,10 @@ StingerSoftAggrid.Renderer.UserFilterRenderer = function(rendererParams) {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.init = function(params) {
-	if(params.value !== "" && params.value !== undefined && params.value !== null) {
+StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.init = function (params) {
+	if (params.value !== "" && params.value !== undefined && params.value !== null) {
 		var values = params.value.split("|");
-		if(values.length > 1) {
+		if (values.length > 1) {
 			this.eGui.innerHTML = (values[0] && values[0] != "null" ? values[0] : "") + " " + (values[1] && values[1] != "null" ? values[1] : "");
 		}
 	}
@@ -253,7 +268,7 @@ StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.init = function(params) 
  *
  * @returns {HTMLElement | *}
  */
-StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.getGui = function() {
+StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.getGui = function () {
 	return this.eGui;
 };
 
@@ -261,6 +276,6 @@ StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.getGui = function() {
  *
  * @param params
  */
-StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.refresh = function(params) {
+StingerSoftAggrid.Renderer.UserFilterRenderer.prototype.refresh = function (params) {
 	this.init(params);
 };

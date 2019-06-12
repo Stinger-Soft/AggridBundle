@@ -13,10 +13,13 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Column;
 
 use Doctrine\ORM\QueryBuilder;
+use ReflectionException;
+use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Filter\Filter;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
+use StingerSoft\PhpCommons\Builder\HashCodeBuilder;
 use StingerSoft\PhpCommons\String\Utils;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -126,6 +129,7 @@ class Column implements ColumnInterface {
 	 * @param QueryBuilder|array                    $dataSource        the data source of the table the column will be attached to. In case it is a query builder, it will be cloned in order to
 	 *                                                                 allow Filter instances to modify it if necessary.
 	 * @param ColumnInterface|null                  $parent            the parent column (if any) or null.
+	 * @throws InvalidArgumentTypeException
 	 */
 	public function __construct($path, ColumnTypeInterface $columnType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $columnTypeOptions = [], array $gridOption = [], $dataSource = null, ColumnInterface $parent = null) {
 		$this->columnType = $columnType;
@@ -202,7 +206,7 @@ class Column implements ColumnInterface {
 //		}
 
 		if($this->filter) {
-			$view->filter = $this->filter->createView();
+			$view->filter = $this->filter->createView($view);
 		}
 
 		return $view;
@@ -349,6 +353,8 @@ class Column implements ColumnInterface {
 
 	/**
 	 * Configures any fields of the column according to the internal column options, such as filter delegate etc.
+	 *
+	 * @throws InvalidArgumentTypeException
 	 */
 	protected function configureColumn(): void {
 		$dataMode = $this->getGridOptions()['dataMode'];
@@ -357,6 +363,7 @@ class Column implements ColumnInterface {
 		$this->filterQueryPath = $this->columnOptions['filter_query_path'];
 		$this->orderable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['orderable'], $dataMode);
 		$this->filterable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['filterable'], $dataMode);
+		$this->serverSideOrderDelegate = $this->columnOptions['order_server_delegate'];
 
 		if($this->filterable && $this->columnOptions['filter_type'] !== null) {
 			$this->filter = new Filter(
@@ -368,6 +375,21 @@ class Column implements ColumnInterface {
 				$this->dataSource
 			);
 		}
+	}
+
+	/**
+	 * Get the hash code of the column.
+	 *
+	 * @return int the hash code of the column.
+	 * @throws ReflectionException
+	 */
+	public function getHashCode(): int {
+		$builder = new HashCodeBuilder();
+		return $builder
+			->append($this->getPath())
+			->append($this->isFilterable())
+			->append($this->columnOptions['visible'])
+			->toHashCode();
 	}
 
 	/**

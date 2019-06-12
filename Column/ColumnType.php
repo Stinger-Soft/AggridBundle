@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use Closure;
 use StingerSoft\AggridBundle\Transformer\LinkDataTransformer;
 use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
@@ -44,32 +45,32 @@ class ColumnType extends AbstractColumnType {
 	 * {@inheritdoc}
 	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $gridOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('path', null);
-		$resolver->setAllowedTypes('path', array('null', 'string'));
+		$resolver->setAllowedTypes('path', ['null', 'string']);
 
 		$resolver->setDefault('label', '');
-		$resolver->setAllowedTypes('label', array(
+		$resolver->setAllowedTypes('label', [
 			'string',
-			'null'
-		));
+			'null',
+		]);
 
 		$resolver->setDefault('translation_domain', null);
-		$resolver->setAllowedTypes('translation_domain', array(
+		$resolver->setAllowedTypes('translation_domain', [
 			'string',
 			'null',
-			'boolean'
-		));
+			'boolean',
+		]);
 
 		$resolver->setDefault('value_delegate', null);
-		$resolver->setAllowedTypes('value_delegate', array(
+		$resolver->setAllowedTypes('value_delegate', [
 			'null',
-			'callable'
-		));
+			'callable',
+		]);
 		$that = $this;
-		$resolver->setNormalizer('value_delegate', static function(Options $options, $value) use ($that) {
+		$resolver->setNormalizer('value_delegate', static function (Options $options, $value) use ($that) {
 			if($value === null) {
-				$value = static function($item, $path, $options) use ($that) {
+				$value = static function ($item, $path, $options) use ($that) {
 					return $that->generateItemValue($item, $path, $options);
 				};
 			}
@@ -77,63 +78,66 @@ class ColumnType extends AbstractColumnType {
 		});
 
 		$resolver->setDefault('query_path', null);
-		$resolver->setAllowedTypes('query_path', array(
+		$resolver->setAllowedTypes('query_path', [
 			'null',
-			'string'
-		));
+			'string',
+		]);
 
 		$resolver->setDefault('js_column_template', '@StingerSoftAggrid/Column/column.js.twig');
 		$resolver->setAllowedTypes('js_column_template', 'string');
 
 		$resolver->setDefault('orderable', true);
-		$resolver->setAllowedValues('orderable', array(
+		$resolver->setAllowedValues('orderable', [
 			true,
 			false,
-		));
+		]);
 
 		$resolver->setDefault('filterable', true);
-		$resolver->setAllowedValues('filterable', array(
+		$resolver->setAllowedValues('filterable', [
 			true,
 			false,
-		));
+		]);
 
-		$resolver->setDefault('filter_type', function(Options $options) {
+		$resolver->setDefault('filter_type', function (Options $options) {
 			return null;
 		});
-		$resolver->setAllowedTypes('filter_type', array(
+		$resolver->setAllowedTypes('filter_type', [
 			'null',
-			'string'
-		));
-		$resolver->setNormalizer('filter_type', function(Options $options, $value) {
+			'string',
+		]);
+		$resolver->setNormalizer('filter_type', function (Options $options, $value) {
 			if($value !== null && !$options['filterable']) {
 				throw new InvalidOptionsException(sprintf('When using "filter_type" with a value of "%s" you must set "filterable" to true!', $value));
 			}
 			return $value;
 		});
 
-		$resolver->setDefault('filter_options', array());
-		$resolver->setAllowedTypes('filter_options', array(
-			'array'
-		));
+		$resolver->setDefault('filter_options', []);
+		$resolver->setAllowedTypes('filter_options', [
+			'array',
+		]);
 
 		$resolver->setDefault('filter_query_path', null);
-		$resolver->setAllowedTypes('filter_query_path', array(
+		$resolver->setAllowedTypes('filter_query_path', [
 			'null',
-			'string'
-		));
+			'string',
+		]);
+
+		$resolver->setDefault('order_server_delegate', null);
+		$resolver->setAllowedTypes('order_server_delegate', ['null', 'callable', Closure::class]);
 
 		$resolver->setDefault('resizable', true);
-		$resolver->setAllowedValues('resizable', array(
+		$resolver->setAllowedValues('resizable', [
 			true,
 			false,
-		));
+		]);
 
 		$resolver->setDefault('rowGroup', false);
-		$resolver->setAllowedValues('rowGroup', array(
+		$resolver->setAllowedValues('rowGroup', [
 			true,
 			false,
-		));
-		$resolver->setNormalizer('rowGroup', static function(Options $options, $value) use ($gridOptions) {
+		]);
+		$resolver->setNormalizer('rowGroup', static function (Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
 			}
@@ -141,11 +145,11 @@ class ColumnType extends AbstractColumnType {
 		});
 
 		$resolver->setDefault('enableRowGroup', false);
-		$resolver->setAllowedValues('enableRowGroup', array(
+		$resolver->setAllowedValues('enableRowGroup', [
 			true,
 			false,
-		));
-		$resolver->setNormalizer('enableRowGroup', static function(Options $options, $value) use ($gridOptions) {
+		]);
+		$resolver->setNormalizer('enableRowGroup', static function (Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('enableRowGroup is only available in the enterprise edition. Please set a license key!');
 			}
@@ -153,11 +157,11 @@ class ColumnType extends AbstractColumnType {
 		});
 
 		$resolver->setDefault('pivot', false);
-		$resolver->setAllowedValues('pivot', array(
+		$resolver->setAllowedValues('pivot', [
 			true,
 			false,
-		));
-		$resolver->setNormalizer('pivot', static function(Options $options, $value) use ($gridOptions) {
+		]);
+		$resolver->setNormalizer('pivot', static function (Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('pivot is only available in the enterprise edition. Please set a license key!');
 			}
@@ -165,11 +169,11 @@ class ColumnType extends AbstractColumnType {
 		});
 
 		$resolver->setDefault('enablePivot', false);
-		$resolver->setAllowedValues('enablePivot', array(
+		$resolver->setAllowedValues('enablePivot', [
 			true,
 			false,
-		));
-		$resolver->setNormalizer('enablePivot', static function(Options $options, $value) use ($gridOptions) {
+		]);
+		$resolver->setNormalizer('enablePivot', static function (Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('enablePivot is only available in the enterprise edition. Please set a license key!');
 			}
@@ -178,76 +182,96 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('aggFunc', false);
 		$resolver->setAllowedTypes('aggFunc', ['bool', 'string']);
-		$resolver->setNormalizer('aggFunc', static function(Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('aggFunc', static function (Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('aggFunc is only available in the enterprise edition. Please set a license key!');
 			}
 			return $value;
 		});
 
-
-
 		$resolver->setDefault('visible', true);
-		$resolver->setAllowedTypes('visible', array(
-			'boolean'
-		));
+		$resolver->setAllowedTypes('visible', [
+			'boolean',
+		]);
 
 		$resolver->setDefault('editable', false);
-		$resolver->setAllowedTypes('editable', array(
-			'boolean'
-		));
+		$resolver->setAllowedTypes('editable', [
+			'boolean',
+		]);
 
 		$resolver->setDefault('includeDefinition', true);
-		$resolver->setAllowedTypes('includeDefinition', array(
-			'boolean'
-		));
+		$resolver->setAllowedTypes('includeDefinition', [
+			'boolean',
+		]);
 
-		$resolver->setNormalizer('rowGroup', static function(Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('rowGroup', static function (Options $options, $value) use ($gridOptions) {
 			if($value === true && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
 			}
 			return $value;
 		});
 
+		$resolver->setDefault('menuTabs', function(Options $options, $previousValue) use ($gridOptions) {
+			if($previousValue === null) {
+				return $gridOptions['menuTabs'];
+			}
+			return $previousValue;
+		});
+		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);
+		$resolver->setNormalizer('menuTabs', static function (Options $options, $value) {
+			if($value === null) {
+				return $value;
+			}
+			if(is_array($value)) {
+				foreach($value as $item) {
+					if(!in_array($item, ColumnTypeInterface::MENU_TABS, true)) {
+						throw new InvalidArgumentException(sprintf('"%s" is not a valid option for menu tabs, use on or multiple of "%s" constants instead!', $item, ColumnTypeInterface::class . '::MENU_TAB*'));
+					}
+				}
+				return $value;
+			}
+			throw new InvalidArgumentException('menuTabs may only be null or an array containing constants of ' . ColumnTypeInterface::class);
+		});
+
 		$resolver->setDefault('suppressMenu', false);
-		$resolver->setAllowedTypes('suppressMenu',  ['bool']);
+		$resolver->setAllowedTypes('suppressMenu', ['bool']);
 
 		$resolver->setDefault('autoHeight', null);
-		$resolver->setAllowedTypes('autoHeight',  ['null', 'bool']);
+		$resolver->setAllowedTypes('autoHeight', ['null', 'bool']);
 
 		$resolver->setDefault('valueFormatter', null);
-		$resolver->setAllowedTypes('valueFormatter',  ['null', 'string']);
+		$resolver->setAllowedTypes('valueFormatter', ['null', 'string']);
 
 		$resolver->setDefault('valueGetter', null);
-		$resolver->setAllowedTypes('valueGetter',  ['null', 'string']);
+		$resolver->setAllowedTypes('valueGetter', ['null', 'string']);
 
 		$resolver->setDefault('quickFilter', null);
-		$resolver->setAllowedTypes('quickFilter',  ['null', 'string']);
+		$resolver->setAllowedTypes('quickFilter', ['null', 'string']);
 
 		$resolver->setDefault('keyCreator', null);
-		$resolver->setAllowedTypes('keyCreator',  ['null', 'string']);
+		$resolver->setAllowedTypes('keyCreator', ['null', 'string']);
 
 		$resolver->setDefault('tooltipField', null);
-		$resolver->setAllowedTypes('tooltipField',  ['null', 'string']);
+		$resolver->setAllowedTypes('tooltipField', ['null', 'string']);
 
 		$resolver->setDefault('tooltip', null);
-		$resolver->setAllowedTypes('tooltip',  ['null', 'string']);
+		$resolver->setAllowedTypes('tooltip', ['null', 'string']);
 
 		$resolver->setDefault('checkboxSelection', false);
-		$resolver->setAllowedTypes('checkboxSelection',  'bool');
+		$resolver->setAllowedTypes('checkboxSelection', 'bool');
 
 		$resolver->setDefault('cellRenderer', null);
-		$resolver->setAllowedTypes('cellRenderer',  ['null', 'string']);
+		$resolver->setAllowedTypes('cellRenderer', ['null', 'string']);
 
 		$resolver->setDefault('cellRendererParams', null);
-		$resolver->setAllowedTypes('cellRendererParams',  ['null', 'array']);
+		$resolver->setAllowedTypes('cellRendererParams', ['null', 'array']);
 
 		$resolver->setDefault('position', null);
-		$resolver->setAllowedTypes('position', array(
+		$resolver->setAllowedTypes('position', [
 			'null',
 			'string',
-			'array'
-		));
+			'array',
+		]);
 		$resolver->setAllowedValues('position', static function ($valueToCheck) {
 			if(is_string($valueToCheck)) {
 				return !($valueToCheck !== 'last' && $valueToCheck !== 'first');
@@ -276,6 +300,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['filterable'] = $options['filterable'];
 		$view->vars['orderable'] = $options['orderable'];
 		$view->vars['rowGroup'] = $options['rowGroup'];
+		$view->vars['menuTabs'] = $options['menuTabs'];
 		$view->vars['enableRowGroup'] = $options['enableRowGroup'];
 		$view->vars['pivot'] = $options['pivot'];
 		$view->vars['enablePivot'] = $options['enablePivot'];
@@ -294,7 +319,6 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['checkboxSelection'] = $options['checkboxSelection'];
 		$view->vars['cellRenderer'] = $options['cellRenderer'];
 		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
-
 	}
 
 	/**

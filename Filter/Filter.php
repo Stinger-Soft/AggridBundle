@@ -6,6 +6,7 @@ use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
+use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\AggridBundle\View\FilterView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -34,6 +35,11 @@ class Filter implements FilterInterface {
 	protected $columnOptions;
 
 	/**
+	 * @var array the view options of the column this filter belongs to
+	 */
+	protected $columnViewVars;
+
+	/**
 	 *
 	 * @var array the options defined for the original table this filter belongs to
 	 */
@@ -57,7 +63,9 @@ class Filter implements FilterInterface {
 	 */
 	protected $queryBuilder;
 
-	/** @var  QueryBuilder|array */
+	/**
+	 * @var  QueryBuilder|array
+	 */
 	protected $dataSource;
 
 	/**
@@ -68,20 +76,22 @@ class Filter implements FilterInterface {
 	/**
 	 * Filter constructor.
 	 *
-	 * @param FilterTypeInterface  $filterType
+	 * @param FilterTypeInterface                   $filterType
 	 *            the filter type for this filter
-	 * @param array                $filterTypeOptions
+	 * @param DependencyInjectionExtensionInterface $dependencyInjectionExtension
+	 * @param array                                 $filterTypeOptions
 	 *            the options for the filter type
-	 * @param array                $columnOptions
+	 * @param array                                 $columnOptions
 	 *            the options of the column the filter belongs to
-	 * @param array                $gridOptions
+	 * @param array                                 $gridOptions
 	 *            the options of the table the filter belongs to
-	 * @param QueryBuilder|array   $dataSource
+	 * @param QueryBuilder|array                    $dataSource
 	 *            the data source of the table the column and this the filter will be attached to.
 	 *            In case it is a query builder, it will be cloned in order to allow the filter to
 	 *            modify it if necessary.
-	 * @param FilterInterface|null $parent
+	 * @param FilterInterface|null                  $parent
 	 *            the parent filter (if any) or null.
+	 * @throws InvalidArgumentTypeException
 	 */
 	public function __construct(FilterTypeInterface $filterType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $filterTypeOptions = [], array $columnOptions = [], array $gridOptions = [], $dataSource = null, FilterInterface $parent = null) {
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
@@ -153,6 +163,31 @@ class Filter implements FilterInterface {
 	}
 
 	/**
+	 *
+	 * {@inheritdoc}
+	 */
+	public function getColumnViewVar($key) {
+		return $this->columnViewVars[$key];
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 */
+	public function setColumnViewVar($key, $value): FilterInterface {
+		$this->columnViewVars[$key] = $value;
+		return $this;
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 */
+	public function getGridOption($key) {
+		return $this->gridOptions[$key];
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function getFilterDelegate(): ?callable {
@@ -162,9 +197,11 @@ class Filter implements FilterInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function createView(FilterView $parent = null): FilterView {
+	public function createView(ColumnView $columnView, FilterView $parent = null): FilterView {
+		$this->columnViewVars = $columnView->vars;
+
 		if(null === $parent && $this->parent) {
-			$parent = $this->parent->createView();
+			$parent = $this->parent->createView($columnView);
 		}
 
 		$view = new FilterView($parent);
@@ -191,8 +228,8 @@ class Filter implements FilterInterface {
 	 * on the column etc.
 	 */
 	protected function configureFilter(): void {
-		if(isset($this->columnOptions['filter_server_delegate'])) {
-			$this->filterDelegate = $this->columnOptions['filter_server_delegate'];
+		if(isset($this->filterOptions['server_delegate'])) {
+			$this->filterDelegate = $this->filterOptions['server_delegate'];
 		}
 	}
 

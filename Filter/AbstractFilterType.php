@@ -4,6 +4,7 @@ namespace StingerSoft\AggridBundle\Filter;
 
 use Doctrine\ORM\QueryBuilder;
 use StingerSoft\AggridBundle\View\FilterView;
+use StingerSoft\PhpCommons\String\Utils;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractFilterType implements FilterTypeInterface {
@@ -12,7 +13,7 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 	 * {@inheritdoc}
 	 * @see \StingerSoft\AggridBundle\Filter\FilterTypeInterface::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $columnOptions = array(), array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $columnOptions = [], array $tableOptions = []): void {
 
 	}
 
@@ -32,7 +33,31 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 	}
 
 	public function applyFilter(QueryBuilder $queryBuilder, array $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
+		$isConditionalFilter = isset($filterRequest['operator']);
+		if($isConditionalFilter) {
+			$expressions = [];
+			$i = 0;
+			foreach($filterRequest as $key => $value) {
+				if(Utils::startsWith($key, 'condition')) {
+					$expression = $this->handleFilterRequest($queryBuilder, $value, $parameterBindingName . ++$i, $queryPath, $filterTypeOptions, $rootAlias);
+					if($expression !== null) {
+						$expressions[] = $expression;
+					}
+				}
+			}
+			if(count($expressions) > 0) {
+				if($filterRequest['operator'] === FilterTypeInterface::FILTER_OPERATOR_AND) {
+					return $queryBuilder->expr()->andX()->addMultiple($expressions);
+				}
+				return $queryBuilder->expr()->orX()->addMultiple($expressions);
+			}
+		} else {
+			return $this->handleFilterRequest($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias);
+		}
+		return null;
+	}
 
+	public function handleFilterRequest(QueryBuilder $queryBuilder, array $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
 		$filterValue = $filterRequest['filter'] ?? $filterRequest['values'];
 		$filterValueTo = $filterRequest['filterTo'] ?? null;
 		$filterType = $filterRequest['type'] ?? null;
@@ -40,12 +65,12 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 			$filterType = FilterTypeInterface::FILTER_MATCH_MODE_SET;
 		}
 		if($this->filterIsValid($filterValue, $filterTypeOptions)) {
-			return $this->createExpression($filterType, $parameterBindingName, $queryPath, $queryBuilder, $filterValue, $filterValueTo);
+			return $this->createExpression($filterType, $parameterBindingName, $queryPath, $queryBuilder, $rootAlias, $filterTypeOptions, $filterValue, $filterValueTo);
 		}
 		return null;
 	}
 
-	protected function createExpression(string $comparisonType, string $parameterBindingName, string $queryPath, QueryBuilder $queryBuilder, $value, $toValue) {
+	protected function createExpression(string $comparisonType, string $parameterBindingName, string $queryPath, QueryBuilder $queryBuilder, string $rootAlias, array $filterTypeOptions, $value, $toValue) {
 		$expr = null;
 		switch($comparisonType) {
 			case FilterTypeInterface::FILTER_MATCH_MODE_EQUALS:
@@ -106,12 +131,18 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 	 *
 	 * A filter is considered valid when there is a filter value (i.e. it is not empty) and it is not a regular expression.
 	 *
-	 * @param string|string[] $filterValue the filter value
-	 * @param array $filterTypeOptions the options of the filter type.
+	 * @param string|string[] $filterValue       the filter value
+	 * @param array           $filterTypeOptions the options of the filter type.
 	 * @return bool true in case the filter value is not empty and the filter is no regular expression, false otherwise.
 	 */
 	protected function filterIsValid($filterValue, array $filterTypeOptions): bool {
 		// Regular Expressions are ignored on server side, as there is no built-in regexp handling in doctrine
+		if($filterTypeOptions['validation_delegate'] !== null && is_callable($filterTypeOptions['validation_delegate'])) {
+			return $filterTypeOptions['validation_delegate']($filterValue, $filterTypeOptions);
+		}
+		if($filterTypeOptions['validate_empty'] === false) {
+			return true;
+		}
 		return !empty($filterValue);
 	}
 }

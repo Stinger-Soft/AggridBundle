@@ -1,0 +1,101 @@
+stingersoft_aggrid:
+  refresh: 'Aktualisieren'
+
+  ## The following are the official Ag-Grid items
+  # for filter panel
+  page: 'Seite'
+  more: 'Mehr'
+  to: 'Bis'
+  of: 'Von'
+  next: 'Nächste'
+  last: 'Letzte'
+  first: 'Erste'
+  previous: 'Vorherige'
+  loadingOoo: 'Lade...'
+
+  # for set filter
+  selectAll: 'Alles auswählen'
+  searchOoo: 'Suche...'
+  blanks: 'Leer'
+
+  # for number filter and text filter
+  filterOoo: 'Filtern nach...'
+  applyFilter: 'Filter anwenden'
+  clearFilter: 'Filter zurücksetzen'
+  equals: 'Gleich'
+  notEqual: 'Ungleich'
+
+  # for number filter
+  lessThan: 'Weniger als'
+  greaterThan: 'Mehr als'
+  lessThanOrEqual: 'Weniger oder gleich viel'
+  greaterThanOrEqual: 'Mehr oder gleich viel'
+  inRange: 'Im Bereich'
+
+  # for text filter
+  contains: 'Enthält'
+  notContains: 'Enthält nicht'
+  startsWith: 'Beginnt mit'
+  endsWith: 'Endet auf'
+
+  # filter conditions
+  andCondition: 'UND'
+  orCondition: 'ODER'
+
+  # the header of the default group column
+  group: 'Gruppe'
+
+  # tool panel
+  columns: 'Spalten'
+  filters: 'Filter'
+  rowGroupColumns: 'Pivot-Spalten'
+  rowGroupColumnsEmptyMessage: 'Spalten zum Gruppieren hineinziehen'
+  valueColumns: 'Wertespalten'
+  pivotMode: 'Pivot-Modus'
+  groups: 'Gruppen'
+  values: 'Werte'
+  pivots: 'Pivots'
+  valueColumnsEmptyMessage: 'Spalten zum Aggregieren hineinziehen'
+  pivotColumnsEmptyMessage: 'Spalten für Pivot hineinziehen'
+  toolPanelButton: 'Werkzeuge'
+
+  # other
+  noRowsToShow: 'Keine Zeilen'
+
+  # enterprise menu
+  pinColumn: 'Spalte fixieren'
+  valueAggregation: 'Werteaggregation'
+  autosizeThiscolumn: 'Spalte automatisch anpassen'
+  autosizeAllColumns: 'Alle Spalten automatisch anpassen'
+  groupBy: 'Gruppieren nach'
+  ungroupBy: 'Ungruppieren nach'
+  resetColumns: 'Zurücksetzen'
+  expandAll: 'Ausklappen'
+  collapseAll: 'Einklappen'
+  toolPanel: 'Werkzeuge'
+  export: 'Exportieren'
+  csvExport: 'CSV Export'
+  excelExport: 'Excel Export'
+
+  # enterprise menu pinning
+  pinLeft: 'Fixieren <<'
+  pinRight: 'Fixieren >>'
+  noPin: 'Lösen <>'
+
+  # enterprise menu aggregation and status bar
+  sum: 'Summe'
+  min: 'Minimum'
+  max: 'Maximum'
+  none: 'Keins'
+  count: 'Zählen'
+  average: 'Durchschnitt'
+  rowAndFilteredCount: 'Zeilen'
+  filteredRowCount: 'Gefiltert'
+  selectedRowCount: 'Ausgewählt'
+
+  # standard menu
+  copy: 'Kopieren'
+  copyWithHeaders: 'Mit Überschriften kopieren'
+  ctrlC: 'Strg+C'
+  paste: 'Einfügen'
+  ctrlV: 'Strg+V'

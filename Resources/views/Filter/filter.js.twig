@@ -2,16 +2,21 @@
 filter: {{ filter.vars.filter_type|json_encode|raw }},
 filterParams: {
 	{% block filter_params %}
-	{% if column.vars.render_html is defined and column.vars.render_html %}
-	cellRenderer: function(params) {
-		return params.value ? params.value : '';
-	},
+	{% if filter.vars.cellRenderer is defined and filter.vars.cellRenderer is not same as(null) %}
+	cellRenderer: StingerSoftAggrid.Renderer.getRenderer("{{ filter.vars.cellRenderer }}", {{ filter.vars.cellRendererParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% endif %}
 	{% if filter.vars.newRowsAction is defined and filter.vars.newRowsAction is not same as(null) %}
-	newRowsAction: 'keep',
+	newRowsAction: {{ filter.vars.newRowsAction|json_encode|raw }},
 	{% endif %}
-	debounceMs: 100,
-	apply: true
+	{% if filter.vars.debounceMs is defined and filter.vars.debounceMs is not same as(null) %}
+	debounceMs: {{ filter.vars.debounceMs|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.applyButton is defined and filter.vars.applyButton is not same as(null) %}
+	applyButton: {{ filter.vars.applyButton|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.clearButton is defined and filter.vars.clearButton is not same as(null) %}
+	clearButton: {{ filter.vars.clearButton|json_encode|raw }}
+	{% endif %}
 	{% endblock filter_params %}
 },
 {% endblock filter_settings %}

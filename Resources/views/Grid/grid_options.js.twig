@@ -48,5 +48,15 @@
 				return label;
 			}
 		}
-		{% endif %}
+	{% endif %}
+	, onGridReady: function(params) {
+		{{ varAggrid }}.load(params.columnApi, params.api);
+	}
+	{% if app.request.locale != 'en' %}
+	, localeTextFunc: function(key, defaultValue) {
+		var gridKey = 'stingersoft_aggrid.' + key;
+		var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
+		return value === gridKey ? defaultValue : value;
+	}
+	{% endif %}
 }

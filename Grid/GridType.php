@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Grid;
 
 use Doctrine\ORM\QueryBuilder;
+use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\View\GridView;
+use StingerSoft\PhpCommons\Builder\HashCodeBuilder;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
@@ -80,7 +82,19 @@ class GridType extends AbstractGridType {
 		$view->vars['total_results_query_builder'] = $gridOptions['total_results_query_builder'];
 		$view->vars['default_order_property'] = $gridOptions['default_order_property'];
 		$view->vars['default_order_direction'] = $gridOptions['default_order_direction'];
+		$view->vars['persistState'] = $gridOptions['persistState'];
 
+		if($gridOptions['versionHash'] === true) {
+			$hashing = hash_init('sha256', HASH_HMAC, 'stingersoft-aggrid');
+			foreach($columns as $column) {
+				hash_update($hashing, (string)$column->getHashCode());
+			}
+			if($gridOptions['versionHashModifier'] !== null) {
+				hash_update($hashing, $gridOptions['versionHashModifier']);
+			}
+			$gridOptions['versionHash'] = hash_final($hashing);
+		}
+		$view->vars['versionHash'] = $gridOptions['versionHash'];
 	}
 
 	private function configureStingerOptions(OptionsResolver $resolver): void {
@@ -98,12 +112,26 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('default_order_direction', 'asc');
 		$resolver->setAllowedValues('default_order_direction', ['asc', 'desc']);
 
-		$resolver->setDefault('height', '500px');
+		$resolver->setDefault('height', '50vh');
 
 		$resolver->setDefault('hydrateAsObject', true);
 		$resolver->setAllowedTypes('hydrateAsObject', [
 			'boolean',
 		]);
+
+		$resolver->setDefault('persistState', false);
+		$resolver->setAllowedTypes('persistState', ['boolean']);
+
+		$resolver->setDefault('versionHash', static function (Options $options, $previousValue) {
+			if($previousValue === null && $options['persistState'] === true) {
+				return true;
+			}
+			return $previousValue;
+		});
+		$resolver->setAllowedTypes('versionHash', ['bool', 'null', 'string']);
+
+		$resolver->setDefault('versionHashModifier', null);
+		$resolver->setAllowedTypes('versionHashModifier', ['null', 'string']);
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {
@@ -165,6 +193,23 @@ class GridType extends AbstractGridType {
 			return $value;
 		});
 
+		$resolver->setDefault('menuTabs', null);
+		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);
+		$resolver->setNormalizer('menuTabs', static function (Options $options, $value) {
+			if($value === null) {
+				return $value;
+			}
+			if(is_array($value)) {
+				foreach($value as $item) {
+					if(!in_array($item, ColumnTypeInterface::MENU_TABS, true)) {
+						throw new InvalidArgumentException(sprintf('"%s" is not a valid option for menu tabs, use on or multiple of "%s" constants instead!', $item, ColumnTypeInterface::class . '::MENU_TAB*'));
+					}
+				}
+				return $value;
+			}
+			throw new InvalidArgumentException('menuTabs may only be null or an array containing constants of ' . ColumnTypeInterface::class);
+		});
+
 		$resolver->setDefault('cacheBlockSize', 100);
 		$resolver->setAllowedTypes('cacheBlockSize', 'int');
 
@@ -174,10 +219,10 @@ class GridType extends AbstractGridType {
 			false,
 		]);
 		$resolver->setDefault('paginationPageSize', 100);
-		$resolver->setAllowedTypes('paginationPageSize','int');
+		$resolver->setAllowedTypes('paginationPageSize', 'int');
 		$resolver->setDefault('paginationAutoPageSize', false);
-		$resolver->setAllowedTypes('paginationAutoPageSize','bool');
+		$resolver->setAllowedTypes('paginationAutoPageSize', 'bool');
 		$resolver->setDefault('suppressPaginationPanel', false);
-		$resolver->setAllowedTypes('suppressPaginationPanel','bool');
+		$resolver->setAllowedTypes('suppressPaginationPanel', 'bool');
 	}
 }

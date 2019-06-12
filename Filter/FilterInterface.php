@@ -4,16 +4,18 @@ namespace StingerSoft\AggridBundle\Filter;
 
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\AggridBundle\View\FilterView;
 
 interface FilterInterface {
 	/**
 	 * Creates a new view to be used for rendering column filters.
 	 *
+	 * @param ColumnView      $columnView
 	 * @param FilterView|null $parent an already pre-populated parent view to extend, if any
 	 * @return FilterView the new filter view.
 	 */
-	public function createView(?FilterView $parent = null): ?FilterView;
+	public function createView(ColumnView $columnView, ?FilterView $parent = null): ?FilterView;
 
 	/**
 	 * Get the filter type used for this filter instance
@@ -67,7 +69,7 @@ interface FilterInterface {
 	 * Get the option by key defined for the original column this filter belongs to
 	 *
 	 * @param string $key The array key to fetch
-	 * @return array the options defined for the original column this filter belongs to
+	 * @return mixed the option defined for the original column this filter belongs to
 	 */
 	public function getColumnOption($key);
 
@@ -79,6 +81,31 @@ interface FilterInterface {
 	 * @return FilterInterface
 	 */
 	public function setColumnOption(string $key, $value): self;
+
+	/**
+	 * Get the view variable by key defined for the original column this filter belongs to
+	 *
+	 * @param string $key The array key to fetch
+	 * @return mixed the view variable defined for the original column this filter belongs to
+	 */
+	public function getColumnViewVar($key);
+
+	/**
+	 * Set the view variable by key defined for the original column this filter belongs to
+	 *
+	 * @param string $key The array key to set
+	 * @param mixed $value the new view value defined for the original column this filter belongs to
+	 * @return FilterInterface
+	 */
+	public function setColumnViewVar(string $key, $value): self;
+
+	/**
+	 * Get the option by key defined for the original grid this filter belongs to
+	 *
+	 * @param string $key The array key to fetch
+	 * @return mixed the option defined for the original grid this filter belongs to
+	 */
+	public function getGridOption($key);
 
 	/**
 	 * Apply any filtering on the given QueryBuilder using the given value to filter by.

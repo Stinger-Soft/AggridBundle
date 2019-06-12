@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Column;
 
 use Doctrine\ORM\QueryBuilder;
+use ReflectionException;
 use StingerSoft\AggridBundle\Filter\Filter;
 use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
@@ -102,6 +103,14 @@ interface ColumnInterface {
 	public function getColumnOptions(): array;
 
 	public function isOrderable(): bool;
+
+	/**
+	 * Get the hash code of the column.
+	 *
+	 * @return int the hash code of the column.
+	 * @throws ReflectionException
+	 */
+	public function getHashCode(): int;
 
 	/**
 	 * @param mixed  $item

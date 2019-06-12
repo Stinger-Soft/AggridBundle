@@ -18,9 +18,18 @@ final class FilterType extends AbstractFilterType {
 	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void {
 		$view->vars['filter_type'] = $options['filter_type'];
 		$view->jsTemplate = $options['jsTemplate'];
-		$view->vars['newRowsAction'] = $options['newRowsAction'] !== null && $options['newRowsAction'] !== self::NEW_ROWS_ACTION_DEFAULT ? $options['newRowsAction'] : null;
+		$cellRendererParams = $options['cellRendererParams'];
+		if($cellRendererParams === null) {
+			$cellRendererParams = [];
+		}
 		$view->vars = array_replace($view->vars, [
+			'newRowsAction'      => $options['newRowsAction'] !== null && $options['newRowsAction'] !== self::NEW_ROWS_ACTION_DEFAULT ? $options['newRowsAction'] : null,
+			'cellRenderer'       => $options['cellRenderer'],
+			'cellRendererParams' => $cellRendererParams,
 			'translation_domain' => $options['translation_domain'],
+			'debounceMs'         => $options['debounceMs'],
+			'applyButton'        => $options['applyButton'],
+			'clearButton'        => $options['clearButton'],
 		]);
 	}
 
@@ -35,7 +44,13 @@ final class FilterType extends AbstractFilterType {
 
 		$resolver->setDefault('filter_type', null);
 
-		$resolver->setDefault('translation_domain', 'StingerSoftAggridBundle');
+		$resolver->setDefault('cellRenderer', null);
+		$resolver->setAllowedTypes('cellRenderer', ['null', 'string']);
+
+		$resolver->setDefault('cellRendererParams', []);
+		$resolver->setAllowedTypes('cellRendererParams', ['null', 'array']);
+
+		$resolver->setDefault('translation_domain', 'messages');
 		$resolver->setAllowedTypes('translation_domain', [
 			'string',
 			'null',
@@ -50,6 +65,23 @@ final class FilterType extends AbstractFilterType {
 			return $previousValue;
 		});
 
+		$resolver->setDefault('debounceMs', 100);
+		$resolver->setAllowedTypes('debounceMs', ['null', 'int']);
+
+		$resolver->setDefault('applyButton', true);
+		$resolver->setAllowedTypes('applyButton', ['bool', 'null']);
+
+		$resolver->setDefault('clearButton', true);
+		$resolver->setAllowedTypes('clearButton', ['bool', 'null']);
+
+		$resolver->setDefault('validate_empty', true);
+		$resolver->setAllowedTypes('validate_empty', ['bool']);
+
+		$resolver->setDefault('validation_delegate', null);
+		$resolver->setAllowedTypes('validation_delegate', ['null', 'callable', \Closure::class]);
+
+		$resolver->setDefault('server_delegate', null);
+		$resolver->setAllowedTypes('server_delegate', ['null', 'callable', \Closure::class]);
 	}
 
 	public function getParent(): ?string {

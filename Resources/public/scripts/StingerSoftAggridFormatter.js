@@ -8,21 +8,16 @@
 
 /**
  *
- * @param params
- * @returns {*}
+ * @return {function(*): string}
  * @constructor
+ * @param {json} formatterParams
  */
-StingerSoftAggrid.Formatter.DateTimeObjectFormatter = function(params) {
-	if(params.value && "date" in params.value) {
-		var format = params.colDef.hasOwnProperty('dateFormat') ? params.colDef.dateFormat : 'LLL';
-		return moment(params.value.date).format(format);
-	}
-	return null;
-};
-
-/**
- * @return {string}
- */
-StingerSoftAggrid.Formatter.RawHtmlFormatter = function(params) {
-	return params.value ? params.value : '';
+StingerSoftAggrid.Formatter.DateTimeObjectFormatter = function(formatterParams) {
+	return function(params) {
+		if (params.value && "date" in params.value) {
+			var format = formatterParams.hasOwnProperty('dateFormat') ? formatterParams.dateFormat : 'L LTS';
+			return moment(params.value.date).format(format);
+		}
+		return null;
+	};
 };

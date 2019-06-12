@@ -17,10 +17,19 @@
  */
 
 /**
+ * @return {function(*): string}
+ */
+StingerSoftAggrid.Renderer.RawHtmlRenderer = function(rendererParams) {
+	return function(params) {
+		return params.value ? params.value : '';
+	};
+};
+
+/**
  *
  * @returns StingerSoftAggrid.Renderer.AbridgedRenderer
  */
-StingerSoftAggrid.Renderer.AbridgedRenderer = function() {
+StingerSoftAggrid.Renderer.AbridgedRenderer =  function(rendererParams) {
 	this.eGui = document.createElement('abbr');
 };
 
@@ -59,7 +68,7 @@ StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.refresh = function(params)
  * @returns StingerSoftAggrid.Renderer.YesNoRenderer
  * @constructor
  */
-StingerSoftAggrid.Renderer.YesNoRenderer = function() {
+StingerSoftAggrid.Renderer.YesNoRenderer = function(rendererParams) {
 	//"Constants"
 	this.TYPE_ICON_ONLY = 0;
 	this.TYPE_ICON_TOOLTIP = 1;
@@ -103,7 +112,7 @@ StingerSoftAggrid.Renderer.YesNoRenderer.prototype.getGui = function() {
  *
  * @returns StingerSoftAggrid.Renderer.ProgressBarRenderer
  */
-StingerSoftAggrid.Renderer.ProgressBarRenderer = function() {
+StingerSoftAggrid.Renderer.ProgressBarRenderer = function(rendererParams) {
 	this.eGui = document.createElement('div');
 	this.innerDiv = document.createElement('div');
 
@@ -117,7 +126,7 @@ StingerSoftAggrid.Renderer.ProgressBarRenderer = function() {
  */
 StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.init = function(params) {
 	if(params.value !== "" && params.value !== undefined && params.value !== null) {
-		PecPlatform.mapValuesToObject(params, this);
+		StingerSoftAggrid.mapValuesToObject(params, this);
 		//Inner
 		var $inner = jQuery(this.innerDiv);
 		$inner.attr('role', params.value);
@@ -159,7 +168,7 @@ StingerSoftAggrid.Renderer.ProgressBarRenderer.prototype.refresh = function(para
  *
  * @returns StingerSoftAggrid.Renderer.UserRenderer
  */
-StingerSoftAggrid.Renderer.UserRenderer = function() {
+StingerSoftAggrid.Renderer.UserRenderer = function(rendererParams) {
 	this.eGui = document.createElement('abbr');
 };
 
@@ -223,7 +232,7 @@ StingerSoftAggrid.Renderer.UserRenderer.prototype.refresh = function(params) {
  *
  * @returns StingerSoftAggrid.Renderer.UserFilterRenderer
  */
-StingerSoftAggrid.Renderer.UserFilterRenderer = function() {
+StingerSoftAggrid.Renderer.UserFilterRenderer = function(rendererParams) {
 	this.eGui = document.createElement('span');
 };
 

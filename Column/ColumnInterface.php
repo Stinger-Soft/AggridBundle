@@ -13,9 +13,12 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Column;
 
 use Doctrine\ORM\QueryBuilder;
+use StingerSoft\AggridBundle\Filter\Filter;
 use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
+use StingerSoft\AggridBundle\View\ColumnView;
 
 interface ColumnInterface {
+
 	/**
 	 * Get the path to access the property on the bound object
 	 *
@@ -27,7 +30,7 @@ interface ColumnInterface {
 	 * Get the path to access the property on the bound object
 	 *
 	 * @param string $path the path to access the property on the bound object
-	 * @return ColumnInterface
+	 * @return self
 	 */
 	public function setPath(string $path): self;
 
@@ -59,7 +62,7 @@ interface ColumnInterface {
 	 * @param string $queryPath the path to be used by a query builder for sorting and ordering etc.
 	 * @return ColumnInterface
 	 */
-	public function setQueryPath(string $queryPath): void;
+	public function setQueryPath(string $queryPath): self;
 
 	/**
 	 * Adds the given data transformer to the column.
@@ -74,20 +77,51 @@ interface ColumnInterface {
 	 *                                                  transformers (i.e. it will be inserted before the already existing ones).
 	 * @return ColumnInterface
 	 */
-	public function addDataTransformer(DataTransformerInterface $dataTransformer, $forceAppend = false);
+	public function addDataTransformer(DataTransformerInterface $dataTransformer, $forceAppend = false): self;
 
 	/**
 	 * Get all attached data transformers for the column.
 	 *
 	 * @return DataTransformerInterface[] all attached data transformers for the column.
 	 */
-	public function getDataTransformers();
+	public function getDataTransformers(): array;
 
 	/**
 	 * Clears the data transformers.
 	 *
-	 * @return ColumnInterface
+	 * @return self
 	 */
-	public function resetDataTransformers();
+	public function resetDataTransformers(): self;
+
+	public function setServerSideOrderDelegate(?callable $serverSideOrderDelegate = null);
+
+	public function getGridOptions(): array;
+
+	public function getFilter(): ?Filter;
+
+	public function getColumnOptions(): array;
+
+	public function isOrderable(): bool;
+
+	/**
+	 * @param mixed  $item
+	 * @param string $rootAlias
+	 * @return mixed
+	 */
+	public function createData($item, string $rootAlias);
+
+	public function setColumnOptions(array $columnOptions): self;
+
+	public function isFilterable(): bool;
+
+	public function createView(ColumnView $parent = null): ColumnView;
+
+	public function setFilter(?Filter $filter): ColumnInterface;
+
+	public function getFilterQueryPath(): string;
+
+	public function setGridOptions(array $gridOptions): self;
+
+	public function getServerSideOrderDelegate(): ?callable;
 
 }

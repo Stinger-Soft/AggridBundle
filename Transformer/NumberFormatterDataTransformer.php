@@ -18,7 +18,6 @@ use StingerSoft\AggridBundle\Column\ColumnInterface;
  * The NumberFormatterDataTransformer automatically formats a columns' value according to a defined locale, style and
  * pattern using PHPs number formatter capabilities for all NumberFormatterColumnType column types.
  *
- * @see \Pec\Bundle\DatatableBundle\Column\NumberFormatterColumnType the column type that uses this formatter.
  */
 class NumberFormatterDataTransformer implements DataTransformerInterface {
 
@@ -34,8 +33,8 @@ class NumberFormatterDataTransformer implements DataTransformerInterface {
 		$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
 		if($options['number_formatter_style'] === \NumberFormatter::CURRENCY) {
 			return $formatter->formatCurrency($value, $options['number_formatter_currency']);
-		} else {
-			return $formatter->format($value);
 		}
+
+		return $formatter->format($value);
 	}
 }

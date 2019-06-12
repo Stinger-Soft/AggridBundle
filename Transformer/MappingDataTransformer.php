@@ -21,7 +21,6 @@ class MappingDataTransformer implements DataTransformerInterface {
 
 	/**
 	 * {@inheritDoc}
-	 * @see \Pec\Bundle\DatatableBundle\Transformer\DataTransformerInterface::transform()
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();

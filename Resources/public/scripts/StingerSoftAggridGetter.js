@@ -6,10 +6,12 @@
 
 /**
  *
- * @param params
+ * @param {json} getterParams
  * @returns {Object}
  * @constructor
  */
-StingerSoftAggrid.Getter.ParamsDataGetter = function(params) {
-	return params.data;
+StingerSoftAggrid.Getter.ParamsDataGetter = function (getterParams) {
+	return function (params) {
+		return params.data;
+	};
 };

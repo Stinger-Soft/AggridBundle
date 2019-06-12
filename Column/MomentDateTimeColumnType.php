@@ -19,13 +19,12 @@ class MomentDateTimeColumnType extends AbstractColumnType {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $gridOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('date_format', 'L LTS');
-		$resolver->setAllowedTypes('date_format', array(
-			'string'
-		));
+		$resolver->setAllowedTypes('date_format', [
+			'string',
+		]);
 		$resolver->setDefault('valueFormatter', 'DateTimeObjectFormatter');
 		$resolver->setDefault('filter', 'agDateColumnFilter');
 		$resolver->setDefault('js_column_template', '@StingerSoftAggrid/Column/datetime_moment.js.twig');
@@ -33,10 +32,11 @@ class MomentDateTimeColumnType extends AbstractColumnType {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::buildView()
 	 */
 	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
-		$view->vars['date_format'] = $options['date_format'];
+		$view->vars['valueFormatterParams'] = [
+			'dateFormat' => $options['date_format'],
+		];
 	}
 
 }

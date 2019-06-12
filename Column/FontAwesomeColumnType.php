@@ -20,9 +20,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class FontAwesomeColumnType extends AbstractColumnType {
 
 	/**
-	 * @inheritdoc
-	 *
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::configureOptions()
+	 * {@inheritdoc}
 	 */
 	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
 		$resolver->setDefault('mapped', true);

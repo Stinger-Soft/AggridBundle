@@ -46,9 +46,9 @@ class Column implements ColumnInterface {
 	protected $columnOptions;
 
 	/**
-	 * @var \Pec\Bundle\DatatableBundle\Transformer\DataTransformerInterface[]
+	 * @var DataTransformerInterface[]
 	 */
-	protected $dataTransformers = array();
+	protected $dataTransformers = [];
 
 	/**
 	 * @var array the options defined for the original table this column belongs to
@@ -117,17 +117,17 @@ class Column implements ColumnInterface {
 	/**
 	 * Column constructor.
 	 *
-	 * @param string $path The path / property / key under which the column is registered. This will be used for accessing an
-	 *                                                   objects value with a property accessor.
-	 * @param ColumnTypeInterface $columnType the column type for this column
-	 * @param array $columnTypeOptions the options for the column type
-	 * @param array $gridOption the options of the table the column belongs to
-	 * @param QueryBuilder|array $dataSource the data source of the table the column will be attached to. In case it is a query builder, it will be cloned in order to
-	 *                                                   allow Filter instances to modify it if necessary.
-	 * @param ColumnInterface|null $parent the parent column (if any) or null.
-	 * @throws InvalidOptionsException in case the column type options contain invalid entries
+	 * @param string                                $path              The path / property / key under which the column is registered. This will be used for accessing an
+	 *                                                                 objects value with a property accessor.
+	 * @param ColumnTypeInterface                   $columnType        the column type for this column
+	 * @param DependencyInjectionExtensionInterface $dependencyInjectionExtension
+	 * @param array                                 $columnTypeOptions the options for the column type
+	 * @param array                                 $gridOption        the options of the table the column belongs to
+	 * @param QueryBuilder|array                    $dataSource        the data source of the table the column will be attached to. In case it is a query builder, it will be cloned in order to
+	 *                                                                 allow Filter instances to modify it if necessary.
+	 * @param ColumnInterface|null                  $parent            the parent column (if any) or null.
 	 */
-	public function __construct($path, ColumnTypeInterface $columnType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $columnTypeOptions = array(), array $gridOption = array(), $dataSource = null, ColumnInterface $parent = null) {
+	public function __construct($path, ColumnTypeInterface $columnType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $columnTypeOptions = [], array $gridOption = [], $dataSource = null, ColumnInterface $parent = null) {
 		$this->columnType = $columnType;
 		$this->gridOptions = $gridOption;
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
@@ -176,14 +176,14 @@ class Column implements ColumnInterface {
 		return $this;
 	}
 
-	public function getFilterQueryPath() {
-		return $this->filterQueryPath === null ? $this->getQueryPath() : $this->filterQueryPath;
+	public function getFilterQueryPath(): string {
+		return $this->filterQueryPath ?? $this->getQueryPath();
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function createView(ColumnView $parent = null) {
+	public function createView(ColumnView $parent = null): ColumnView {
 		if(null === $parent && $this->parent) {
 			$parent = $this->parent->createView();
 		}
@@ -211,7 +211,7 @@ class Column implements ColumnInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function createData($item, $rootAlias) {
+	public function createData($item, string $rootAlias) {
 		$this->buildData($this->columnType, $this->columnOptions);
 		return $this->generateData($item, $rootAlias, $this->columnOptions, $this->gridOptions);
 	}
@@ -229,7 +229,7 @@ class Column implements ColumnInterface {
 	 * Get the path to access the property on the bound object
 	 *
 	 * @param string $path the path to access the property on the bound object
-	 * @return ColumnInterface
+	 * @return self
 	 */
 	public function setPath(string $path): ColumnInterface {
 		$this->path = $path;
@@ -255,7 +255,7 @@ class Column implements ColumnInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function setGridOptions(array $gridOptions): self {
+	public function setGridOptions(array $gridOptions): ColumnInterface {
 		$this->gridOptions = $gridOptions;
 		return $this;
 	}
@@ -298,23 +298,24 @@ class Column implements ColumnInterface {
 	 * Set the path to be used by a query builder for sorting and ordering etc.
 	 *
 	 * @param string $queryPath the path to be used by a query builder for sorting and ordering etc.
-	 * @return ColumnInterface
+	 * @return self
 	 */
-	public function setQueryPath(string $queryPath): void {
+	public function setQueryPath(string $queryPath): ColumnInterface {
 		$this->queryPath = $queryPath;
+		return $this;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function getColumnOptions() {
+	public function getColumnOptions(): array {
 		return $this->columnOptions;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function setColumnOptions(array $columnOptions) {
+	public function setColumnOptions(array $columnOptions): ColumnInterface {
 		$this->columnOptions = $columnOptions;
 		return $this;
 	}
@@ -322,7 +323,7 @@ class Column implements ColumnInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function addDataTransformer(DataTransformerInterface $dataTransformer, $forceAppend = false) {
+	public function addDataTransformer(DataTransformerInterface $dataTransformer, $forceAppend = false): ColumnInterface {
 		if($forceAppend) {
 			$this->dataTransformers[] = $dataTransformer;
 		} else {
@@ -334,22 +335,22 @@ class Column implements ColumnInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function resetDataTransformers() {
-		$this->dataTransformers = array();
+	public function resetDataTransformers(): ColumnInterface {
+		$this->dataTransformers = [];
 		return $this;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function getDataTransformers() {
+	public function getDataTransformers(): array {
 		return $this->dataTransformers;
 	}
 
 	/**
 	 * Configures any fields of the column according to the internal column options, such as filter delegate etc.
 	 */
-	protected function configureColumn() {
+	protected function configureColumn(): void {
 		$dataMode = $this->getGridOptions()['dataMode'];
 		$this->valueDelegate = $this->columnOptions['value_delegate'];
 		$this->queryPath = $this->columnOptions['query_path'];
@@ -376,16 +377,16 @@ class Column implements ColumnInterface {
 	 *                              Bound object
 	 * @param string $rootAlias
 	 *                              the root alias is only necessary if no sub-objects (i.e. no joins) are used for this table.
-	 * @param array $columnOptions the options of the column type
-	 * @param array $gridOptions the options of the table type the column belongs to
+	 * @param array  $columnOptions the options of the column type
+	 * @param array  $gridOptions   the options of the table type the column belongs to
 	 * @return mixed The value
 	 */
 	protected function generateData($item, $rootAlias, $columnOptions, $gridOptions) {
 		$path = Utils::startsWith($this->getPath(), $rootAlias . '.') ? substr($this->getPath(), strlen($rootAlias) + 1) : $this->getPath();
 		$displayValue = call_user_func($this->valueDelegate, $item, $path, $columnOptions);
-//		foreach($this->dataTransformers as $transformer) {
-//			$displayValue = $transformer->transform($this, $item, $displayValue);
-//		}
+		foreach($this->dataTransformers as $transformer) {
+			$displayValue = $transformer->transform($this, $item, $displayValue);
+		}
 //		$data = array('display' => $displayValue);
 //		if($tableOptions['serverSide'] === false) {
 //			$this->appendSortData($data, $item, $path, $rootAlias, $columnOptions);
@@ -401,10 +402,10 @@ class Column implements ColumnInterface {
 	 *
 	 * @param ColumnTypeInterface $columnType the type to resolve the options for, also used for determining any parents
 	 *                                        whose options are to be resolved as well
-	 * @param array $options the initial options to also be resolved (if any).
+	 * @param array               $options    the initial options to also be resolved (if any).
 	 * @return array the resolved options for the given column type.
 	 */
-	protected function setupFilterOptionsResolver(ColumnTypeInterface $columnType, array $options = array()): array {
+	protected function setupFilterOptionsResolver(ColumnTypeInterface $columnType, array $options = []): array {
 		$this->resolveOptions($columnType, $this->resolver);
 		return $this->resolver->resolve($options);
 	}
@@ -413,7 +414,7 @@ class Column implements ColumnInterface {
 	 * Merges the configurations of each type in the hierarchy starting from the top most type.
 	 *
 	 * @param ColumnTypeInterface $columnType the column type to resolve the options from
-	 * @param OptionsResolver $resolver the resolver used for checking option values and defaults etc.
+	 * @param OptionsResolver     $resolver   the resolver used for checking option values and defaults etc.
 	 */
 	protected function resolveOptions(ColumnTypeInterface $columnType, OptionsResolver $resolver): void {
 		if($columnType->getParent()) {
@@ -426,12 +427,12 @@ class Column implements ColumnInterface {
 	/**
 	 * Updates the given view.
 	 *
-	 * @param ColumnView $columnView the view to be updated
-	 * @param ColumnTypeInterface $columnType the column type containing the information that may be relevant for the view
-	 * @param array $columnOptions the options defined for the column type, containing information
+	 * @param ColumnView          $columnView    the view to be updated
+	 * @param ColumnTypeInterface $columnType    the column type containing the information that may be relevant for the view
+	 * @param array               $columnOptions the options defined for the column type, containing information
 	 *                                           such as the translation_domain etc.
 	 */
-	protected function buildView(ColumnView $columnView, ColumnTypeInterface $columnType, array $columnOptions = array()): void {
+	protected function buildView(ColumnView $columnView, ColumnTypeInterface $columnType, array $columnOptions = []): void {
 		if($columnType->getParent()) {
 			$parentType = $this->dependencyInjectionExtension->resolveColumnType($columnType->getParent());
 			$this->buildView($columnView, $parentType, $columnOptions);
@@ -449,9 +450,9 @@ class Column implements ColumnInterface {
 	 * In case this method was already called once, it will immediately return.
 	 *
 	 * @param ColumnTypeInterface $columnType the column type to call the buildData method on, and all its parents.
-	 * @param array $options the options for the column type.
+	 * @param array               $options    the options for the column type.
 	 */
-	protected function buildData(ColumnTypeInterface $columnType, array $options = array()): void {
+	protected function buildData(ColumnTypeInterface $columnType, array $options = []): void {
 		if($this->dataConfigured) {
 			return;
 		}

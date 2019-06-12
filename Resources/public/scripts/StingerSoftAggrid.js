@@ -1,4 +1,5 @@
-var StingerSoft = function(){};
+var StingerSoft = function () {
+};
 
 /**
  * Map the given values to the object properties,
@@ -7,10 +8,10 @@ var StingerSoft = function(){};
  * @param {array} values
  * @param {Object} object
  */
-StingerSoft.mapValuesToObject = function(values, object) {
-	if(typeof values !== "undefined" && values) {
-		Object.keys(values).forEach(function(key) {
-			if(object.hasOwnProperty(key)) {
+StingerSoft.mapValuesToObject = function (values, object) {
+	if (typeof values !== "undefined" && values) {
+		Object.keys(values).forEach(function (key) {
+			if (object.hasOwnProperty(key)) {
 				object[key] = values[key];
 			}
 		});
@@ -37,7 +38,7 @@ StingerSoft.mapValuesToObject = function(values, object) {
  */
 function StingerSoftAggrid(gridId) {
 	/** */
-	if(gridId.substring(0, 1) !== '#') {
+	if (gridId.substring(0, 1) !== '#') {
 		gridId = '#' + gridId;
 	}
 	this.gridId = gridId;
@@ -72,28 +73,28 @@ function StingerSoftAggrid(gridId) {
  * @param {json} gridOptions - The Ag-Grid configuration options
  * @param {json} stingerOptions - The stinger-soft Ag-Grid configuration options
  */
-StingerSoftAggrid.prototype.init = function(gridOptions, stingerOptions) {
+StingerSoftAggrid.prototype.init = function (gridOptions, stingerOptions) {
 	"use strict";
 
 	//
 	this.gridOptions = gridOptions;
 	this.options = stingerOptions;
-	if(this.options.hasOwnProperty('enterpriseLicense')) {
+	if (this.options.hasOwnProperty('enterpriseLicense')) {
 		this.setLicenseKey(this.options.enterpriseLicense);
 	}
 	this.grid = new agGrid.Grid(this.aggrid, gridOptions);
 
 	//Init
 	this.registerListeners();
-	if (this.options.hasOwnProperty('dataMode') &&  this.options.dataMode === 'ajax') {
-		if(this.options.hasOwnProperty('ajaxUrl')) {
+	if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
+		if (this.options.hasOwnProperty('ajaxUrl')) {
 			var that = this;
 			jQuery.getJSON(this.options.ajaxUrl, function (data) {
 				that.gridOptions.api.setRowData(data.items);
 			});
 		}
 	}
-	if (this.options.hasOwnProperty('dataMode') &&  this.options.dataMode === 'enterprise') {
+	if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'enterprise') {
 		var serverSideDatasource = {
 			url: this.options.ajaxUrl,
 			ajaxReq: null,
@@ -115,7 +116,7 @@ StingerSoftAggrid.prototype.init = function(gridOptions, stingerOptions) {
  *
  * @param params
  */
-StingerSoftAggrid.prototype.getContextMenuItems = function(params) {
+StingerSoftAggrid.prototype.getContextMenuItems = function (params) {
 	"use strict";
 
 	return [
@@ -132,16 +133,16 @@ StingerSoftAggrid.prototype.getContextMenuItems = function(params) {
  * @param {string} field
  * @param {array} values
  */
-StingerSoftAggrid.prototype.filter = function(field, values) {
+StingerSoftAggrid.prototype.filter = function (field, values) {
 	"use strict";
 
 	var gridApi = this.getGridApi();
 	var filter = gridApi.getFilterInstance(field);
-	if(filter) {
+	if (filter) {
 		//Reset
 		filter.selectNothing();
 		//Select values
-		for(var i = 0; i < values.length; i++) {
+		for (var i = 0; i < values.length; i++) {
 			filter.selectValue(values[i]);
 		}
 	}
@@ -153,12 +154,12 @@ StingerSoftAggrid.prototype.filter = function(field, values) {
  *
  * @param {string} searchString
  */
-StingerSoftAggrid.prototype.quickFilter = function(searchString) {
+StingerSoftAggrid.prototype.quickFilter = function (searchString) {
 	this.filterCount++;
 	var that = this;
 	var oldFilterCount = this.filterCount;
-	setTimeout(function() {
-		if(that.filterCount === oldFilterCount) {
+	setTimeout(function () {
+		if (that.filterCount === oldFilterCount) {
 			that.gridOptions.api.setQuickFilter(searchString);
 			that.filterCount = 0;
 		}
@@ -168,7 +169,7 @@ StingerSoftAggrid.prototype.quickFilter = function(searchString) {
 /**
  * Reset all filter
  */
-StingerSoftAggrid.prototype.resetFilter = function() {
+StingerSoftAggrid.prototype.resetFilter = function () {
 	this.gridOptions.api.setQuickFilter();
 	this.gridOptions.api.setFilterModel(null);
 	this.gridOptions.api.onFilterChanged();
@@ -177,24 +178,24 @@ StingerSoftAggrid.prototype.resetFilter = function() {
 /**
  * Reset all sorting
  */
-StingerSoftAggrid.prototype.resetSort = function() {
+StingerSoftAggrid.prototype.resetSort = function () {
 	this.gridOptions.api.setSortModel(null);
 };
 
 /**
  * Register some commonly used listeners.
  */
-StingerSoftAggrid.prototype.registerListeners = function() {
+StingerSoftAggrid.prototype.registerListeners = function () {
 	var that = this;
 	//Save to local storage
-	this.$aggrid.on("remove", function(event) {
+	this.$aggrid.on("remove", function (event) {
 		that.save();
 	});
-	window.addEventListener("beforeunload", function(event) {
+	window.addEventListener("beforeunload", function (event) {
 		that.save();
 	});
 	//Refresh
-	jQuery(document).on('refresh.aggrid', function(event) {
+	jQuery(document).on('refresh.aggrid', function (event) {
 		that.refresh(true);
 	});
 };
@@ -204,12 +205,12 @@ StingerSoftAggrid.prototype.registerListeners = function() {
  * @param colDef
  * @param refresh
  */
-StingerSoftAggrid.prototype.setColumnDefs = function(colDef, refresh) {
-	if(refresh === undefined) {
+StingerSoftAggrid.prototype.setColumnDefs = function (colDef, refresh) {
+	if (refresh === undefined) {
 		refresh = false;
 	}
 	this.gridOptions.api.setColumnDefs(colDef);
-	if(refresh) {
+	if (refresh) {
 		this.refresh();
 	}
 };
@@ -221,12 +222,12 @@ StingerSoftAggrid.prototype.setColumnDefs = function(colDef, refresh) {
  * @param {Array} data The new data
  * @param {boolean} refresh Defaults to false
  */
-StingerSoftAggrid.prototype.setData = function(data, refresh) {
-	if(refresh === undefined) {
+StingerSoftAggrid.prototype.setData = function (data, refresh) {
+	if (refresh === undefined) {
 		refresh = false;
 	}
 	this.gridOptions.api.setRowData(data);
-	if(refresh) {
+	if (refresh) {
 		this.refresh();
 	}
 };
@@ -235,8 +236,8 @@ StingerSoftAggrid.prototype.setData = function(data, refresh) {
  *
  * @param {boolean} force If true refreshes all cells and does not compare. Defaults to false
  */
-StingerSoftAggrid.prototype.refresh = function(force) {
-	if(force === undefined) {
+StingerSoftAggrid.prototype.refresh = function (force) {
+	if (force === undefined) {
 		force = false;
 	}
 	this.gridOptions.api.refreshCells({
@@ -249,8 +250,8 @@ StingerSoftAggrid.prototype.refresh = function(force) {
  * @param {agGrid.ColumnApi} columnApi
  * @param {agGrid.GridApi} gridApi
  */
-StingerSoftAggrid.prototype.save = function(columnApi, gridApi) {
-	if(window.localStorage) {
+StingerSoftAggrid.prototype.save = function (columnApi, gridApi) {
+	if (window.localStorage) {
 		var storage = window.localStorage;
 		var _columnApi = this.getColumnApi(columnApi);
 		var _gridApi = this.getGridApi(gridApi);
@@ -272,8 +273,8 @@ StingerSoftAggrid.prototype.save = function(columnApi, gridApi) {
  * @param {agGrid.ColumnApi} columnApi
  * @param {agGrid.GridApi} gridApi
  */
-StingerSoftAggrid.prototype.load = function(columnApi, gridApi) {
-	if(window.localStorage) {
+StingerSoftAggrid.prototype.load = function (columnApi, gridApi) {
+	if (window.localStorage) {
 		var storage = window.localStorage;
 		var _columnApi = this.getColumnApi(columnApi);
 		var _gridApi = this.getGridApi(gridApi);
@@ -283,16 +284,16 @@ StingerSoftAggrid.prototype.load = function(columnApi, gridApi) {
 		var sortModel = JSON.parse(storage.getItem(this.stateSavePrefix + this.stateSaveKey + "_sorts"));
 		var filterModel = JSON.parse(storage.getItem(this.stateSavePrefix + this.stateSaveKey + "_filters"));
 		//
-		if(columnState && Array.isArray(columnState) && columnState.length) {
+		if (columnState && Array.isArray(columnState) && columnState.length) {
 			_columnApi.setColumnState(columnState);
 		}
-		if(columnGroupState && Array.isArray(columnGroupState) && columnGroupState.length) {
+		if (columnGroupState && Array.isArray(columnGroupState) && columnGroupState.length) {
 			_columnApi.setColumnGroupState(columnGroupState);
 		}
-		if(sortModel && Array.isArray(sortModel) && sortModel.length) {
+		if (sortModel && Array.isArray(sortModel) && sortModel.length) {
 			_gridApi.setSortModel(sortModel);
 		}
-		if(filterModel && Object.keys(filterModel).length !== 0) {
+		if (filterModel && Object.keys(filterModel).length !== 0) {
 			_gridApi.setFilterModel(filterModel);
 		}
 	}
@@ -304,13 +305,13 @@ StingerSoftAggrid.prototype.load = function(columnApi, gridApi) {
  * @param field Defaults to "id"
  * @returns {Array} The selected ids, if the row have the data field
  */
-StingerSoftAggrid.prototype.getSelectedIds = function(gridApi, field) {
+StingerSoftAggrid.prototype.getSelectedIds = function (gridApi, field) {
 	var _field = field || "id";
 	var _gridApi = this.getGridApi(gridApi);
 	var selectedRows = _gridApi.getSelectedRows();
 	var selectedIds = [];
-	selectedRows.forEach(function(selectedRow, index) {
-		if(_field in selectedRow) {
+	selectedRows.forEach(function (selectedRow, index) {
+		if (_field in selectedRow) {
 			selectedIds.push(selectedRow[field]);
 		}
 	});
@@ -322,10 +323,10 @@ StingerSoftAggrid.prototype.getSelectedIds = function(gridApi, field) {
  *
  * @param event
  */
-StingerSoftAggrid.prototype.onRowSelected = function(event) {
-	if(this.foreignFormSelectInputId) {
+StingerSoftAggrid.prototype.onRowSelected = function (event) {
+	if (this.foreignFormSelectInputId) {
 		var $field = jQuery('#' + this.foreignFormSelectInputId);
-		if($field.length > 0) {
+		if ($field.length > 0) {
 			$field.val(Object.values(this.getSelectedIds(event.api)).join(','));
 		}
 	}
@@ -337,7 +338,7 @@ StingerSoftAggrid.prototype.onRowSelected = function(event) {
  * @param columnApi
  * @returns {agGrid.ColumnApi}
  */
-StingerSoftAggrid.prototype.getColumnApi = function(columnApi) {
+StingerSoftAggrid.prototype.getColumnApi = function (columnApi) {
 	return columnApi && columnApi instanceof agGrid.ColumnApi ? columnApi : this.gridOptions.columnApi;
 };
 
@@ -346,49 +347,49 @@ StingerSoftAggrid.prototype.getColumnApi = function(columnApi) {
  * @param gridApi
  * @returns {agGrid.GridApi}
  */
-StingerSoftAggrid.prototype.getGridApi = function(gridApi) {
+StingerSoftAggrid.prototype.getGridApi = function (gridApi) {
 	return gridApi && gridApi instanceof agGrid.GridApi ? gridApi : this.gridOptions.api;
 };
 
 /**
  * @return {string}
  */
-StingerSoftAggrid.prototype.getGridId = function() {
+StingerSoftAggrid.prototype.getGridId = function () {
 	return this.gridId;
 };
 
 /**
  * @return {Element}
  */
-StingerSoftAggrid.prototype.getAggrid = function() {
+StingerSoftAggrid.prototype.getAggrid = function () {
 	return this.aggrid;
 };
 
 /**
  * @return {jQuery}
  */
-StingerSoftAggrid.prototype.getAggridJquery = function() {
+StingerSoftAggrid.prototype.getAggridJquery = function () {
 	return this.$aggrid;
 };
 
 /**
  * @return {Grid}
  */
-StingerSoftAggrid.prototype.getGrid = function() {
+StingerSoftAggrid.prototype.getGrid = function () {
 	return this.grid;
 };
 
 /**
  * @return {string}
  */
-StingerSoftAggrid.prototype.getLicenseKey = function() {
+StingerSoftAggrid.prototype.getLicenseKey = function () {
 	return this.licenseKey;
 };
 
 /**
  * @param {string} licenseKey
  */
-StingerSoftAggrid.prototype.setLicenseKey = function(licenseKey) {
+StingerSoftAggrid.prototype.setLicenseKey = function (licenseKey) {
 	this.licenseKey = licenseKey;
 	agGrid.LicenseManager.setLicenseKey(licenseKey);
 	return this.licenseKey;
@@ -397,7 +398,7 @@ StingerSoftAggrid.prototype.setLicenseKey = function(licenseKey) {
 /**
  * @return {Object}
  */
-StingerSoftAggrid.prototype.getGridOptions = function() {
+StingerSoftAggrid.prototype.getGridOptions = function () {
 	return this.gridOptions;
 };
 
@@ -410,13 +411,15 @@ StingerSoftAggrid.Renderer = StingerSoftAggrid.Renderer || {};
 /**
  *
  * @param {string} renderer - The name of the renderer function to pull
+ * @param {json} rendererParams
  * @returns {*} The according renderer or default to the normal renderer
  */
-StingerSoftAggrid.Renderer.getRenderer = function(renderer) {
+StingerSoftAggrid.Renderer.getRenderer = function (renderer, rendererParams) {
 	//Default to null -> Uses the default renderer
 	var aggridRenderer = null;
-	if(renderer in StingerSoftAggrid.Renderer && typeof StingerSoftAggrid.Renderer[renderer] == 'function') {
-		aggridRenderer = StingerSoftAggrid.Renderer[renderer];
+	if (renderer in StingerSoftAggrid.Renderer && typeof StingerSoftAggrid.Renderer[renderer] == 'function') {
+		var finalRendererParams = rendererParams || {};
+		aggridRenderer = StingerSoftAggrid.Renderer[renderer](finalRendererParams);
 	}
 	return aggridRenderer;
 };
@@ -430,13 +433,15 @@ StingerSoftAggrid.Formatter = StingerSoftAggrid.Formatter || {};
 /**
  *
  * @param {string} formatter - The name of the formatter function to pull
+ * @param {json} formatterParams
  * @returns {*} The according formatter or default to the normal formatter
  */
-StingerSoftAggrid.Formatter.getFormatter = function(formatter) {
+StingerSoftAggrid.Formatter.getFormatter = function (formatter, formatterParams) {
 	//Default to null -> Uses the default formatter
 	var aggridFormatter = null;
-	if(formatter in StingerSoftAggrid.Formatter && typeof StingerSoftAggrid.Formatter[formatter] == 'function') {
-		aggridFormatter = StingerSoftAggrid.Formatter[formatter];
+	if (formatter in StingerSoftAggrid.Formatter && typeof StingerSoftAggrid.Formatter[formatter] == 'function') {
+		var finalFormatterParams = formatterParams || {};
+		aggridFormatter = StingerSoftAggrid.Formatter[formatter](finalFormatterParams);
 	}
 	return aggridFormatter;
 };
@@ -450,13 +455,15 @@ StingerSoftAggrid.Editor = StingerSoftAggrid.Editor || {};
 /**
  *
  * @param {string} editor - The name of the editor function to pull
+ * @param {json} editorParams
  * @returns {*} The according editor or default null
  */
-StingerSoftAggrid.Editor.getEditor = function(editor) {
+StingerSoftAggrid.Editor.getEditor = function (editor, editorParams) {
 	//Default to null -> Uses the default editor
 	var aggridEditor = null;
-	if(editor in StingerSoftAggrid.Editor && typeof StingerSoftAggrid.Editor[editor] == 'function') {
-		aggridEditor = StingerSoftAggrid.Editor[editor];
+	if (editor in StingerSoftAggrid.Editor && typeof StingerSoftAggrid.Editor[editor] == 'function') {
+		var finalEditorParams = editorParams || {};
+		aggridEditor = StingerSoftAggrid.Editor[editor](finalEditorParams);
 	}
 	return aggridEditor;
 };
@@ -471,13 +478,15 @@ StingerSoftAggrid.Getter = StingerSoftAggrid.Getter || {};
 /**
  *
  * @param {string} getters - The name of the getters function to pull
+ * @param {json} getterParams
  * @returns {*} The according getters or default to the normal formatter
  */
-StingerSoftAggrid.Getter.getGetter = function(getters) {
+StingerSoftAggrid.Getter.getGetter = function (getters, getterParams) {
 	//Default to null -> Uses the default getter
 	var aggridGetter = null;
-	if(getters in StingerSoftAggrid.Getter && typeof StingerSoftAggrid.Getter[getters] == 'function') {
-		aggridGetter = StingerSoftAggrid.Getter[getters];
+	if (getters in StingerSoftAggrid.Getter && typeof StingerSoftAggrid.Getter[getters] == 'function') {
+		var finalGetterParams = getterParams || {};
+		aggridGetter = StingerSoftAggrid.Getter[getters](getterParams);
 	}
 	return aggridGetter;
 };
@@ -491,13 +500,15 @@ StingerSoftAggrid.Creator = StingerSoftAggrid.Creator || {};
 /**
  *
  * @param {string} keyCreator - The name of the keyCreator function to pull
+ * @param {json} keyCreatorParams
  * @returns {*} The according keyCreator or default to the normal formatter
  */
-StingerSoftAggrid.Creator.getKeyCreator = function(keyCreator) {
+StingerSoftAggrid.Creator.getKeyCreator = function (keyCreator, keyCreatorParams) {
 	//Default to null -> Uses the default creator
 	var aggridKeyCreator = null;
-	if(keyCreator in StingerSoftAggrid.Creator && typeof StingerSoftAggrid.Creator[keyCreator] == 'function') {
-		aggridKeyCreator = StingerSoftAggrid.Creator[keyCreator];
+	if (keyCreator in StingerSoftAggrid.Creator && typeof StingerSoftAggrid.Creator[keyCreator] == 'function') {
+		var finalKeyCreatorParams = keyCreatorParams || {};
+		aggridKeyCreator = StingerSoftAggrid.Creator[keyCreator](finalKeyCreatorParams);
 	}
 	return aggridKeyCreator;
 };
@@ -511,13 +522,15 @@ StingerSoftAggrid.Tooltip = StingerSoftAggrid.Tooltip || {};
 /**
  *
  * @param {string} tooltip - The name of the tooltip function to pull
+ * @param {json} tooltipParams
  * @returns {*} The according tooltip or default to null
  */
-StingerSoftAggrid.Tooltip.getTooltip = function(tooltip) {
+StingerSoftAggrid.Tooltip.getTooltip = function (tooltip, tooltipParams) {
 	//Default to null -> Uses the default tooltip
 	var aggridTooltip = null;
-	if(tooltip in StingerSoftAggrid.Tooltip && typeof StingerSoftAggrid.Tooltip[tooltip] == 'function') {
-		aggridTooltip = StingerSoftAggrid.Tooltip[tooltip];
+	if (tooltip in StingerSoftAggrid.Tooltip && typeof StingerSoftAggrid.Tooltip[tooltip] == 'function') {
+		var finalTooltipParams = tooltipParams || {};
+		aggridTooltip = StingerSoftAggrid.Tooltip[tooltip](finalTooltipParams);
 	}
 	return aggridTooltip;
 };
@@ -531,13 +544,15 @@ StingerSoftAggrid.Filter = StingerSoftAggrid.Filter || {};
 /**
  *
  * @param {string} filter - The name of the filter function to pull
+ * @param {json} filterParams
  * @returns {*} The according filter or default to null
  */
-StingerSoftAggrid.Filter.getFilter = function(filter) {
+StingerSoftAggrid.Filter.getFilter = function (filter, filterParams) {
 	//Default to null -> Uses the default filter
 	var aggridFilter = null;
-	if(filter in StingerSoftAggrid.Filter && typeof StingerSoftAggrid.Filter[filter] == 'function') {
-		aggridFilter = StingerSoftAggrid.Filter[filter];
+	if (filter in StingerSoftAggrid.Filter && typeof StingerSoftAggrid.Filter[filter] == 'function') {
+		var finalFilterParams = filterParams || {};
+		aggridFilter = StingerSoftAggrid.Filter[filter](finalFilterParams);
 	}
 	return aggridFilter;
 };

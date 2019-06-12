@@ -33,14 +33,13 @@ class FormattedStringColumnType extends AbstractColumnType {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setDefault('string_format', '%s');
-		$resolver->setAllowedTypes('string_format', array('string', 'callable'));
+		$resolver->setAllowedTypes('string_format', ['string', 'callable']);
 
 		$resolver->setDefault('string_format_parameters', null);
-		$resolver->setAllowedTypes('string_format_parameters', array('null', 'array', 'callable'));
+		$resolver->setAllowedTypes('string_format_parameters', ['null', 'array', 'callable']);
 	}
 
 	/**
@@ -52,7 +51,6 @@ class FormattedStringColumnType extends AbstractColumnType {
 
 	/**
 	 * {@inheritDoc}
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::getParent()
 	 */
 	public function getParent(): ?string {
 		return StringColumnType::class;

@@ -21,7 +21,6 @@ class CountColumnType extends AbstractColumnType {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::configureOptions()
 	 */
 	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
 		$resolver->setDefault('orderable', false);
@@ -35,7 +34,6 @@ class CountColumnType extends AbstractColumnType {
 
 	/**
 	 * {@inheritDoc}
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::getParent()
 	 */
 	public function getParent(): string {
 		return IntegerColumnType::class;

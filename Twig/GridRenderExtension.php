@@ -13,11 +13,17 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Twig;
 
 use StingerSoft\AggridBundle\View\GridView;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
-class GridRenderExtension extends \Twig_Extension {
+class GridRenderExtension extends AbstractExtension {
 
 	/**
-	 * @var \Twig_Environment
+	 * @var Environment
 	 */
 	protected $environment;
 
@@ -32,11 +38,11 @@ class GridRenderExtension extends \Twig_Extension {
 	protected $twigJsTemplate;
 
 	/**
-	 * @param \Twig_Environment $environment
-	 * @param string $twigHtmlTemplate
-	 * @param string $twigJsTemplate
+	 * @param Environment $environment
+	 * @param string      $twigHtmlTemplate
+	 * @param string      $twigJsTemplate
 	 */
-	public function __construct(\Twig_Environment $environment, $twigHtmlTemplate, $twigJsTemplate) {
+	public function __construct(Environment $environment, $twigHtmlTemplate, $twigJsTemplate) {
 		$this->environment = $environment;
 		$this->twigHtmlTemplate = $twigHtmlTemplate;
 		$this->twigJsTemplate = $twigJsTemplate;
@@ -46,39 +52,38 @@ class GridRenderExtension extends \Twig_Extension {
 	 *
 	 * {@inheritdoc}
 	 *
-	 * @see \Twig_Extension::getFunctions()
 	 */
 	public function getFunctions(): array {
-		return array(
-			new \Twig_SimpleFunction('aggrid_grid_render', array(
+		return [
+			new TwigFunction('aggrid_grid_render', [
 				$this,
-				'render'
-			), array(
-				'is_safe' => array(
-					'html'
-				)
-			))
-		);
+				'render',
+			], [
+				'is_safe' => [
+					'html',
+				],
+			]),
+		];
 	}
 
 	/**
 	 * Renders a grid with the specified renderer.
 	 *
 	 * @param GridView $grid
-	 * @param array $options
-	 * @param string $renderer
+	 * @param array    $options
+	 * @param string   $renderer
 	 *
 	 * @return string
-	 * @throws \Twig_Error_Loader
-	 * @throws \Twig_Error_Runtime
-	 * @throws \Twig_Error_Syntax
+	 * @throws LoaderError
+	 * @throws RuntimeError
+	 * @throws SyntaxError
 	 */
-	public function render(GridView $grid, array $options = array(), $renderer = null): string {
-		$options = array_merge(array(
+	public function render(GridView $grid, array $options = [], $renderer = null): string {
+		$options = array_merge([
 			'html_template' => $this->twigHtmlTemplate,
 			'js_template'   => $this->twigJsTemplate,
-			'grid'          => $grid
-		), $options);
+			'grid'          => $grid,
+		], $options);
 		return $this->environment->render($options['html_template'], $options) . "\n" . $this->environment->render($options['js_template'], $options);
 	}
 }

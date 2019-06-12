@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Transformer;
 
 use StingerSoft\AggridBundle\Column\ColumnInterface;
-use Pec\Bundle\DatatableBundle\Column\StringColumnType;
 
 /**
  * The Nl2BrStringDataTransformer is automatically appended to all columns of type StringColumnType

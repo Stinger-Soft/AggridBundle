@@ -44,14 +44,14 @@
 	{% if column.vars.autoHeight is defined and column.vars.autoHeight is not same as(null) %}
 	autoHeight: {{ column.vars.autoHeight|default(true)|json_encode|raw }},
 	{% endif %}
+	{% if column.vars.cellRenderer is defined and column.vars.cellRenderer %}
+	cellRenderer: StingerSoftAggrid.Renderer.getRenderer("{{ column.vars.cellRenderer }}", {{ column.vars.cellRendererParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
+	{% endif %}
 	{% if column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
-	valueGetter: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}"),
+	valueGetter: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}", {{ column.vars.valueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% endif %}
 	{% if column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
-	valueFormatter: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}"),
-	{% endif %}
-	{% if column.vars.cellRenderer is defined and column.vars.cellRenderer is not same as(null) %}
-	cellRenderer: StingerSoftAggrid.Renderer.getRenderer("{{ column.vars.cellRenderer }}"),
+	valueFormatter: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}", {{ column.vars.valueFormatterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% endif %}
 	{% if column.vars.cellRendererParams is defined and column.vars.cellRendererParams is not same as(null) %}
 	cellRendererParams: {{ column.vars.cellRendererParams|json_encode|raw }},
@@ -59,9 +59,9 @@
 	{% if column.vars.quickFilter is defined and column.vars.quickFilter is not same as(null) %}
 	getQuickFilterText: StingerSoftAggrid.Filter.getFilter("{{ column.vars.quickFilter }}"),
 	{% elseif column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
-	getQuickFilterText: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}"),
+	getQuickFilterText: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}", {{ column.vars.valueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% elseif column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
-	getQuickFilterText: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}"),
+	getQuickFilterText: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}", {{ column.vars.valueFormatterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% endif %}
 	{% if column.vars.keyCreator is defined and column.vars.keyCreator is not same as(null) %}
 	keyCreator: StingerSoftAggrid.Creator.getKeyCreator("{{ column.vars.keyCreator }}"),

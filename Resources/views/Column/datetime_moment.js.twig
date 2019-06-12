@@ -1,6 +1,5 @@
 {% extends '@StingerSoftAggrid/Column/column.js.twig' %}
 {% block column_def_start %}
-dateFormat: {{ column.vars.date_format|json_encode|raw }},
 cellEditor: 'datePicker',
 comparator: function(dateA, dateB) {
     if (dateA == dateB) {

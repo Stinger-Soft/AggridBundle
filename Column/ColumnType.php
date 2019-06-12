@@ -209,8 +209,38 @@ class ColumnType extends AbstractColumnType {
 			return $value;
 		});
 
+		$resolver->setDefault('suppressMenu', false);
+		$resolver->setAllowedTypes('suppressMenu',  ['bool']);
+
+		$resolver->setDefault('autoHeight', null);
+		$resolver->setAllowedTypes('autoHeight',  ['null', 'bool']);
+
 		$resolver->setDefault('valueFormatter', null);
 		$resolver->setAllowedTypes('valueFormatter',  ['null', 'string']);
+
+		$resolver->setDefault('valueGetter', null);
+		$resolver->setAllowedTypes('valueGetter',  ['null', 'string']);
+
+		$resolver->setDefault('quickFilter', null);
+		$resolver->setAllowedTypes('quickFilter',  ['null', 'string']);
+
+		$resolver->setDefault('keyCreator', null);
+		$resolver->setAllowedTypes('keyCreator',  ['null', 'string']);
+
+		$resolver->setDefault('tooltipField', null);
+		$resolver->setAllowedTypes('tooltipField',  ['null', 'string']);
+
+		$resolver->setDefault('tooltip', null);
+		$resolver->setAllowedTypes('tooltip',  ['null', 'string']);
+
+		$resolver->setDefault('checkboxSelection', false);
+		$resolver->setAllowedTypes('checkboxSelection',  'bool');
+
+		$resolver->setDefault('cellRenderer', null);
+		$resolver->setAllowedTypes('cellRenderer',  ['null', 'string']);
+
+		$resolver->setDefault('cellRendererParams', null);
+		$resolver->setAllowedTypes('cellRendererParams',  ['null', 'array']);
 
 		$resolver->setDefault('position', null);
 		$resolver->setAllowedTypes('position', array(
@@ -254,6 +284,17 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['visible'] = $options['visible'] && !$options['rowGroup'];
 		$view->vars['editable'] = $options['editable'];
 		$view->vars['valueFormatter'] = $options['valueFormatter'];
+		$view->vars['keyCreator'] = $options['keyCreator'];
+		$view->vars['quickFilter'] = $options['quickFilter'];
+		$view->vars['valueGetter'] = $options['valueGetter'];
+		$view->vars['autoHeight'] = $options['autoHeight'];
+		$view->vars['suppressMenu'] = $options['suppressMenu'];
+		$view->vars['tooltipField'] = $options['tooltipField'];
+		$view->vars['tooltip'] = $options['tooltip'];
+		$view->vars['checkboxSelection'] = $options['checkboxSelection'];
+		$view->vars['cellRenderer'] = $options['cellRenderer'];
+		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
+
 	}
 
 	/**

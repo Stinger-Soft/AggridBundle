@@ -30,9 +30,8 @@ class TemplatedColumnType extends AbstractColumnType {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \Pec\Bundle\DatatableBundle\Column\AbstractColumnType::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setRequired('template');
 		$resolver->setAllowedTypes('template', 'string');
 
@@ -42,26 +41,24 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('render_html', true);
 		$resolver->setAllowedTypes('render_html', 'boolean');
 
-		$resolver->setDefault('additionalContext', array());
+		$resolver->setDefault('additionalContext', []);
 		$resolver->setAllowedTypes('additionalContext', 'array');
 
+		$resolver->setDefault('cellRenderer', 'RawHtmlRenderer');
+
 		$that = $this;
-		$resolver->setDefault('value_delegate', function($item, $path, $options) use ($that, $tableOptions) {
+		$resolver->setDefault('value_delegate', function ($item, $path, $options) use ($that, $tableOptions) {
 			$value = $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
-			$originalContext = array(
+			$originalContext = [
 				'item'         => $item,
 				'path'         => $path,
 				'value'        => $value,
 				'options'      => $options,
-				'tableOptions' => $tableOptions
-			);
+				'tableOptions' => $tableOptions,
+			];
 			$additionalContext = $options['additionalContext'];
 			$context = array_merge($additionalContext, $originalContext);
 			return trim($that->renderView($options['template'], $context));
 		});
-	}
-
-	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
-		$view->vars['render_html'] = $options['render_html'];
 	}
 }

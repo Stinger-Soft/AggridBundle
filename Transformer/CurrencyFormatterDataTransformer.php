@@ -18,7 +18,6 @@ use StingerSoft\AggridBundle\Column\ColumnInterface;
  * The CurrencyFormatterDataTransformer automatically formats a columns' value as a currency according to a defined locale,
  * style and pattern using PHPs number formatter capabilities for all CurrencyColumnType column types.
  *
- * @see \Pec\Bundle\DatatableBundle\Column\CurrencyColumnType the column type that uses this formatter.
  */
 class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 

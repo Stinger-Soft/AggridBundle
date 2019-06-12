@@ -138,7 +138,6 @@ class Filter implements FilterInterface {
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \Pec\Bundle\DatatableBundle\Filter\FilterInterface::getColumnOption()
 	 */
 	public function getColumnOption($key) {
 		return $this->columnOptions[$key];
@@ -147,7 +146,6 @@ class Filter implements FilterInterface {
 	/**
 	 *
 	 * {@inheritdoc}
-	 * @see \Pec\Bundle\DatatableBundle\Filter\FilterInterface::setColumnOption()
 	 */
 	public function setColumnOption($key, $value): FilterInterface {
 		$this->columnOptions[$key] = $value;

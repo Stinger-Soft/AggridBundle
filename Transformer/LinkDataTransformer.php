@@ -57,7 +57,6 @@ class LinkDataTransformer implements DataTransformerInterface {
 
 	/**
 	 * {@inheritDoc}
-	 * @see \Pec\Bundle\DatatableBundle\Transformer\DataTransformerInterface::transform()
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$url = null;
@@ -70,7 +69,7 @@ class LinkDataTransformer implements DataTransformerInterface {
 			}
 		}
 		if($url) {
-			$tmpAttributes = array();
+			$tmpAttributes = [];
 			if(is_array($url)) {
 				$tmpAttributes = array_key_exists('attr', $url) ? $url['attr'] : $tmpAttributes;
 				$url = $this->router->generate($url['route'], $url['route_params'], UrlGeneratorInterface::ABSOLUTE_PATH);

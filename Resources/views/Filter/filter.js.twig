@@ -8,11 +8,15 @@ filterParams: {
 	{% if filter.vars.newRowsAction is defined and filter.vars.newRowsAction is not same as(null) %}
 	newRowsAction: {{ filter.vars.newRowsAction|json_encode|raw }},
 	{% endif %}
-	{% if filter.vars.debounceMs is defined and filter.vars.debounceMs is not same as(null) %}
-	debounceMs: {{ filter.vars.debounceMs|json_encode|raw }},
-	{% endif %}
 	{% if filter.vars.applyButton is defined and filter.vars.applyButton is not same as(null) %}
-	applyButton: {{ filter.vars.applyButton|json_encode|raw }},
+		applyButton: {{ filter.vars.applyButton|json_encode|raw }},
+		{% if filter.vars.debounceMs is defined and filter.vars.debounceMs is not same as(null) and filter.vars.applyButton != true %}
+			debounceMs: {{ filter.vars.debounceMs|json_encode|raw }},
+		{% endif %}
+	{% else %}
+		{% if filter.vars.debounceMs is defined and filter.vars.debounceMs is not same as(null) %}
+		debounceMs: {{ filter.vars.debounceMs|json_encode|raw }},
+		{% endif %}
 	{% endif %}
 	{% if filter.vars.clearButton is defined and filter.vars.clearButton is not same as(null) %}
 	clearButton: {{ filter.vars.clearButton|json_encode|raw }}

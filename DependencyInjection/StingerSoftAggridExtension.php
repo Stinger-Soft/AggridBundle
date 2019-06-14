@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\DependencyInjection;
 
+use StingerSoft\AggridBundle\StingerSoftAggridBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -27,9 +28,11 @@ class StingerSoftAggridExtension extends Extension {
 	 */
 	public function load(array $configs, ContainerBuilder $container): void {
 		$configuration = new Configuration();
-		$this->processConfiguration($configuration, $configs);
+		$config = $this->processConfiguration($configuration, $configs);
 
 		$loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 		$loader->load('services.yml');
+
+		$container->setParameter(StingerSoftAggridBundle::PARAMETER_LICENSE_KEY, $config['licenseKey']);
 	}
 }

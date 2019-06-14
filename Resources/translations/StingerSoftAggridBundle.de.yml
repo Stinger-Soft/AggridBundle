@@ -78,9 +78,9 @@ stingersoft_aggrid:
   excelExport: 'Excel Export'
 
   # enterprise menu pinning
-  pinLeft: 'Fixieren <<'
-  pinRight: 'Fixieren >>'
-  noPin: 'Lösen <>'
+  pinLeft: 'Fixieren «'
+  pinRight: 'Fixieren »'
+  noPin: 'Nicht fixiert'
 
   # enterprise menu aggregation and status bar
   sum: 'Summe'

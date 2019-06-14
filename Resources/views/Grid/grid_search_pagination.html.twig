@@ -1,0 +1,33 @@
+{% set AGGRID_ID = grid.vars.id|replace({'-': '_'}) %}
+{% set hasSearch = grid.vars.searchEnabled %}
+{% set hasPaginationDropdown = grid.vars.pagination and grid.vars.paginationDropDown is not same as(null) and grid.vars.paginationDropDown|length > 0 ? grid.vars.paginationDropDown : false %}
+{% if hasSearch or hasPaginationDropdown %}
+	<div class="form-group">
+		{% if hasSearch %}
+			<input type="text" class="form-control input-small pull-left" placeholder="{{ 'stingersoft_aggrid.searchOoo'|trans({}, 'StingerSoftAggridBundle') }}" id="{{ AGGRID_ID }}_search" />
+		{% endif %}
+		{% if hasPaginationDropdown %}
+			<select class="form-control input-xsmall pull-left" id="{{ AGGRID_ID }}_paginationDropdown">
+				{% set currentPageSize = grid.vars.paginationPageSize|default(false) %}
+				{% set currentPageSizePrinted = currentPageSize != false ? false : true %}
+				{% set needToRenderCurrentPageSize = not (currentPageSize in grid.vars.paginationDropDown) %}
+				{% for entry in grid.vars.paginationDropDown %}
+					{% if needToRenderCurrentPageSize and not currentPageSizePrinted and currentPageSize != false and entry > currentPageSize %}
+						<option value="{{ currentPageSize }}" selected="selected">{{ currentPageSize  }}</option>
+						{% set currentPageSizePrinted = true %}
+					{% endif %}
+					<option value="{{ entry }}" {% if entry == currentPageSize %}selected="selected"{% endif %}>{{ entry }}</option>
+					{% if needToRenderCurrentPageSize and not currentPageSizePrinted and currentPageSize != false and entry == currentPageSize %}
+						{% set currentPageSizePrinted = true %}
+					{% endif %}
+				{% endfor %}
+				{% if needToRenderCurrentPageSize and not currentPageSizePrinted and currentPageSize != false %}
+					<option value="{{ currentPageSize }}" selected="selected">{{ currentPageSize  }}</option>
+				{% endif %}
+				<option value="0">{{ 'stingersoft_aggrid.selectAll'|trans({}, 'StingerSoftAggridBundle') }}</option>
+			</select>
+		{% endif %}
+		<div class="clearfix"></div>
+	</div>
+	<br />
+{% endif %}

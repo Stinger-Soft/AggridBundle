@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\View;
 
 use StingerSoft\AggridBundle\Column\Column;
+use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Grid\GridInterface;
 use StingerSoft\AggridBundle\Grid\GridType;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
@@ -44,32 +45,24 @@ class GridView {
 	 */
 	protected $grid;
 
-//	/**
-//	 * @var Column[]|null helper array containing all filterable columns, will be populated upon first access
-//	 */
-//	protected $filterColumns;
-
-//	/**
-//	 * @var array helper array containing columns grouped by their column group
-//	 */
-//	protected $toggleableColumns;
 	/**
 	 * @var string the id of the grid
 	 */
 	protected $gridId;
+
 	/**
-	 * @var null|Column[]
+	 * @var null|ColumnInterface[]
 	 */
 	protected $filterColumns;
 
 	/**
 	 * GridView Constructor.
 	 *
-	 * @param GridInterface $gridInterface the grid instance
-	 * @param GridTypeInterface $gridType the grid type instance
-	 * @param array $gridOptions the options for the grid type, containing information such as the
+	 * @param GridInterface     $gridInterface   the grid instance
+	 * @param GridTypeInterface $gridType        the grid type instance
+	 * @param array             $gridOptions     the options for the grid type, containing information such as the
 	 *                                           translation_domain etc.
-	 * @param Column[] $columns the columns belonging to the grid, required for generating the column
+	 * @param ColumnInterface[] $columns         the columns belonging to the grid, required for generating the column
 	 *                                           views
 	 */
 	public function __construct(GridInterface $gridInterface, GridTypeInterface $gridType, array $gridOptions, array $columns) {
@@ -78,7 +71,7 @@ class GridView {
 		$this->grid = $gridInterface;
 		$this->gridId = $this->gridType->getId($this->gridOptions);
 		$this->columns = $columns;
-		$this->vars = array();
+		$this->vars = [];
 
 		$this->configureColumnViews();
 //		$this->configureGridSelection();
@@ -107,35 +100,44 @@ class GridView {
 	 * @param ColumnView[] $columns the column views array to set
 	 * @return $this
 	 */
-	public function setColumns($columns) {
+	public function setColumns(array $columns): self {
 		$this->columnViews = $columns;
 		return $this;
 	}
 
 	protected function configureColumnViews(): void {
-		$this->columnViews = array();
+		$this->columnViews = [];
+		$rootViews = [];
 		foreach($this->columns as $column) {
-//			if($column->getFilter()) {
-//				$filterOptions = $column->getFilter()->getFilterOptions();
-//				if($this->gridOptions['filter_external']) {
-//					if(!isset($filterOptions['filter_container_id']) && !isset($filterOptions['filter_container_selector'])) {
-//						$filterOptions['filter_container_id'] = $this->gridId . '_column_filter_' . count($this->columnViews);
-//					}
-//					$column->getFilter()->setFilterOptions($filterOptions);
-//				}
-//			}
-			$this->columnViews[] = $column->createView();
+			if($column->getParent() === null && !isset($rootViews[$column->getPath()])) {
+				$view = $column->createView();
+				$rootViews[$column->getPath()] = $view;
+				$this->addChildViews($view, $column);
+			}
+		}
+		$this->columnViews = $rootViews;
+	}
+
+	protected function addChildViews(ColumnView $parentView, ColumnInterface $column) : void {
+		if(count($column->getChildren())) {
+			$childViews = [];
+			foreach($column->getChildren() as $child) {
+				$childView = $child->createView($parentView);
+				$this->addChildViews($childView, $child);
+				$childViews[] = $childView;
+			}
+			$parentView->vars['children'] = $childViews;
 		}
 	}
 
 	/**
 	 * Get all columns that are filterable and provide a filter instance.
 	 *
-	 * @return Column[] an array of filterable columns, may be empty
+	 * @return ColumnInterface[] an array of filterable columns, may be empty
 	 */
-	public function getFilterableColumns() {
+	public function getFilterableColumns(): array {
 		if($this->filterColumns === null) {
-			$this->filterColumns = array();
+			$this->filterColumns = [];
 			foreach($this->columnViews as $index => $column) {
 				if($column->filter !== null) {
 					$this->filterColumns[$index] = $column;
@@ -145,7 +147,7 @@ class GridView {
 		return $this->filterColumns;
 	}
 
-	public function getInlineData() : ?string {
+	public function getInlineData(): ?string {
 		return $this->grid->createJsonData();
 	}
 

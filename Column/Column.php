@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
 use ReflectionException;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
@@ -21,7 +22,6 @@ use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\PhpCommons\Builder\HashCodeBuilder;
 use StingerSoft\PhpCommons\String\Utils;
-use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class Column implements ColumnInterface {
@@ -65,22 +65,37 @@ class Column implements ColumnInterface {
 	protected $serverSideOrderDelegate;
 
 	/**
+	 * @var callable Callable to update the query builder of the bound object in order to add any required
+	 * where clauses explicitly required for a global search.
+	 * By default the query_path or path property will be used to perform a like query for a global search term.
+	 */
+	protected $serverSideSearchDelegate;
+
+	/**
 	 * @var string the path to be used for querying the potential filter values for select or autocomplete filters
 	 */
 	protected $filterQueryPath;
 
 	/**
-	 * @var ColumnInterface the parent column (if any)
+	 * @var ColumnInterface|null the parent column (if any)
 	 */
 	protected $parent;
+
+	/**
+	 * @var ArrayCollection|ColumnInterface[] the children of the column (if any)
+	 */
+	protected $children;
+
 	/**
 	 * @var OptionsResolver
 	 */
 	protected $resolver;
+
 	/**
 	 * @var DependencyInjectionExtensionInterface
 	 */
 	protected $dependencyInjectionExtension;
+
 	/**
 	 * @var array|QueryBuilder|null
 	 */
@@ -89,6 +104,7 @@ class Column implements ColumnInterface {
 	 * @var array|QueryBuilder|null
 	 */
 	protected $queryBuilder;
+
 	/**
 	 * @var boolean whether the column is orderable
 	 */
@@ -98,6 +114,11 @@ class Column implements ColumnInterface {
 	 * @var boolean whether the column is filterable
 	 */
 	protected $filterable = false;
+
+	/**
+	 * @var boolean whether the column is searchable globally
+	 */
+	protected $searchable = false;
 
 	/**
 	 * @var Filter the filter object, resolved from filter type option and filter options option.
@@ -132,13 +153,14 @@ class Column implements ColumnInterface {
 	 * @throws InvalidArgumentTypeException
 	 */
 	public function __construct($path, ColumnTypeInterface $columnType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $columnTypeOptions = [], array $gridOption = [], $dataSource = null, ColumnInterface $parent = null) {
+		$this->children = new ArrayCollection();
 		$this->columnType = $columnType;
 		$this->gridOptions = $gridOption;
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->path = $path;
 		$this->resolver = new OptionsResolver();
 		$this->columnOptions = $this->setupFilterOptionsResolver($columnType, $columnTypeOptions);
-		$this->parent = $parent;
+		$this->setParent($parent);
 		$this->dataSource = $dataSource;
 		if($dataSource instanceof QueryBuilder) {
 			$this->queryBuilder = clone $dataSource;
@@ -149,6 +171,36 @@ class Column implements ColumnInterface {
 		}
 
 		$this->configureColumn();
+	}
+
+	public function setParent(?ColumnInterface $parent): ColumnInterface {
+		$this->parent = $parent;
+		if($parent !== null) {
+			$parent->addChild($this);
+		}
+		return $this;
+	}
+
+	public function getParent(): ?ColumnInterface {
+		return $this->parent;
+	}
+
+	public function getChildren(): array {
+		return $this->children->toArray();
+	}
+
+	public function addChild(ColumnInterface $child): ColumnInterface {
+		if(!$this->children->contains($child)) {
+			$this->children[] = $child;
+		}
+		return $this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getColumnType(): ColumnTypeInterface {
+		return $this->columnType;
 	}
 
 	/**
@@ -163,6 +215,13 @@ class Column implements ColumnInterface {
 	 */
 	public function isFilterable(): bool {
 		return $this->filterable;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSearchable(): bool {
+		return $this->searchable;
 	}
 
 	/**
@@ -283,8 +342,23 @@ class Column implements ColumnInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function setServerSideOrderDelegate(?callable $serverSideOrderDelegate = null) {
+	public function setServerSideOrderDelegate(?callable $serverSideOrderDelegate = null): ColumnInterface {
 		$this->serverSideOrderDelegate = $serverSideOrderDelegate;
+		return $this;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getServerSideSearchDelegate(): ?callable {
+		return $this->serverSideSearchDelegate;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function setServerSideSearchDelegate(?callable $serverSideSearchDelegate = null): ColumnInterface {
+		$this->serverSideSearchDelegate = $serverSideSearchDelegate;
 		return $this;
 	}
 
@@ -363,7 +437,9 @@ class Column implements ColumnInterface {
 		$this->filterQueryPath = $this->columnOptions['filter_query_path'];
 		$this->orderable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['orderable'], $dataMode);
 		$this->filterable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['filterable'], $dataMode);
+		$this->searchable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['searchable'], $dataMode);
 		$this->serverSideOrderDelegate = $this->columnOptions['order_server_delegate'];
+		$this->serverSideSearchDelegate = $this->columnOptions['search_server_delegate'];
 
 		if($this->filterable && $this->columnOptions['filter_type'] !== null) {
 			$this->filter = new Filter(

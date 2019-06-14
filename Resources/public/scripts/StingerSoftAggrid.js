@@ -56,9 +56,7 @@ function StingerSoftAggrid(gridId) {
 	this.options = null;
 
 	/** */
-	this.filterTimeout = 300;
-	/** */
-	this.filterCount = 0;
+	this.filterTimeout = 500;
 
 	/** */
 	this.stateSavePrefix = "StingerSoftAggrid_";
@@ -85,27 +83,33 @@ StingerSoftAggrid.prototype.init = function (gridOptions, stingerOptions) {
 	this.grid = new agGrid.Grid(this.aggrid, gridOptions);
 
 	//Init
+	this.handleOptions();
 	this.registerListeners();
-	this.handleStingerOptions();
 	return this;
 };
 
-StingerSoftAggrid.prototype.handleStingerOptions = function() {
-	if(this.options.hasOwnProperty('persistState')) {
+StingerSoftAggrid.prototype.handleOptions = function () {
+	if (this.options.hasOwnProperty('persistState')) {
 		this.persistState = this.options.persistState;
 	}
-	if(this.options.hasOwnProperty('versionHash')) {
+	if (this.options.hasOwnProperty('versionHash')) {
 		this.versionHash = this.options.versionHash;
 	}
+	if (this.options.hasOwnProperty('searchEnabled')) {
+		this.searchEnabled = this.options.searchEnabled;
+	}
+	this.isServerSide = false;
+	var that = this;
 	if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
+		this.isServerSide = true;
 		if (this.options.hasOwnProperty('ajaxUrl')) {
-			var that = this;
 			jQuery.getJSON(this.options.ajaxUrl, function (data) {
 				that.gridOptions.api.setRowData(data.items);
 			});
 		}
 	}
 	if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'enterprise') {
+		this.isServerSide = true;
 		var serverSideDatasource = {
 			url: this.options.ajaxUrl,
 			ajaxReq: null,
@@ -113,7 +117,12 @@ StingerSoftAggrid.prototype.handleStingerOptions = function() {
 				if (this.ajaxReq !== null) {
 					this.ajaxReq.abort();
 				}
-				this.ajaxReq = jQuery.post(this.url, {'agGrid': JSON.stringify(params.request)}, function (data) {
+				var searchString = that.quickFilterSearchString || '';
+				var requestObject = params.request;
+				requestObject['search'] = searchString;
+				this.ajaxReq = jQuery.post(this.url, {
+					'agGrid': JSON.stringify(requestObject),
+				}, function (data) {
 					params.successCallback(data.items, data.total);
 				}, "json").fail(params.failCallback);
 			}
@@ -128,7 +137,6 @@ StingerSoftAggrid.prototype.handleStingerOptions = function() {
  */
 StingerSoftAggrid.prototype.getContextMenuItems = function (params) {
 	"use strict";
-
 	return [
 		'expandAll',
 		'contractAll',
@@ -165,13 +173,22 @@ StingerSoftAggrid.prototype.filter = function (field, values) {
  * @param {string} searchString
  */
 StingerSoftAggrid.prototype.quickFilter = function (searchString) {
-	this.filterCount++;
+	if (!this.searchEnabled) {
+		console.warn('search is not enabled!');
+	}
 	var that = this;
-	var oldFilterCount = this.filterCount;
-	setTimeout(function () {
-		if (that.filterCount === oldFilterCount) {
+	if (this.filterTimeoutHandle) {
+		clearTimeout(this.filterTimeoutHandle);
+	}
+	this.filterTimeoutHandle = setTimeout(function () {
+		if (searchString === that.quickFilterSearchString) {
+			return;
+		}
+		that.quickFilterSearchString = searchString;
+		if (that.isServerSide) {
+			that.gridOptions.api.onFilterChanged();
+		} else {
 			that.gridOptions.api.setQuickFilter(searchString);
-			that.filterCount = 0;
 		}
 	}, this.filterTimeout);
 };
@@ -180,7 +197,11 @@ StingerSoftAggrid.prototype.quickFilter = function (searchString) {
  * Reset all filter
  */
 StingerSoftAggrid.prototype.resetFilter = function () {
-	this.gridOptions.api.setQuickFilter();
+	if (this.isServerSide) {
+		this.quickFilterSearchString = '';
+	} else {
+		this.gridOptions.api.setQuickFilter();
+	}
 	this.gridOptions.api.setFilterModel(null);
 	this.gridOptions.api.onFilterChanged();
 };
@@ -197,15 +218,30 @@ StingerSoftAggrid.prototype.resetSort = function () {
  */
 StingerSoftAggrid.prototype.registerListeners = function () {
 	var that = this;
+	if (this.searchEnabled) {
+		this.$searchField = jQuery(this.gridId + '_search');
+		this.$searchField.on('input keyup change', function () {
+			var value = jQuery(this).val();
+			that.quickFilter(value);
+		});
+	}
+	if (this.gridOptions.hasOwnProperty('pagination') && this.gridOptions.pagination) {
+		this.$paginationDropdown = jQuery(this.gridId + '_paginationDropdown');
+		this.$paginationDropdown.on('change', function () {
+			var value = jQuery(this).val();
+			that.getGridApi().paginationSetPageSize(Number(value));
+		});
+	}
+
 	//Save to local storage
-	this.$aggrid.on("remove", function (event) {
+	this.$aggrid.on("remove", function () {
 		that.save();
 	});
-	window.addEventListener("beforeunload", function (event) {
+	window.addEventListener("beforeunload", function () {
 		that.save();
 	});
 	//Refresh
-	jQuery(document).on('refresh.aggrid', function (event) {
+	jQuery(document).on('refresh.aggrid', function () {
 		that.refresh(true);
 	});
 };
@@ -268,7 +304,7 @@ StingerSoftAggrid.prototype.save = function (columnApi, gridApi) {
 
 		var storageKey = this.stateSavePrefix + this.stateSaveKey;
 		var storageObject = {
-			columns:  _columnApi.getColumnState(),
+			columns: _columnApi.getColumnState(),
 			groups: _columnApi.getColumnGroupState(),
 			sorts: _gridApi.getSortModel(),
 			filters: _gridApi.getFilterModel(),
@@ -291,8 +327,8 @@ StingerSoftAggrid.prototype.load = function (columnApi, gridApi) {
 
 		var storageKey = this.stateSavePrefix + this.stateSaveKey;
 		var storageObject = JSON.parse(storage.getItem(storageKey));
-		if(typeof storageObject === 'object' && storageObject.hasOwnProperty('version')) {
-			if(storageObject.version === this.versionHash) {
+		if (typeof storageObject === 'object' && storageObject.hasOwnProperty('version')) {
+			if (storageObject.version === this.versionHash) {
 				var columnState = storageObject.hasOwnProperty('columns') && storageObject.columns ? storageObject.columns : [];
 				var columnGroupState = storageObject.hasOwnProperty('groups') && storageObject.groups ? storageObject.groups : [];
 				var sortModel = storageObject.hasOwnProperty('sorts') && storageObject.sorts ? storageObject.sorts : [];
@@ -435,6 +471,8 @@ StingerSoftAggrid.Renderer.getRenderer = function (renderer, rendererParams) {
 	if (renderer in StingerSoftAggrid.Renderer && typeof StingerSoftAggrid.Renderer[renderer] == 'function') {
 		var finalRendererParams = rendererParams || {};
 		aggridRenderer = StingerSoftAggrid.Renderer[renderer](finalRendererParams);
+	} else {
+		console.warn('Renderer "' + renderer + '" not found! Returning agGrid default function');
 	}
 	return aggridRenderer;
 };
@@ -457,6 +495,8 @@ StingerSoftAggrid.Formatter.getFormatter = function (formatter, formatterParams)
 	if (formatter in StingerSoftAggrid.Formatter && typeof StingerSoftAggrid.Formatter[formatter] == 'function') {
 		var finalFormatterParams = formatterParams || {};
 		aggridFormatter = StingerSoftAggrid.Formatter[formatter](finalFormatterParams);
+	} else {
+		console.warn('Formatter "' + formatter + '" not found! Returning agGrid default function');
 	}
 	return aggridFormatter;
 };
@@ -479,6 +519,8 @@ StingerSoftAggrid.Editor.getEditor = function (editor, editorParams) {
 	if (editor in StingerSoftAggrid.Editor && typeof StingerSoftAggrid.Editor[editor] == 'function') {
 		var finalEditorParams = editorParams || {};
 		aggridEditor = StingerSoftAggrid.Editor[editor](finalEditorParams);
+	} else {
+		console.warn('Editor "' + editor + '" not found! Returning agGrid default function');
 	}
 	return aggridEditor;
 };
@@ -492,16 +534,18 @@ StingerSoftAggrid.Getter = StingerSoftAggrid.Getter || {};
 
 /**
  *
- * @param {string} getters - The name of the getters function to pull
+ * @param {string} getter - The name of the getter function to pull
  * @param {json} getterParams
- * @returns {*} The according getters or default to the normal formatter
+ * @returns {*} The according getter or default to the normal formatter
  */
-StingerSoftAggrid.Getter.getGetter = function (getters, getterParams) {
+StingerSoftAggrid.Getter.getGetter = function (getter, getterParams) {
 	//Default to null -> Uses the default getter
 	var aggridGetter = null;
-	if (getters in StingerSoftAggrid.Getter && typeof StingerSoftAggrid.Getter[getters] == 'function') {
+	if (getter in StingerSoftAggrid.Getter && typeof StingerSoftAggrid.Getter[getter] == 'function') {
 		var finalGetterParams = getterParams || {};
-		aggridGetter = StingerSoftAggrid.Getter[getters](getterParams);
+		aggridGetter = StingerSoftAggrid.Getter[getter](getterParams);
+	} else {
+		console.warn('Getter "' + getter + '" not found! Returning agGrid default function');
 	}
 	return aggridGetter;
 };
@@ -524,6 +568,8 @@ StingerSoftAggrid.Creator.getKeyCreator = function (keyCreator, keyCreatorParams
 	if (keyCreator in StingerSoftAggrid.Creator && typeof StingerSoftAggrid.Creator[keyCreator] == 'function') {
 		var finalKeyCreatorParams = keyCreatorParams || {};
 		aggridKeyCreator = StingerSoftAggrid.Creator[keyCreator](finalKeyCreatorParams);
+	} else {
+		console.warn('Key Creator "' + keyCreator + '" not found! Returning agGrid default function');
 	}
 	return aggridKeyCreator;
 };
@@ -546,6 +592,8 @@ StingerSoftAggrid.Tooltip.getTooltip = function (tooltip, tooltipParams) {
 	if (tooltip in StingerSoftAggrid.Tooltip && typeof StingerSoftAggrid.Tooltip[tooltip] == 'function') {
 		var finalTooltipParams = tooltipParams || {};
 		aggridTooltip = StingerSoftAggrid.Tooltip[tooltip](finalTooltipParams);
+	} else {
+		console.warn('Tooltip "' + tooltip + '" not found! Returning agGrid default function');
 	}
 	return aggridTooltip;
 };
@@ -568,6 +616,27 @@ StingerSoftAggrid.Filter.getFilter = function (filter, filterParams) {
 	if (filter in StingerSoftAggrid.Filter && typeof StingerSoftAggrid.Filter[filter] == 'function') {
 		var finalFilterParams = filterParams || {};
 		aggridFilter = StingerSoftAggrid.Filter[filter](finalFilterParams);
+	} else {
+		console.warn('Filter "' + filter + '" not found! Returning agGrid default function');
 	}
 	return aggridFilter;
+};
+
+/**
+ * The Namespace for all stylers.
+ * Custom stylers have to be "registered" to this namespace.
+ */
+StingerSoftAggrid.Styler = StingerSoftAggrid.Styler || {};
+
+/**
+ *
+ * @param {string} styler - The name of the styler function to pull
+ * @returns {*} The according styler or default to the normal NoOp styler
+ */
+StingerSoftAggrid.Styler.getStyler = function (styler) {
+	if (styler in StingerSoftAggrid.Styler && typeof StingerSoftAggrid.Styler[styler] == 'function') {
+		return StingerSoftAggrid.Styler[styler]();
+	}
+	console.warn('Styler "' + styler + '" not found! Returning empty function');
+	return StingerSoftAggrid.Styler.NoOp();
 };

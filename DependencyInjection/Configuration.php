@@ -23,7 +23,16 @@ class Configuration implements ConfigurationInterface {
 	 *
 	 */
 	public function getConfigTreeBuilder() {
-		$treeBuilder = new TreeBuilder('stingersoft_aggrid');
+		$treeBuilder = new TreeBuilder('stinger_soft_aggrid');
+		$root = $treeBuilder->getRootNode();
+
+		// @formatter:off
+		$root->children()
+			->scalarNode('licenseKey')
+				->defaultNull()
+			->end()
+		->end();
+		// @formatter:on
 
 		return $treeBuilder;
 	}

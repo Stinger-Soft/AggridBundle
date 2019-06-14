@@ -12,11 +12,14 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Grid;
 
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use function in_array;
 use Knp\Component\Pager\PaginatorInterface;
 use StingerSoft\AggridBundle\Column\Column;
+use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
 use StingerSoft\AggridBundle\Helper\GridBuilder;
 use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
@@ -71,13 +74,15 @@ class Grid implements GridInterface {
 	protected $rootAlias;
 
 	/**
-	 * @var Column[]
+	 * @var ColumnInterface[]
 	 */
 	protected $columns;
+
 	/**
 	 * @var GridBuilderInterface
 	 */
 	protected $builder;
+
 	/**
 	 * @var GridOrderer
 	 */
@@ -101,6 +106,7 @@ class Grid implements GridInterface {
 	 */
 	protected $totalResults;
 	protected $requestOrder;
+	protected $requestSearch;
 	protected $requestFilter;
 	protected $requestGroupCols;
 	protected $requestGroupColsKey;
@@ -108,19 +114,19 @@ class Grid implements GridInterface {
 	/**
 	 * Constructs a new grid.
 	 *
-	 * @param string $gridTypeClass
+	 * @param string                                $gridTypeClass
 	 *            FQCN of the grid type to be used
-	 * @param QueryBuilder|array $dataSource
+	 * @param QueryBuilder|array                    $dataSource
 	 *            data source the grid will use for retrieving entries,
 	 *            applying filters, searches and ordering (if a query builder is given)
 	 * @param DependencyInjectionExtensionInterface $dependencyInjectionExtension
-	 * @param PaginatorInterface $paginator
-	 * @param EngineInterface|null $templating
-	 * @param Environment|null $twig
-	 * @param array $options
+	 * @param PaginatorInterface                    $paginator
+	 * @param EngineInterface|null                  $templating
+	 * @param Environment|null                      $twig
+	 * @param array                                 $options
 	 *            an array of options to be passed to the grid type
 	 */
-	public function __construct($gridTypeClass, $dataSource, DependencyInjectionExtensionInterface $dependencyInjectionExtension, PaginatorInterface $paginator, ?EngineInterface $templating, ?Environment $twig, array $options = array()) {
+	public function __construct($gridTypeClass, $dataSource, DependencyInjectionExtensionInterface $dependencyInjectionExtension, PaginatorInterface $paginator, ?EngineInterface $templating, ?Environment $twig, array $options = []) {
 		$this->templating = $templating;
 		$this->twig = $twig;
 		$this->paginator = $paginator;
@@ -138,7 +144,7 @@ class Grid implements GridInterface {
 		$this->orderer = new GridOrderer();
 		$this->rootAlias = '';
 		if($this->queryBuilder) {
-			$rootAliases = $this->queryBuilder instanceof QueryBuilder ? $this->queryBuilder->getRootAliases() : array();
+			$rootAliases = $this->queryBuilder instanceof QueryBuilder ? $this->queryBuilder->getRootAliases() : [];
 			$this->rootAlias = current($rootAliases);
 		}
 		$this->builder = new GridBuilder($this, $dependencyInjectionExtension, $this->options);
@@ -166,12 +172,12 @@ class Grid implements GridInterface {
 
 		//Group request. So we just return the last requested column
 		if($groupSize > 0 && $groupSize > $pathSize) {
-			$groupKeys = array_map(static function($item) {
+			$groupKeys = array_map(static function ($item) {
 				return $item['id'];
 			}, $this->requestGroupCols);
 			$dataColumns = [];
 			foreach($this->columns as $column) {
-				if(\in_array($column->getPath(), $groupKeys, true)) {
+				if(in_array($column->getPath(), $groupKeys, true)) {
 					$dataColumns[] = $column;
 				}
 			}
@@ -210,6 +216,7 @@ class Grid implements GridInterface {
 		$this->requestOffset = $requestData['startRow'];
 		$this->requestCount = $requestData['endRow'] - $this->requestOffset;
 		$this->requestOrder = $requestData['sortModel'];
+		$this->requestSearch = $requestData['search'];
 		$this->requestFilter = $requestData['filterModel'];
 		$this->requestGroupCols = $requestData['rowGroupCols'];
 		$this->requestGroupColsKey = $requestData['groupKeys'];
@@ -233,10 +240,10 @@ class Grid implements GridInterface {
 		return new JsonResponse($this->getData());
 	}
 
-	/* Use it for json_encode some corrupt UTF-8 chars
- * useful for = malformed utf-8 characters possibly incorrectly encoded by json_encode
- */
-
+	/**
+	 * @return string
+	 * @throws NonUniqueResultException
+	 */
 	public function createJsonData(): string {
 		$json = json_encode($this->getData());
 		if($json) {
@@ -254,7 +261,7 @@ class Grid implements GridInterface {
 	 * the root alias of the underlying query builder.
 	 *
 	 * @return integer the amount of total results of the query before applying any filter.
-	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 * @throws NonUniqueResultException
 	 */
 	public function getTotalResults(): int {
 		if($this->totalResults === null) {
@@ -311,6 +318,10 @@ class Grid implements GridInterface {
 		return $mixed;
 	}
 
+	/**
+	 * @return array
+	 * @throws NonUniqueResultException
+	 */
 	protected function getData(): array {
 		$result = [];
 		$items = $this->getItems();
@@ -330,6 +341,7 @@ class Grid implements GridInterface {
 		if($this->options['dataMode'] === GridType::DATA_MODE_ENTERPRISE) {
 			$paginationOptions = $this->getPaginationOptions();
 			$this->applyOrderBy($this->requestOrder);
+			$this->applySearch($this->requestSearch);
 			$this->applyFilter($this->requestFilter);
 			$this->applyGrouping($this->requestGroupCols, $this->requestGroupColsKey);
 
@@ -349,12 +361,12 @@ class Grid implements GridInterface {
 	}
 
 	/**
-	 * @param mixed $item
+	 * @param mixed    $item
 	 * @param Column[] $columns
 	 * @return array
 	 */
 	protected function generateItemData($item, array $columns): array {
-		$itemArray = array();
+		$itemArray = [];
 		foreach($columns as $column) {
 			$this->setNestedArrayValue($itemArray, $column->getPath(), $column->createData($item, $this->rootAlias));
 		}
@@ -474,7 +486,7 @@ class Grid implements GridInterface {
 	 * @return string[] the names / ids of columns which are filterable.
 	 */
 	protected function getFilterableColumnIds(): array {
-		$result = array();
+		$result = [];
 		foreach($this->getColumns() as $column) {
 			if($column->isFilterable() && $column->getFilter() !== null) {
 				$result[] = $column->getPath();
@@ -487,11 +499,11 @@ class Grid implements GridInterface {
 	 * Sets a value in a nested array based on path
 	 * See http://stackoverflow.com/a/9628276/419887
 	 *
-	 * @param array $array
+	 * @param array  $array
 	 *            The array to modify
 	 * @param string $path
 	 *            The path in the array
-	 * @param mixed $value
+	 * @param mixed  $value
 	 *            The value to set
 	 * @param string $delimiter
 	 *            The separator for the path
@@ -517,7 +529,7 @@ class Grid implements GridInterface {
 	/**
 	 * Merges the grid columns of each type in the hierarchy starting from the top most type.
 	 *
-	 * @param GridTypeInterface $gridType
+	 * @param GridTypeInterface    $gridType
 	 *            the grid type to build the columns from
 	 * @param GridBuilderInterface $builder
 	 *            the grid builder
@@ -538,7 +550,7 @@ class Grid implements GridInterface {
 	 * @param GridTypeInterface $gridType
 	 *            the type to resolve the options for, also used for determining any parents
 	 *            whose options are to be resolved as well
-	 * @param array $options
+	 * @param array             $options
 	 *            the initial options to also be resolved (if any).
 	 * @return array the resolved options for the given grid type.
 	 */
@@ -561,7 +573,7 @@ class Grid implements GridInterface {
 		// order columns according to position!
 		$tmpColumns = $this->columns;
 		$newColumnKeys = $this->orderer->order($this);
-		$this->columns = array();
+		$this->columns = [];
 
 		foreach($newColumnKeys as $name) {
 			if(!isset($tmpColumns[$name])) {
@@ -577,11 +589,8 @@ class Grid implements GridInterface {
 		}
 	}
 
-	protected function getPaginationOptions() {
-		if(isset($this->options['paginationOptions'])) {
-			return $this->options['paginationOptions'];
-		}
-		return array();
+	protected function getPaginationOptions(): array {
+		return $this->options['paginationOptions'] ?? [];
 	}
 
 	/**
@@ -635,12 +644,12 @@ class Grid implements GridInterface {
 	 *      for ordering
 	 */
 	protected function applyOrderBy(array $orderByEntries): void {
-		$orderByEntries = array_filter($orderByEntries, static function($entry) {
+		$orderByEntries = array_filter($orderByEntries, static function ($entry) {
 			// we only want to have entry containing a column AND a direction
 			return isset($entry['colId'], $entry['sort']) && $entry['sort'] !== '';
 		});
 		if(count($orderByEntries) > 0) {
-			$orderQuery = array();
+			$orderQuery = [];
 			$orderableColumnIds = $this->getOrderableColumnPaths();
 			foreach($orderByEntries as $orderBy) {
 				$columnName = $orderBy['colId'];
@@ -690,10 +699,65 @@ class Grid implements GridInterface {
 	 *
 	 * @return string[] the names / ids of columns which are orderable.
 	 */
-	protected function getOrderableColumnPaths() {
-		$result = array();
+	protected function getOrderableColumnPaths(): array {
+		$result = [];
 		foreach($this->columns as $columnId => $column) {
 			if($column->isOrderable()) {
+				$result[] = $column->getPath();
+			}
+		}
+		return $result;
+	}
+
+	protected function applySearch(?string $searchTerm): void {
+		if(empty($searchTerm)) {
+			return;
+		}
+		$searchQuery = [];
+		$searchableColumns = $this->getSearchableColumnPaths();
+		$bindingCounter = 0;
+		foreach($searchableColumns as $columnId) {
+			$column = $this->columns[$columnId];
+			$searchParameterBinding = ':search_' . $bindingCounter;
+			$queryPath = $column->getQueryPath();
+			if(false === strpos($queryPath, '.')) {
+				$queryPath = $this->rootAlias . '.' . $queryPath;
+			}
+			$delegate = $column->getServerSideSearchDelegate();
+			if($delegate && is_callable($delegate)) {
+				$searchExpression = $delegate($this->queryBuilder, $searchParameterBinding, $searchTerm, $column, $queryPath);
+				if($searchExpression !== null) {
+					if(is_array($searchExpression)) {
+						foreach($searchExpression as $expression) {
+							$searchQuery[] = $expression;
+						}
+					} else {
+						$searchQuery[] = $searchExpression;
+					}
+					$bindingCounter++;
+				}
+			} else {
+				$searchQuery[] = $this->queryBuilder->expr()->like($queryPath, $searchParameterBinding);
+				$this->queryBuilder->setParameter($searchParameterBinding, '%' . $searchTerm . '%');
+				$bindingCounter++;
+			}
+		}
+		if(count($searchQuery) > 0) {
+			$this->queryBuilder->andWhere($this->queryBuilder->expr()->orX()->addMultiple($searchQuery));
+		}
+	}
+
+	/**
+	 * Get the names / ids of columns which are searchable.
+	 *
+	 * A column is searchable, if column->isSearchable() returns true
+	 *
+	 * @return string[] the names / ids of columns which are searchable.
+	 */
+	protected function getSearchableColumnPaths(): array {
+		$result = [];
+		foreach($this->columns as $columnId => $column) {
+			if($column->isSearchable()) {
 				$result[] = $column->getPath();
 			}
 		}
@@ -705,7 +769,7 @@ class Grid implements GridInterface {
 	 *
 	 * @param GridTypeInterface $gridType
 	 *            the grid type to resolve the options from
-	 * @param OptionsResolver $resolver
+	 * @param OptionsResolver   $resolver
 	 *            the resolver used for checking option values and defaults etc.
 	 */
 	private function resolveOptions(GridTypeInterface $gridType, OptionsResolver $resolver): void {

@@ -44,6 +44,7 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('additionalContext', []);
 		$resolver->setAllowedTypes('additionalContext', 'array');
 
+		$resolver->setDefault('searchable', AbstractColumnType::CLIENT_SIDE_ONLY);
 		$resolver->setDefault('cellRenderer', 'RawHtmlRenderer');
 
 		$that = $this;

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\QueryBuilder;
 use ReflectionException;
 use StingerSoft\AggridBundle\Filter\Filter;
@@ -19,6 +20,17 @@ use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
 
 interface ColumnInterface {
+
+	public function setParent(?ColumnInterface $parent) : self;
+
+	public function getParent() : ?ColumnInterface;
+
+	/**
+	 * @return ColumnInterface[]|Collection
+	 */
+	public function getChildren() : array;
+
+	public function addChild(ColumnInterface $child) : self;
 
 	/**
 	 * Get the path to access the property on the bound object
@@ -94,9 +106,18 @@ interface ColumnInterface {
 	 */
 	public function resetDataTransformers(): self;
 
-	public function setServerSideOrderDelegate(?callable $serverSideOrderDelegate = null);
+	public function setServerSideOrderDelegate(?callable $serverSideOrderDelegate = null): self;
+
+	public function getServerSideSearchDelegate(): ?callable;
+
+	public function setServerSideSearchDelegate(?callable $serverSideSearchDelegate = null): self;
 
 	public function getGridOptions(): array;
+
+	/**
+	 * @return ColumnTypeInterface
+	 */
+	public function getColumnType(): ColumnTypeInterface;
 
 	public function getFilter(): ?Filter;
 

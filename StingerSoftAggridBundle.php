@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle;
 
+use Pec\Bundle\ShopBundle\DependencyInjection\PecShopExtension;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\DependencyInjection\Compiler\GridCompilerPass;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
@@ -28,6 +29,7 @@ class StingerSoftAggridBundle extends Bundle {
 	public const COLUMN_TYPE_SERVICE_TAG = 'stingersoft_aggrid.column';
 	public const FILTER_TYPE_SERVICE_TAG = 'stingersoft_aggrid.filter';
 	public const GRID_EXTENSION_SERVICE_ID = DependencyInjectionExtensionInterface::class;
+	public const PARAMETER_LICENSE_KEY  = 'stingersoft_aggrid.licenseKey';
 
 	/**
 	 * @param $env

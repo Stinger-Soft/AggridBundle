@@ -8,6 +8,30 @@
 	components: {
 		datePicker: StingerSoftAggrid.Editor.DatePicker
 	}
+	{% if grid.vars.rowStyle is defined and grid.vars.rowStyle is not same as(null) %}
+	, rowStyle: {{ grid.vars.rowStyle|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.getRowStyle is defined and grid.vars.getRowStyle is not same as(null) %}
+	, getRowStyle: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowStyle|json_encode|raw }})
+	{% endif %}
+	{% if grid.vars.rowClass is defined and grid.vars.rowClass is not same as(null) %}
+	, rowClass: {{ grid.vars.rowClass|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.getRowClass is defined and grid.vars.getRowClass is not same as(null) %}
+	, getRowClass: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowClass|json_encode|raw }})
+	{% endif %}
+	{% if grid.vars.rowClassRules is defined and grid.vars.rowClassRules is not same as(null) %}
+	, rowClassRules: {{ grid.vars.rowClassRules|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.icons is defined and grid.vars.icons is not same as(null) %}
+		, icons: {{ grid.vars.icons|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.suppressCsvExport is defined and grid.vars.suppressCsvExport is not same as(null) %}
+	, suppressCsvExport: {{ grid.vars.suppressCsvExport|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.suppressExcelExport is defined and grid.vars.suppressExcelExport is not same as(null) %}
+	, suppressExcelExport: {{ grid.vars.suppressExcelExport|json_encode|raw }}
+	{% endif %}
 	{% if grid.vars.pagination %}
 		, pagination: true
 	{% endif %}

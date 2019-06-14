@@ -1,2 +1,8 @@
 {% import '@StingerSoftAggrid/Grid/macros.html.twig' as me %}
+{% block before_grid %}
+	{% include '@StingerSoftAggrid/Grid/grid_search_pagination.html.twig' %}
+{% endblock before_grid %}
+{% block grid %}
 <div {{ me.attributes(grid.vars.attr, grid.vars.translation_domain) }}></div>
+{% endblock grid%}
+{% block after_grid %}{% endblock after_grid %}

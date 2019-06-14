@@ -14,4 +14,7 @@
 	{% if grid.vars.versionHash is defined and grid.vars.versionHash is not same as(null) %}
 	, versionHash: {{ grid.vars.versionHash|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.searchEnabled is defined and grid.vars.searchEnabled is not same as(null) %}
+	, searchEnabled: {{ grid.vars.searchEnabled|json_encode|raw }}
+	{% endif %}
 }

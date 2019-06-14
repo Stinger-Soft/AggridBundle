@@ -32,20 +32,31 @@ class ColumnType extends AbstractColumnType {
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::getParent()
 	 */
 	public function getParent(): ?string {
 		return null;
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::configureOptions()
 	 */
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
+		$this->configureAggridOptions($resolver, $gridOptions);
+		$this->configureStingerOptions($resolver, $gridOptions);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
+		$view->path = $column->getPath();
+		$view->template = $options['js_column_template'];
+		$this->buildAggridView($view, $column, $options);
+		$this->buildStingerView($view, $column, $options);
+	}
+
+	protected function configureStingerOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('path', null);
 		$resolver->setAllowedTypes('path', ['null', 'string']);
 
@@ -90,22 +101,34 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setAllowedValues('orderable', [
 			true,
 			false,
+			AbstractColumnType::CLIENT_SIDE_ONLY,
+			AbstractColumnType::SERVER_SIDE_ONLY,
+		]);
+
+		$resolver->setDefault('searchable', true);
+		$resolver->setAllowedValues('searchable', [
+			true,
+			false,
+			AbstractColumnType::CLIENT_SIDE_ONLY,
+			AbstractColumnType::SERVER_SIDE_ONLY,
 		]);
 
 		$resolver->setDefault('filterable', true);
 		$resolver->setAllowedValues('filterable', [
 			true,
 			false,
+			AbstractColumnType::CLIENT_SIDE_ONLY,
+			AbstractColumnType::SERVER_SIDE_ONLY,
 		]);
 
-		$resolver->setDefault('filter_type', function (Options $options) {
+		$resolver->setDefault('filter_type', static function (Options $options) {
 			return null;
 		});
 		$resolver->setAllowedTypes('filter_type', [
 			'null',
 			'string',
 		]);
-		$resolver->setNormalizer('filter_type', function (Options $options, $value) {
+		$resolver->setNormalizer('filter_type', static function (Options $options, $value) {
 			if($value !== null && !$options['filterable']) {
 				throw new InvalidOptionsException(sprintf('When using "filter_type" with a value of "%s" you must set "filterable" to true!', $value));
 			}
@@ -126,6 +149,29 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('order_server_delegate', null);
 		$resolver->setAllowedTypes('order_server_delegate', ['null', 'callable', Closure::class]);
 
+		$resolver->setDefault('search_server_delegate', null);
+		$resolver->setAllowedTypes('search_server_delegate', ['null', 'callable', Closure::class]);
+
+		$resolver->setDefault('position', null);
+		$resolver->setAllowedTypes('position', [
+			'null',
+			'string',
+			'array',
+		]);
+		$resolver->setAllowedValues('position', static function ($valueToCheck) {
+			if(is_string($valueToCheck)) {
+				return !($valueToCheck !== 'last' && $valueToCheck !== 'first');
+			}
+			if(is_array($valueToCheck)) {
+				return isset($valueToCheck['before']) || isset($valueToCheck['after']);
+			}
+			if($valueToCheck === null)
+				return true;
+			return false;
+		});
+	}
+
+	protected function configureAggridOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('resizable', true);
 		$resolver->setAllowedValues('resizable', [
 			true,
@@ -211,7 +257,7 @@ class ColumnType extends AbstractColumnType {
 			return $value;
 		});
 
-		$resolver->setDefault('menuTabs', function(Options $options, $previousValue) use ($gridOptions) {
+		$resolver->setDefault('menuTabs', static function (Options $options, $previousValue) use ($gridOptions) {
 			if($previousValue === null) {
 				return $gridOptions['menuTabs'];
 			}
@@ -266,47 +312,36 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('cellRendererParams', null);
 		$resolver->setAllowedTypes('cellRendererParams', ['null', 'array']);
 
-		$resolver->setDefault('position', null);
-		$resolver->setAllowedTypes('position', [
-			'null',
-			'string',
-			'array',
-		]);
-		$resolver->setAllowedValues('position', static function ($valueToCheck) {
-			if(is_string($valueToCheck)) {
-				return !($valueToCheck !== 'last' && $valueToCheck !== 'first');
-			}
-			if(is_array($valueToCheck)) {
-				return isset($valueToCheck['before']) || isset($valueToCheck['after']);
-			}
-			if($valueToCheck === null)
-				return true;
-			return false;
-		});
+		$resolver->setDefault('columnGroupShow', null);
+		$resolver->setAllowedValues('columnGroupShow', [null, 'closed', 'open', true]);
+
+		$resolver->setDefault('headerClass', null);
+		$resolver->setAllowedTypes('headerClass', ['null', 'string']);
+
+		$resolver->setDefault('toolPanelClass', null);
+		$resolver->setAllowedTypes('toolPanelClass', ['null', 'string']);
+	}
+
+	protected function buildStingerView(ColumnView $view, ColumnInterface $column, array $options): void {
+		$view->vars['label'] = $options['label'];
+		$view->vars['translation_domain'] = $options['translation_domain'];
 
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::buildView()
-	 */
-	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
-		$view->path = $column->getPath();
-		$view->template = $options['js_column_template'];
+	protected function buildAggridView(ColumnView $view, ColumnInterface $column, array $options): void {
+		$dataMode = $column->getGridOptions()['dataMode'];
+		$view->vars['searchable'] = AbstractColumnType::getBooleanValueDependingOnClientOrServer($options['searchable'], $dataMode);
+		$view->vars['filterable'] = AbstractColumnType::getBooleanValueDependingOnClientOrServer($options['filterable'], $dataMode);
+		$view->vars['orderable'] = AbstractColumnType::getBooleanValueDependingOnClientOrServer($options['orderable'], $dataMode);
 
-		$view->vars['label'] = $options['label'];
-		$view->vars['translation_domain'] = $options['translation_domain'];
-		$view->vars['filterable'] = $options['filterable'];
-		$view->vars['orderable'] = $options['orderable'];
-		$view->vars['rowGroup'] = $options['rowGroup'];
-		$view->vars['menuTabs'] = $options['menuTabs'];
-		$view->vars['enableRowGroup'] = $options['enableRowGroup'];
 		$view->vars['pivot'] = $options['pivot'];
 		$view->vars['enablePivot'] = $options['enablePivot'];
 		$view->vars['aggFunc'] = $options['aggFunc'];
 		$view->vars['resizable'] = $options['resizable'];
 		$view->vars['visible'] = $options['visible'] && !$options['rowGroup'];
+		$view->vars['rowGroup'] = $options['rowGroup'];
+		$view->vars['menuTabs'] = $options['menuTabs'];
+		$view->vars['enableRowGroup'] = $options['enableRowGroup'];
 		$view->vars['editable'] = $options['editable'];
 		$view->vars['valueFormatter'] = $options['valueFormatter'];
 		$view->vars['keyCreator'] = $options['keyCreator'];
@@ -319,6 +354,9 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['checkboxSelection'] = $options['checkboxSelection'];
 		$view->vars['cellRenderer'] = $options['cellRenderer'];
 		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
+		$view->vars['columnGroupShow'] = $options['columnGroupShow'];
+		$view->vars['headerClass'] = $options['headerClass'];
+		$view->vars['toolPanelClass'] = $options['toolPanelClass'];
 	}
 
 	/**

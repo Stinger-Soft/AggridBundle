@@ -30,7 +30,11 @@ class NumberFormatterDataTransformer implements DataTransformerInterface {
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
-		$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
+		if($options['number_formatter_pattern'] === null) {
+			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
+		} else {
+			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
+		}
 		if($options['number_formatter_style'] === \NumberFormatter::CURRENCY) {
 			return $formatter->formatCurrency($value, $options['number_formatter_currency']);
 		}

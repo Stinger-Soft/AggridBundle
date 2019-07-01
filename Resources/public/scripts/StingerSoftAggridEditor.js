@@ -29,6 +29,9 @@ StingerSoftAggrid.Editor.DatePicker.prototype.afterGuiAttached = function() {
 
 // returns the new value after editing
 StingerSoftAggrid.Editor.DatePicker.prototype.getValue = function() {
+	if(this.eInput.value === "") {
+		return null;
+	}
 	return {date: moment(this.eInput.value, 'L').toDate()};
 };
 

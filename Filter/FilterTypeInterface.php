@@ -47,7 +47,7 @@ interface FilterTypeInterface {
 	/**
 	 * @var string String constant for specifying that filtering should be applied using an equals comparison
 	 */
-	public const FILTER_MATCH_MODE_EQUALS = 'equal';
+	public const FILTER_MATCH_MODE_EQUALS = 'equals';
 
 	/**
 	 * @var string String constant for specifying that filtering should be applied using an not equals comparison

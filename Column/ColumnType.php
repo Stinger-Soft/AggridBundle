@@ -56,6 +56,14 @@ class ColumnType extends AbstractColumnType {
 		$this->buildStingerView($view, $column, $options);
 	}
 
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::buildData()
+	 */
+	public function buildData(ColumnInterface $column, array $options) {
+	}
+
 	protected function configureStingerOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('path', null);
 		$resolver->setAllowedTypes('path', ['null', 'string']);
@@ -79,9 +87,9 @@ class ColumnType extends AbstractColumnType {
 			'callable',
 		]);
 		$that = $this;
-		$resolver->setNormalizer('value_delegate', static function (Options $options, $value) use ($that) {
+		$resolver->setNormalizer('value_delegate', static function(Options $options, $value) use ($that) {
 			if($value === null) {
-				$value = static function ($item, $path, $options) use ($that) {
+				$value = static function($item, $path, $options) use ($that) {
 					return $that->generateItemValue($item, $path, $options);
 				};
 			}
@@ -121,14 +129,14 @@ class ColumnType extends AbstractColumnType {
 			AbstractColumnType::SERVER_SIDE_ONLY,
 		]);
 
-		$resolver->setDefault('filter_type', static function (Options $options) {
+		$resolver->setDefault('filter_type', static function(Options $options) {
 			return null;
 		});
 		$resolver->setAllowedTypes('filter_type', [
 			'null',
 			'string',
 		]);
-		$resolver->setNormalizer('filter_type', static function (Options $options, $value) {
+		$resolver->setNormalizer('filter_type', static function(Options $options, $value) {
 			if($value !== null && !$options['filterable']) {
 				throw new InvalidOptionsException(sprintf('When using "filter_type" with a value of "%s" you must set "filterable" to true!', $value));
 			}
@@ -158,7 +166,7 @@ class ColumnType extends AbstractColumnType {
 			'string',
 			'array',
 		]);
-		$resolver->setAllowedValues('position', static function ($valueToCheck) {
+		$resolver->setAllowedValues('position', static function($valueToCheck) {
 			if(is_string($valueToCheck)) {
 				return !($valueToCheck !== 'last' && $valueToCheck !== 'first');
 			}
@@ -172,6 +180,21 @@ class ColumnType extends AbstractColumnType {
 	}
 
 	protected function configureAggridOptions(OptionsResolver $resolver, array $gridOptions = []): void {
+		$resolver->setDefault('width', null);
+		$resolver->setAllowedTypes('width', [
+			'integer',
+			'null'
+		]);
+		$resolver->setDefault('minWidth', null);
+		$resolver->setAllowedTypes('minWidth', [
+			'integer',
+			'null'
+		]);
+		$resolver->setDefault('maxWidth', null);
+		$resolver->setAllowedTypes('maxWidth', [
+			'integer',
+			'null'
+		]);
 		$resolver->setDefault('resizable', true);
 		$resolver->setAllowedValues('resizable', [
 			true,
@@ -183,7 +206,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('rowGroup', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('rowGroup', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
 			}
@@ -195,7 +218,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('enableRowGroup', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('enableRowGroup', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('enableRowGroup is only available in the enterprise edition. Please set a license key!');
 			}
@@ -207,7 +230,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('pivot', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('pivot', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('pivot is only available in the enterprise edition. Please set a license key!');
 			}
@@ -219,7 +242,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('enablePivot', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('enablePivot', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('enablePivot is only available in the enterprise edition. Please set a license key!');
 			}
@@ -228,7 +251,7 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('aggFunc', false);
 		$resolver->setAllowedTypes('aggFunc', ['bool', 'string']);
-		$resolver->setNormalizer('aggFunc', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('aggFunc', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('aggFunc is only available in the enterprise edition. Please set a license key!');
 			}
@@ -250,21 +273,21 @@ class ColumnType extends AbstractColumnType {
 			'boolean',
 		]);
 
-		$resolver->setNormalizer('rowGroup', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('rowGroup', static function(Options $options, $value) use ($gridOptions) {
 			if($value === true && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
 			}
 			return $value;
 		});
 
-		$resolver->setDefault('menuTabs', static function (Options $options, $previousValue) use ($gridOptions) {
+		$resolver->setDefault('menuTabs', static function(Options $options, $previousValue) use ($gridOptions) {
 			if($previousValue === null) {
 				return $gridOptions['menuTabs'];
 			}
 			return $previousValue;
 		});
 		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);
-		$resolver->setNormalizer('menuTabs', static function (Options $options, $value) {
+		$resolver->setNormalizer('menuTabs', static function(Options $options, $value) {
 			if($value === null) {
 				return $value;
 			}
@@ -338,6 +361,9 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['enablePivot'] = $options['enablePivot'];
 		$view->vars['aggFunc'] = $options['aggFunc'];
 		$view->vars['resizable'] = $options['resizable'];
+		$view->vars['width'] = $options['width'];
+		$view->vars['minWidth'] = $options['minWidth'];
+		$view->vars['maxWidth'] = $options['maxWidth'];
 		$view->vars['visible'] = $options['visible'] && !$options['rowGroup'];
 		$view->vars['rowGroup'] = $options['rowGroup'];
 		$view->vars['menuTabs'] = $options['menuTabs'];
@@ -357,13 +383,5 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['columnGroupShow'] = $options['columnGroupShow'];
 		$view->vars['headerClass'] = $options['headerClass'];
 		$view->vars['toolPanelClass'] = $options['toolPanelClass'];
-	}
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::buildData()
-	 */
-	public function buildData(ColumnInterface $column, array $options) {
 	}
 }

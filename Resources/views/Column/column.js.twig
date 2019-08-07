@@ -31,6 +31,12 @@
 	{% if column.vars.width is defined and column.vars.width is not same as(null) %}
 	width: {{ column.vars.width|json_encode|raw }},
 	{% endif %}
+	{% if column.vars.minWidth is defined and column.vars.minWidth is not same as(null) %}
+    minWidth: {{ column.vars.minWidth|json_encode|raw }},
+	{% endif %}
+	{% if column.vars.maxWidth is defined and column.vars.maxWidth is not same as(null) %}
+    maxWidth: {{ column.vars.maxWidth|json_encode|raw }},
+	{% endif %}
 	{% if column.vars.pinned is defined and column.vars.pinned is not same as(null) %}
 	pinned: {{ column.vars.pinned|json_encode|raw }},
 	{% endif %}

@@ -93,6 +93,9 @@ class GridType extends AbstractGridType {
 		$view->vars['rowClass'] = $gridOptions['rowClass'];
 		$view->vars['getRowClass'] = $gridOptions['getRowClass'];
 		$view->vars['rowClassRules'] = $gridOptions['rowClassRules'];
+		$view->vars['rowSelection'] = $gridOptions['rowSelection'];
+		$view->vars['rowMultiSelectWithClick'] = $gridOptions['rowMultiSelectWithClick'];
+		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
 	}
 
 	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
@@ -292,6 +295,13 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('getRowClass', ['null', 'string']);
 		$resolver->setDefault('rowClassRules', null);
 		$resolver->setAllowedTypes('rowClassRules', ['null', 'string']);
+
+		$resolver->setDefault('rowSelection', null);
+		$resolver->setAllowedValues('rowSelection', [null, 'single', 'multiple']);
+		$resolver->setDefault('rowMultiSelectWithClick', false);
+		$resolver->setAllowedTypes('rowMultiSelectWithClick', 'boolean');
+		$resolver->setDefault('suppressRowClickSelection', false);
+		$resolver->setAllowedTypes('suppressRowClickSelection', 'boolean');
 
 		//Possible icons: https://www.ag-grid.com/javascript-grid-icons/
 		$resolver->setDefault('icons', [

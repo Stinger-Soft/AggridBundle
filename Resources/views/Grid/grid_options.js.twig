@@ -52,6 +52,15 @@
 	{% if grid.vars.sideBar != false %}
 		, sideBar: {{ grid.vars.sideBar|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.rowSelection is defined and grid.vars.rowSelection is not same as(null) %}
+		, rowSelection: {{ grid.vars.rowSelection|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.rowMultiSelectWithClick is defined and grid.vars.rowMultiSelectWithClick is not same as(false) %}
+		, rowMultiSelectWithClick: {{ grid.vars.rowMultiSelectWithClick|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.suppressRowClickSelection is defined and grid.vars.suppressRowClickSelection is not same as(false) %}
+		, suppressRowClickSelection: {{ grid.vars.suppressRowClickSelection|json_encode|raw }}
+	{% endif %}
 	{% if grid.vars.dataMode == 'enterprise' %}
 		, rowModelType: 'serverSide'
 		, cacheBlockSize: {{ grid.vars.cacheBlockSize|json_encode|raw }}

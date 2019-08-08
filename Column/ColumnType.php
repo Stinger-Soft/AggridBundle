@@ -343,6 +343,7 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('toolPanelClass', null);
 		$resolver->setAllowedTypes('toolPanelClass', ['null', 'string']);
+
 	}
 
 	protected function buildStingerView(ColumnView $view, ColumnInterface $column, array $options): void {

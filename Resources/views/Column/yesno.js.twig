@@ -1,0 +1,4 @@
+{% extends '@StingerSoftAggrid/Column/column.js.twig' %}
+{% block column_def_start %}
+{{ value ? yesState|json_encode|raw : noState|json_encode|raw }}
+{% endblock column_def_start %}

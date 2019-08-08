@@ -469,8 +469,7 @@ StingerSoftAggrid.Renderer.getRenderer = function (renderer, rendererParams) {
 	//Default to null -> Uses the default renderer
 	var aggridRenderer = null;
 	if (renderer in StingerSoftAggrid.Renderer && typeof StingerSoftAggrid.Renderer[renderer] == 'function') {
-		var finalRendererParams = rendererParams || {};
-		aggridRenderer = StingerSoftAggrid.Renderer[renderer](finalRendererParams);
+		aggridRenderer = StingerSoftAggrid.Renderer[renderer];
 	} else {
 		console.warn('Renderer "' + renderer + '" not found! Returning agGrid default function');
 	}

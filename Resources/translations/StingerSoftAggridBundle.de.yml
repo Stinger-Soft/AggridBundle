@@ -99,3 +99,8 @@ stingersoft_aggrid:
   ctrlC: 'Strg+C'
   paste: 'Einfügen'
   ctrlV: 'Strg+V'
+
+  column_types:
+    yes_no:
+      no: Nein
+      yes: Ja

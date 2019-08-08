@@ -12,12 +12,12 @@
  * @constructor
  * @param {json} formatterParams
  */
-StingerSoftAggrid.Formatter.DateTimeObjectFormatter = function(formatterParams) {
-	return function(params) {
-		if (params.value && "date" in params.value) {
-			var format = formatterParams.hasOwnProperty('dateFormat') ? formatterParams.dateFormat : 'L LTS';
-			return moment(params.value.date).format(format);
-		}
-		return null;
-	};
+StingerSoftAggrid.Formatter.DateTimeObjectFormatter = function (formatterParams) {
+    return function (params) {
+        if (params.value && "date" in params.value) {
+            var format = formatterParams.hasOwnProperty('dateFormat') ? formatterParams.dateFormat : 'L LTS';
+            return moment(params.value.date).format(format);
+        }
+        return null;
+    };
 };

@@ -5,6 +5,9 @@ filterParams: {
 	{% if filter.vars.cellRenderer is defined and filter.vars.cellRenderer is not same as(null) %}
 	cellRenderer: StingerSoftAggrid.Renderer.getRenderer("{{ filter.vars.cellRenderer }}", {{ filter.vars.cellRendererParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% endif %}
+	{% if filter.vars.cellRendererParams is defined and filter.vars.cellRendererParams is not same as(null) %}
+		cellRendererParams: {{ filter.vars.cellRendererParams|json_encode|raw }},
+	{% endif %}
 	{% if filter.vars.newRowsAction is defined and filter.vars.newRowsAction is not same as(null) %}
 	newRowsAction: {{ filter.vars.newRowsAction|json_encode|raw }},
 	{% endif %}

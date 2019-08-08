@@ -83,20 +83,23 @@ StingerSoftAggrid.Renderer.AbridgedRenderer.prototype.refresh = function (params
  * @returns StingerSoftAggrid.Renderer.YesNoRenderer
  * @constructor
  */
-StingerSoftAggrid.Renderer.YesNoRenderer = function (rendererParams) {
+StingerSoftAggrid.Renderer.YesNoRenderer = function () {
 	//"Constants"
-	this.TYPE_ICON_ONLY = 0;
-	this.TYPE_ICON_TOOLTIP = 1;
-	this.TYPE_ICON_TEXT = 2;
-	this.TYPE_TEXT_ONLY = 3;
+	this.TYPE_ICON_ONLY = 'icon-only';
+	this.TYPE_ICON_TOOLTIP = 'icon-with-tooltip';
+	this.TYPE_ICON_WITH_LABEL = 'icon-with-label';
+	this.TYPE_LABEL_ONLY = 'label-only';
 
-	this.noValue = 0;
-	this.yesValue = 1;
+	this.noValue = false;
+	this.yesValue = true;
 
-	this.noIconClass = "fas fa-times";
-	this.yesIconClass = "fas fa-check";
+	this.noIconClass = '';
+	this.yesIconClass ='';
 
-	this.eGui = document.createElement('i');
+	this.noLabel = '';
+	this.yesLabel ='';
+	this.eGui = document.createElement('span');
+	return this;
 };
 
 /**
@@ -104,15 +107,55 @@ StingerSoftAggrid.Renderer.YesNoRenderer = function (rendererParams) {
  * @param params
  */
 StingerSoftAggrid.Renderer.YesNoRenderer.prototype.init = function (params) {
+	this.noIconClass = params.no_icon;
+	this.yesIconClass = params.yes_icon;
+
+	this.noLabel = params.no_label;
+	this.yesLabel = params.yes_label;
+
 	if (params.value !== "" && params.value !== undefined && params.value !== null) {
 		StingerSoft.mapValuesToObject(params, this);
 
-		if (params.value == this.noValue) {
-			this.eGui.className = this.noIconClass;
-		} else if (params.value == this.yesValue) {
-			this.eGui.className = this.yesIconClass;
+		var value = params.value;
+		value = value === 'true' ? true : value;
+		value = value === 'false' ? false : value;
+
+		if(params.display_type !== this.TYPE_LABEL_ONLY) {
+			this.eGui.innerHTML = "<i></i>";
+			this.icon = this.eGui.querySelector('i');
+			if (value == this.noValue) {
+				this.icon.className = this.noIconClass;
+			} else if (value == this.yesValue) {
+				this.icon.className = this.yesIconClass;
+			}
+		}
+		if(params.display_type === this.TYPE_LABEL_ONLY || params.display_type === this.TYPE_ICON_WITH_LABEL) {
+			if (value == this.noValue) {
+				this.textnode = document.createTextNode(this.noLabel);
+				this.eGui.appendChild(this.textnode);
+			} else if (value == this.yesValue) {
+				this.textnode = document.createTextNode(this.yesLabel);
+				this.eGui.appendChild(this.textnode);
+			}
+		}
+		if(params.display_type === this.TYPE_ICON_TOOLTIP) {
+			this.icon.setAttribute("data-toggle", "tooltip");
+			this.icon.setAttribute("data-container", "body");
+			if (value == this.noValue) {
+				this.icon.setAttribute("title", this.noLabel);
+			} else if (value == this.yesValue) {
+				this.icon.setAttribute("title", this.yesLabel);
+			}
 		}
 	}
+};
+
+/**
+ *
+ * @param params
+ */
+StingerSoftAggrid.Renderer.YesNoRenderer.prototype.refresh = function (params) {
+	this.init(params);
 };
 
 /**

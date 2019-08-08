@@ -68,6 +68,9 @@ class GridType extends AbstractGridType {
 
 	private function configureDefaultViewValues(GridView $view, array $gridOptions, array $columns): void {
 		$view->vars['id'] = $gridOptions['attr']['id'] = $view->getGridId();
+		$view->vars['aggrid_id'] = str_replace('-', '_', $view->vars['id']);
+		$view->vars['aggrid_js_id'] = str_replace([' ', '#'], ['_', ''], $view->vars['aggrid_id']);
+		$view->vars['stingerSoftAggrid_js_var'] = 'stingerSoftAggrid' . $view->vars['aggrid_js_id'];
 		$view->vars['ajax_url'] = $gridOptions['ajax_url'];
 		$view->vars['dataMode'] = $gridOptions['dataMode'];
 		$gridOptions['attr']['style'] = 'height: ' . $gridOptions['height'];

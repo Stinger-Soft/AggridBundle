@@ -1,8 +1,6 @@
-{% set AGGRID_ID = grid.vars.id|replace({'-': '_'}) %}
-{% set AGGRID_JS_ID = AGGRID_ID|replace({' ': '_'})|replace({'#': ''}) %}
-{% set varAggrid = "stingerSoftAggrid" ~ AGGRID_JS_ID %}
-{% set varAggridOptions = "stingerSoftAggridOptions" ~ AGGRID_JS_ID %}
-{% set varOptions = "stingerSoftOptions" ~ AGGRID_JS_ID %}
+{% set varAggrid = grid.vars.stingerSoftAggrid_js_var %}
+{% set varAggridOptions = "stingerSoftAggridOptions" ~ grid.vars.aggrid_js_id %}
+{% set varOptions = "stingerSoftOptions" ~ grid.vars.aggrid_js_id %}
 var {{ varAggrid }};
 jQuery(document).ready(function () {
 	if(typeof moment !== 'undefined') {
@@ -13,6 +11,6 @@ jQuery(document).ready(function () {
 	var {{ varAggridOptions }} = {% include '@StingerSoftAggrid/Grid/grid_options.js.twig' with {'grid': grid, 'columns': grid.columns} %};
 	var {{ varOptions }} = {% include '@StingerSoftAggrid/Grid/stinger_options.js.twig' with {'options': grid.vars} %}
 
-	{{ varAggrid }} = new StingerSoftAggrid('#{{ AGGRID_ID }}');
+	{{ varAggrid }} = new StingerSoftAggrid('#{{ grid.vars.aggrid_id }}');
 	{{ varAggrid }}.init({{ varAggridOptions }}, {{ varOptions }});
 })

@@ -1,0 +1,6 @@
+stingersoft_aggrid:
+  refresh: 'Refresh'
+  column_types:
+    yes_no:
+      no: No
+      yes: Yes

@@ -19,15 +19,12 @@
 /**
  * @return {function(*): string}
  */
-StingerSoftAggrid.Renderer.RawHtmlRenderer = function (rendererParams) {
-	return function (params) {
-		return params.value ? params.value : '';
-	};
+StingerSoftAggrid.Renderer.RawHtmlRenderer =  function (params) {
+	return params.value ? params.value : '';
 };
 
 StingerSoftAggrid.Renderer.KeyValueMappingRenderer = function (rendererParams) {
-	return function (params) {
-		var val = params.value;
+		var val = rendererParams.value;
 		var translationDomain = rendererParams.hasOwnProperty('translation_domain') && rendererParams.translation_domain ? rendererParams.translation_domain : 'messages';
 		var keyValueMapping = rendererParams.hasOwnProperty('keyValueMapping') && rendererParams.keyValueMapping ? rendererParams.keyValueMapping : {};
 		if(val && keyValueMapping.hasOwnProperty(val)) {
@@ -38,13 +35,12 @@ StingerSoftAggrid.Renderer.KeyValueMappingRenderer = function (rendererParams) {
 		}
 		return val ? val : '';
 	};
-};
 
 /**
  *
  * @returns StingerSoftAggrid.Renderer.AbridgedRenderer
  */
-StingerSoftAggrid.Renderer.AbridgedRenderer = function (rendererParams) {
+StingerSoftAggrid.Renderer.AbridgedRenderer = function () {
 	this.eGui = document.createElement('abbr');
 };
 

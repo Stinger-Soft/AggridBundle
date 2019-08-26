@@ -99,6 +99,7 @@ class GridType extends AbstractGridType {
 		$view->vars['rowSelection'] = $gridOptions['rowSelection'];
 		$view->vars['rowMultiSelectWithClick'] = $gridOptions['rowMultiSelectWithClick'];
 		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
+		$view->vars['nativeOptions'] = $gridOptions['nativeOptions'];
 	}
 
 	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
@@ -321,6 +322,8 @@ class GridType extends AbstractGridType {
 			//			'checkboxIndeterminate' => '<i class="far fa-minus-square" style="font-size: 1.3em;"></i>',
 		]);
 		$resolver->setAllowedTypes('icons', ['array', 'null']);
+
+		$resolver->setDefault('nativeOptions', false);
 	}
 
 	protected function validateSideBarOptions(Options $options, $sidebarOption) {

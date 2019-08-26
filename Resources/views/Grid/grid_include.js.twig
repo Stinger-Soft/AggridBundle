@@ -9,6 +9,9 @@ jQuery(document).ready(function () {
 
 	// let the grid know which columns and what data to use
 	var {{ varAggridOptions }} = {% include '@StingerSoftAggrid/Grid/grid_options.js.twig' with {'grid': grid, 'columns': grid.columns} %};
+	{% if grid.vars.nativeOptions != false %}
+	{{ varAggridOptions }} = jQuery.extend({{ varAggridOptions }}, {{ grid.vars.nativeOptions|json_encode|raw }});
+	{% endif %}
 	var {{ varOptions }} = {% include '@StingerSoftAggrid/Grid/stinger_options.js.twig' with {'options': grid.vars} %}
 
 	{{ varAggrid }} = new StingerSoftAggrid('#{{ grid.vars.aggrid_id }}');

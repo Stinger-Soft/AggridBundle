@@ -34,7 +34,11 @@ class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 		if($value === null && !$formatNullValue) {
 			return $value;
 		}
-		$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
+		if($options['number_formatter_pattern'] === null) {
+			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
+		} else {
+			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
+		}
 		$currency = $options['currency'];
 		if(is_callable($currency)) {
 			$currency = call_user_func($currency, $item, $column->getPath(), $options);

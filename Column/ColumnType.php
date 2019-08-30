@@ -338,6 +338,9 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('columnGroupShow', null);
 		$resolver->setAllowedValues('columnGroupShow', [null, 'closed', 'open', true]);
 
+		$resolver->setDefault('cellClass', null);
+		$resolver->setAllowedTypes('cellClass', ['null', 'string']);
+
 		$resolver->setDefault('headerClass', null);
 		$resolver->setAllowedTypes('headerClass', ['null', 'string']);
 
@@ -382,6 +385,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['cellRenderer'] = $options['cellRenderer'];
 		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
 		$view->vars['columnGroupShow'] = $options['columnGroupShow'];
+		$view->vars['cellClass'] = $options['cellClass'];
 		$view->vars['headerClass'] = $options['headerClass'];
 		$view->vars['toolPanelClass'] = $options['toolPanelClass'];
 	}

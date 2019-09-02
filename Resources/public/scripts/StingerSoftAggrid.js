@@ -131,8 +131,12 @@ StingerSoftAggrid.prototype.handleOptions = function () {
 	}
 };
 
-StingerSoftAggrid.prototype.exportXlsx = function() {
-	var params = {};
+StingerSoftAggrid.prototype.exportXlsx = function(fileName, sheetName) {
+	var params = {
+		fileName: fileName,
+		sheetName: sheetName
+	};
+
 	var columnsForExport = [];
 
 	this.getColumnApi().getAllColumns().forEach(function (column) {

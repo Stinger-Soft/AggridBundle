@@ -129,7 +129,7 @@ class ColumnType extends AbstractColumnType {
 			AbstractColumnType::SERVER_SIDE_ONLY,
 		]);
 
-		$resolver->setDefault('exportable', false);
+		$resolver->setDefault('exportable', true);
 		$resolver->setAllowedTypes('exportable', 'bool');
 
 		$resolver->setDefault('filter_type', static function(Options $options) {

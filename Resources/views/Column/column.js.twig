@@ -81,6 +81,9 @@
 	{% if column.vars.columnGroupShow is defined and column.vars.columnGroupShow is not same as(null) %}
 	columnGroupShow: {{ column.vars.columnGroupShow|json_encode|raw }},
 	{% endif %}
+	{% if column.vars.exportable is defined and column.vars.exportable is not same as(null) %}
+	exportable: {{ column.vars.exportable|json_encode|raw }},
+	{% endif %}
 	{% if column.vars.cellClass is defined and column.vars.cellClass is not same as(null) %}
 	cellClass: {{ column.vars.cellClass|json_encode|raw }},
 	{% endif %}

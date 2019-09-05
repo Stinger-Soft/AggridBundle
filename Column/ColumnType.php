@@ -129,6 +129,9 @@ class ColumnType extends AbstractColumnType {
 			AbstractColumnType::SERVER_SIDE_ONLY,
 		]);
 
+		$resolver->setDefault('exportable', false);
+		$resolver->setAllowedTypes('exportable', 'bool');
+
 		$resolver->setDefault('filter_type', static function(Options $options) {
 			return null;
 		});
@@ -338,9 +341,6 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('columnGroupShow', null);
 		$resolver->setAllowedValues('columnGroupShow', [null, 'closed', 'open', true]);
 
-		$resolver->setDefault('exportable', null);
-		$resolver->setAllowedTypes('exportable', ['null', 'string']);
-
 		$resolver->setDefault('cellClass', null);
 		$resolver->setAllowedTypes('cellClass', ['null', 'string']);
 
@@ -355,7 +355,7 @@ class ColumnType extends AbstractColumnType {
 	protected function buildStingerView(ColumnView $view, ColumnInterface $column, array $options): void {
 		$view->vars['label'] = $options['label'];
 		$view->vars['translation_domain'] = $options['translation_domain'];
-
+		$view->vars['exportable'] = $options['exportable'];
 	}
 
 	protected function buildAggridView(ColumnView $view, ColumnInterface $column, array $options): void {
@@ -388,7 +388,6 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['cellRenderer'] = $options['cellRenderer'];
 		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
 		$view->vars['columnGroupShow'] = $options['columnGroupShow'];
-		$view->vars['exportable'] = $options['exportable'];
 		$view->vars['cellClass'] = $options['cellClass'];
 		$view->vars['headerClass'] = $options['headerClass'];
 		$view->vars['toolPanelClass'] = $options['toolPanelClass'];

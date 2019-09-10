@@ -332,6 +332,12 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('checkboxSelection', false);
 		$resolver->setAllowedTypes('checkboxSelection', 'bool');
 
+		$resolver->setDefault('headerCheckboxSelection', false);
+		$resolver->setAllowedTypes('headerCheckboxSelection', 'bool');
+
+		$resolver->setDefault('headerCheckboxSelectionFilteredOnly', false);
+		$resolver->setAllowedTypes('headerCheckboxSelectionFilteredOnly', 'bool');
+
 		$resolver->setDefault('cellRenderer', null);
 		$resolver->setAllowedTypes('cellRenderer', ['null', 'string']);
 
@@ -385,6 +391,8 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['tooltipField'] = $options['tooltipField'];
 		$view->vars['tooltip'] = $options['tooltip'];
 		$view->vars['checkboxSelection'] = $options['checkboxSelection'];
+		$view->vars['headerCheckboxSelection'] = $options['headerCheckboxSelection'];
+		$view->vars['headerCheckboxSelectionFilteredOnly'] = $options['headerCheckboxSelectionFilteredOnly'];
 		$view->vars['cellRenderer'] = $options['cellRenderer'];
 		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
 		$view->vars['columnGroupShow'] = $options['columnGroupShow'];

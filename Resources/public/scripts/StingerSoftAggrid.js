@@ -40,7 +40,7 @@
 (function (jQuery, moment, agGrid, window, document, undefined) {
     moment.locale(jQuery('html').attr('lang'));
 
-    var StingerSoft = StingerSoft || function () {
+	var StingerSoft = window.StingerSoft = window.StingerSoft || function () {
     };
 
     /**
@@ -700,6 +700,8 @@
         console.warn('Styler "' + styler + '" not found! Returning empty function');
         return StingerSoftAggrid.Styler.NoOp();
     };
+	
+	window.StingerSoftAggrid = StingerSoftAggrid;
 
     return StingerSoftAggrid;
 }));

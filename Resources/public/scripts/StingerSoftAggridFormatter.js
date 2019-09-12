@@ -48,7 +48,7 @@
     StingerSoftAggrid.Formatter.DateTimeObjectFormatter = function (formatterParams) {
         return function (params) {
             if (params.value) {
-                var date = params.value instanceof Date ? params.value.date : params.value
+                var date = typeof params.value == "object" ? params.value.date : params.value
                 var format = formatterParams.hasOwnProperty('dateFormat') ? formatterParams.dateFormat : 'L LTS';
                 return moment(date).format(format);
             }

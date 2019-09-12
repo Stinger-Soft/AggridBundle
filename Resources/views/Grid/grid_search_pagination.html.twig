@@ -4,7 +4,7 @@
 {% if hasSearch or hasPaginationDropdown %}
 	<div class="form-group">
 		{% if hasSearch %}
-			<input type="text" class="form-control input-small pull-left" placeholder="{{ 'stingersoft_aggrid.searchOoo'|trans({}, 'StingerSoftAggridBundle') }}" id="{{ AGGRID_ID }}_search" />
+			<input type="text" class="form-control input-small col-lg-3 col-xl-2 pull-left" placeholder="{{ 'stingersoft_aggrid.searchOoo'|trans({}, 'StingerSoftAggridBundle') }}" id="{{ AGGRID_ID }}_search" />
 		{% endif %}
 		{% if hasPaginationDropdown %}
 			<select class="form-control input-xsmall pull-left" id="{{ AGGRID_ID }}_paginationDropdown">

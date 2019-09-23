@@ -338,6 +338,9 @@ class Grid implements GridInterface {
 	}
 
 	protected function getItems() {
+		if($this->queryBuilder === null) {
+			return $this->dataSource;
+		}
 		if($this->options['dataMode'] === GridType::DATA_MODE_ENTERPRISE) {
 			$paginationOptions = $this->getPaginationOptions();
 			$this->applyOrderBy($this->requestOrder);

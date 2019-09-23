@@ -100,6 +100,7 @@ class GridType extends AbstractGridType {
 		$view->vars['rowMultiSelectWithClick'] = $gridOptions['rowMultiSelectWithClick'];
 		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
 		$view->vars['nativeOptions'] = $gridOptions['nativeOptions'];
+		$view->vars['getRowNodeId'] = $gridOptions['getRowNodeId'];
 	}
 
 	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
@@ -324,6 +325,8 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('icons', ['array', 'null']);
 
 		$resolver->setDefault('nativeOptions', false);
+		$resolver->setDefault('getRowNodeId', null);
+		$resolver->setAllowedTypes('getRowNodeId', ['string', 'null']);
 	}
 
 	protected function validateSideBarOptions(Options $options, $sidebarOption) {

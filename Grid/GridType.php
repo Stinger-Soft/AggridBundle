@@ -91,6 +91,7 @@ class GridType extends AbstractGridType {
 		$view->vars['icons'] = $gridOptions['icons'];
 		$view->vars['suppressCsvExport'] = $gridOptions['suppressCsvExport'];
 		$view->vars['suppressExcelExport'] = $gridOptions['suppressExcelExport'];
+		$view->vars['rowHeight'] = $gridOptions['rowHeight'];
 		$view->vars['rowStyle'] = $gridOptions['rowStyle'];
 		$view->vars['getRowStyle'] = $gridOptions['getRowStyle'];
 		$view->vars['rowClass'] = $gridOptions['rowClass'];
@@ -303,6 +304,8 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('getRowClass', ['null', 'string']);
 		$resolver->setDefault('rowClassRules', null);
 		$resolver->setAllowedTypes('rowClassRules', ['null', 'string']);
+		$resolver->setDefault('rowHeight', null);
+		$resolver->setAllowedTypes('rowHeight', ['null', 'int']);
 
 		$resolver->setDefault('rowSelection', null);
 		$resolver->setAllowedValues('rowSelection', [null, 'single', 'multiple']);

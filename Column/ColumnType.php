@@ -360,6 +360,12 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('headerCheckboxSelectionFilteredOnly', 'bool');
 
 		$resolver->setDefault('cellRenderer', null);
+		$resolver->setDefault('cellRenderer', function (Options $options, $previousValue) {
+			if($previousValue === null && $options['route'] !== null) {
+				return 'RawHtmlRenderer';
+			}
+			return $previousValue;
+		});
 		$resolver->setAllowedTypes('cellRenderer', ['null', 'string']);
 
 		$resolver->setDefault('cellRendererParams', null);

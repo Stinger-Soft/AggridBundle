@@ -74,7 +74,7 @@ class LinkDataTransformer implements DataTransformerInterface {
 				$tmpAttributes = array_key_exists('attr', $url) ? $url['attr'] : $tmpAttributes;
 				$url = $this->router->generate($url['route'], $url['route_params'], UrlGeneratorInterface::ABSOLUTE_PATH);
 			}
-			$attributes = array_map(function ($value, $key) {
+			$attributes = array_map(static function ($value, $key) {
 				return $key . '="' . $value . '"';
 			}, array_values($tmpAttributes), array_keys($tmpAttributes));
 

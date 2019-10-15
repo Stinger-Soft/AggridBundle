@@ -43,7 +43,7 @@ class TranslateStringDataTransformer implements DataTransformerInterface {
 		$options = $column->getColumnOptions();
 		if($options['value_translation_domain'] === true || $options['value_translation_domain'] === null) {
 			if($options['translation_domain'] === null) {
-				$tableOption = $column->getTableOptions();
+				$tableOption = $column->getGridOptions();
 				$value = $this->translator->trans($value, array(), $tableOption['translation_domain']);
 			} else {
 				$value = $this->translator->trans($value, array(), $options['translation_domain']);

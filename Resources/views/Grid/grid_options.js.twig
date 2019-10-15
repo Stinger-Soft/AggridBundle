@@ -13,6 +13,9 @@
 	{% if grid.vars.rowStyle is defined and grid.vars.rowStyle is not same as(null) %}
 	, rowStyle: {{ grid.vars.rowStyle|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.getRowNodeId is defined and grid.vars.getRowNodeId is not same as(null) %}
+	, getRowNodeId: {{ grid.vars.getRowNodeId }}
+	{% endif %}
 	{% if grid.vars.getRowStyle is defined and grid.vars.getRowStyle is not same as(null) %}
 	, getRowStyle: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowStyle|json_encode|raw }})
 	{% endif %}

@@ -74,7 +74,7 @@ class GridType extends AbstractGridType {
 		$view->vars['ajax_url'] = $gridOptions['ajax_url'];
 		$view->vars['dataMode'] = $gridOptions['dataMode'];
 		$gridOptions['attr']['style'] = 'height: ' . $gridOptions['height'];
-		$gridOptions['attr']['class'] = 'ag-theme-balham';
+		$gridOptions['attr']['class'] = $gridOptions['theme'];
 		$view->vars['attr'] = $gridOptions['attr'];
 
 	}
@@ -100,6 +100,7 @@ class GridType extends AbstractGridType {
 		$view->vars['rowMultiSelectWithClick'] = $gridOptions['rowMultiSelectWithClick'];
 		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
 		$view->vars['nativeOptions'] = $gridOptions['nativeOptions'];
+		$view->vars['getRowNodeId'] = $gridOptions['getRowNodeId'];
 	}
 
 	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
@@ -173,6 +174,9 @@ class GridType extends AbstractGridType {
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {
+		$resolver->setDefault('theme', 'ag-theme-balham');
+		$resolver->setAllowedTypes('theme', 'string');
+
 		$resolver->setDefault('dataMode', self::DATA_MODE_INLINE);
 		$resolver->setAllowedValues('dataMode', [
 			self::DATA_MODE_INLINE,
@@ -324,6 +328,8 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('icons', ['array', 'null']);
 
 		$resolver->setDefault('nativeOptions', false);
+		$resolver->setDefault('getRowNodeId', null);
+		$resolver->setAllowedTypes('getRowNodeId', ['string', 'null']);
 	}
 
 	protected function validateSideBarOptions(Options $options, $sidebarOption) {

@@ -62,6 +62,9 @@ class ColumnType extends AbstractColumnType {
 	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::buildData()
 	 */
 	public function buildData(ColumnInterface $column, array $options) {
+		if($options['route']) {
+			$column->addDataTransformer($this->linkTransformer, true);
+		}
 	}
 
 	protected function configureStingerOptions(OptionsResolver $resolver, array $gridOptions = []): void {
@@ -179,6 +182,24 @@ class ColumnType extends AbstractColumnType {
 			if($valueToCheck === null)
 				return true;
 			return false;
+		});
+		$resolver->setDefault('route', null);
+		$resolver->setAllowedTypes('route', array(
+			'string',
+			'array',
+			'callable',
+			'null'
+		));
+		$resolver->setNormalizer('route', function (Options $options, $value) {
+			if(is_array($value)) {
+				if(!array_key_exists('route', $value)) {
+					throw new InvalidOptionsException('When using "route" option with an array value, you must add a "route" key pointing to the route to be used!');
+				}
+				if(!array_key_exists('route_params', $value)) {
+					$value['route_params'] = array();
+				}
+			}
+			return $value;
 		});
 	}
 
@@ -362,6 +383,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['label'] = $options['label'];
 		$view->vars['translation_domain'] = $options['translation_domain'];
 		$view->vars['exportable'] = $options['exportable'];
+		$view->vars['route'] = $options['route'];
 	}
 
 	protected function buildAggridView(ColumnView $view, ColumnInterface $column, array $options): void {

@@ -32,10 +32,10 @@
 	width: {{ column.vars.width|json_encode|raw }},
 	{% endif %}
 	{% if column.vars.minWidth is defined and column.vars.minWidth is not same as(null) %}
-    minWidth: {{ column.vars.minWidth|json_encode|raw }},
+	minWidth: {{ column.vars.minWidth|json_encode|raw }},
 	{% endif %}
 	{% if column.vars.maxWidth is defined and column.vars.maxWidth is not same as(null) %}
-    maxWidth: {{ column.vars.maxWidth|json_encode|raw }},
+	maxWidth: {{ column.vars.maxWidth|json_encode|raw }},
 	{% endif %}
 	{% if column.vars.pinned is defined and column.vars.pinned is not same as(null) %}
 	pinned: {{ column.vars.pinned|json_encode|raw }},
@@ -59,7 +59,7 @@
 	{% if column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
 	valueFormatter: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}", {{ column.vars.valueFormatterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% else %}
-    valueFormatter: StingerSoftAggrid.Formatter.getFormatter("DefaultFormatter", []),
+	valueFormatter: StingerSoftAggrid.Formatter.getFormatter("DefaultFormatter", []),
 	{% endif %}
 	{% if column.vars.cellRendererParams is defined and column.vars.cellRendererParams is not same as(null) %}
 	cellRendererParams: {{ column.vars.cellRendererParams|json_encode|raw }},
@@ -70,6 +70,8 @@
 	getQuickFilterText: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}", {{ column.vars.valueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% elseif column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
 	getQuickFilterText: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}", {{ column.vars.valueFormatterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
+	{% else %}
+	getQuickFilterText: StingerSoftAggrid.Formatter.getFormatter("DefaultFormatter", []),
 	{% endif %}
 	{% if column.vars.keyCreator is defined and column.vars.keyCreator is not same as(null) %}
 	keyCreator: StingerSoftAggrid.Creator.getKeyCreator("{{ column.vars.keyCreator }}"),

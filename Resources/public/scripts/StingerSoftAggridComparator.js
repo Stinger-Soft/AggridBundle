@@ -69,8 +69,25 @@
      * @return {function(*): string}
      * @constructor
      */
-    StingerSoftAggrid.Comparator.DisplayValueComparator = function (formatterParams) {
+    StingerSoftAggrid.Comparator.DisplayValueComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
         return StingerSoftAggrid.Comparator.DefaultComparator(valueA.displayValue, valueB.displayValue, nodeA, nodeB, isInverted);
+    }
+
+    /**
+     *
+     * @return {function(*): string}
+     * @constructor
+     */
+    StingerSoftAggrid.Comparator.DateComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
+        var dateA = null;
+        var dateB = null;
+        if(valueA.value !== null) {
+            dateA = new Date(valueA.value.date);
+        }
+        if(valueB.value !== null) {
+            dateB = new Date(valueB.value.date);
+        }
+        return StingerSoftAggrid.Comparator.DefaultComparator(dateA, dateB, nodeA, nodeB, isInverted);
     }
 
 }));

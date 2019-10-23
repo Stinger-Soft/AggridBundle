@@ -32,7 +32,7 @@ class DateTimeColumnType extends AbstractColumnType {
 	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
 	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
-		$resolver->setDefault('locale', null);
+		$resolver->setDefault('locale', \Locale::getDefault());
 
 		$dateTimeFormatValidator = function($valueToCheck) {
 			return array_key_exists($valueToCheck, DateTimeFormatterDataTransformer::getValidFormats());
@@ -45,6 +45,8 @@ class DateTimeColumnType extends AbstractColumnType {
 		$resolver->setDefault('format', null);
 		$resolver->setDefault('calendar', 'gregorian');
 		$resolver->setAllowedValues('calendar', array('gregorian', 'traditional'));
+
+		$resolver->setDefault('comparator', 'DateComparator');
 	}
 
 	/**

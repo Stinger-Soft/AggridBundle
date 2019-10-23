@@ -56,14 +56,24 @@ class DateTimeFormatterDataTransformer implements DataTransformerInterface {
 				throw new \InvalidArgumentException('time_format must be one of the following values: ' . implode(', ', array_keys(self::$FORMAT_VALUES)));
 			}
 
-			$formatter = \IntlDateFormatter::create(
-				$options['locale'],
-				self::$FORMAT_VALUES[$options['date_format']],
-				self::$FORMAT_VALUES[$options['time_format']],
-				$timezone,
-				'gregorian' === $options['calendar'] ? \IntlDateFormatter::GREGORIAN : \IntlDateFormatter::TRADITIONAL,
-				$options['format']
-			);
+			if($options['format'] !== null) {
+				$formatter = \IntlDateFormatter::create(
+					$options['locale'],
+					self::$FORMAT_VALUES[$options['date_format']],
+					self::$FORMAT_VALUES[$options['time_format']],
+					$timezone,
+					'gregorian' === $options['calendar'] ? \IntlDateFormatter::GREGORIAN : \IntlDateFormatter::TRADITIONAL,
+					$options['format']
+				);
+			} else {
+				$formatter = \IntlDateFormatter::create(
+					$options['locale'],
+					self::$FORMAT_VALUES[$options['date_format']],
+					self::$FORMAT_VALUES[$options['time_format']],
+					$timezone,
+					'gregorian' === $options['calendar'] ? \IntlDateFormatter::GREGORIAN : \IntlDateFormatter::TRADITIONAL
+				);
+			}
 			$formattedDate = $formatter->format($timestamp);
 			return $formattedDate;
 		}

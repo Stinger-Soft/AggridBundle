@@ -26,6 +26,7 @@ class MomentDateTimeColumnType extends AbstractColumnType {
 			'string',
 		]);
 		$resolver->setDefault('valueFormatter', 'DateTimeObjectFormatter');
+		$resolver->setDefault('comparator', 'DateComparator');
 		$resolver->setDefault('filter', 'agDateColumnFilter');
 		$resolver->setDefault('js_column_template', '@StingerSoftAggrid/Column/datetime_moment.js.twig');
 	}

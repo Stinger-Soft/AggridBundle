@@ -24,7 +24,7 @@ class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 	/**
 	 * @param ColumnInterface $column
 	 * @param                 $item
-	 * @param mixed           $value
+	 * @param mixed $value
 	 *            The value in the original representation
 	 * @return mixed The value in the transformed representation
 	 */

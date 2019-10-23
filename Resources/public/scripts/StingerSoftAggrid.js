@@ -598,7 +598,7 @@
      * @param {json} getterParams
      * @returns {*} The according getter or default to the normal formatter
      */
-    StingerSoftAggrid.Getter.getGetter = function (getter, getterParams) {
+    StingerSoftAggrid.Getter.getGetter = function (getter, getterParams, showDisplayData) {
         //Default to null -> Uses the default getter
         var aggridGetter = null;
         if (getter in StingerSoftAggrid.Getter && typeof StingerSoftAggrid.Getter[getter] == 'function') {
@@ -699,6 +699,29 @@
         }
         console.warn('Styler "' + styler + '" not found! Returning empty function');
         return StingerSoftAggrid.Styler.NoOp();
+    };
+
+    /**
+     * The Namespace for all comparators.
+     * Custom comparators have to be "registered" to this namespace.
+     */
+    StingerSoftAggrid.Comparator = StingerSoftAggrid.Comparator || {};
+
+    /**
+     *
+     * @param {string} editor - The name of the editor function to pull
+     * @param {json} editorParams
+     * @returns {*} The according editor or default null
+     */
+    StingerSoftAggrid.Comparator.getComparator = function (comparator) {
+        //Default to null -> Uses the default comparator
+        var aggridComparator = null;
+        if (comparator in StingerSoftAggrid.Comparator && typeof StingerSoftAggrid.Comparator[comparator] == 'function') {
+            aggridComparator = StingerSoftAggrid.Comparator[comparator];
+        } else {
+            console.warn('Comparator "' + comparator + '" not found! Returning agGrid default function');
+        }
+        return aggridComparator;
     };
 	
 	window.StingerSoftAggrid = StingerSoftAggrid;

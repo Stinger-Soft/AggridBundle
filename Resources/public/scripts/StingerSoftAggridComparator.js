@@ -36,35 +36,41 @@
 }
 (function (jQuery, window, document, undefined) {
 
-    /**
-     * All getters are called before formatters and renderers.
-     *
-     * Return the value for the formatter and renderer.
-     */
-
-    /**
-     *
-     * @param {json} getterParams
-     * @returns {Object}
-     * @constructor
-     */
-    StingerSoftAggrid.Getter.ParamsDataGetter = function (getterParams) {
-        return function (params) {
-            return params.data;
-        };
+    StingerSoftAggrid.Comparator.DefaultComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
+        if (valueA === null && valueB === null) {
+            return 0;
+        }
+        if (valueA === null) {
+            return 1;
+        }
+        if (valueB === null) {
+            return -1;
+        }
+        if (valueA > valueB) {
+            return -1;
+        }
+        if (valueB > valueA) {
+            return 1;
+        }
+        return 0;
     };
 
     /**
      *
-     * @param {json} getterParams
-     * @returns {Object}
+     * @return {function(*): string}
      * @constructor
      */
-    StingerSoftAggrid.Getter.InlineModeGetter = function (getterParams) {
-        console.log(getterParams);
-        return function (params) {
-            return params.data[params.column.colId].displayValue;
-        };
+    StingerSoftAggrid.Comparator.ValueComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
+        return StingerSoftAggrid.Comparator.DefaultComparator(valueA.value, valueB.value, nodeA, nodeB, isInverted);
     };
+
+    /**
+     *
+     * @return {function(*): string}
+     * @constructor
+     */
+    StingerSoftAggrid.Comparator.DisplayValueComparator = function (formatterParams) {
+        return StingerSoftAggrid.Comparator.DefaultComparator(valueA.displayValue, valueB.displayValue, nodeA, nodeB, isInverted);
+    }
 
 }));

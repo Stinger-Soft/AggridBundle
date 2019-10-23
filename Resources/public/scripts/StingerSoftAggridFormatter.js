@@ -47,12 +47,25 @@
      */
     StingerSoftAggrid.Formatter.DateTimeObjectFormatter = function (formatterParams) {
         return function (params) {
-            if (params.value) {
-                var date = typeof params.value == "object" ? params.value.date : params.value
+            if (params.value.value) {
+                var date = typeof params.value.value == "object" ? params.value.value.date : params.value.value
                 var format = formatterParams.hasOwnProperty('dateFormat') ? formatterParams.dateFormat : 'L LTS';
                 return moment(date).format(format);
             }
             return null;
+        };
+    };
+
+    /**
+     *
+     * @param {json} getterParams
+     * @returns {Object}
+     * @constructor
+     */
+    StingerSoftAggrid.Formatter.DefaultFormatter = function (formatterParams) {
+        return function (params) {
+            var displayValue = params.value.displayValue;
+            return displayValue === null ? '' : displayValue;
         };
     };
 

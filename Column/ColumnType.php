@@ -201,6 +201,9 @@ class ColumnType extends AbstractColumnType {
 			}
 			return $value;
 		});
+
+		$resolver->setDefault('comparator', 'ValueComparator');
+		$resolver->setAllowedTypes('comparator', 'string');
 	}
 
 	protected function configureAggridOptions(OptionsResolver $resolver, array $gridOptions = []): void {
@@ -427,5 +430,6 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['cellClass'] = $options['cellClass'];
 		$view->vars['headerClass'] = $options['headerClass'];
 		$view->vars['toolPanelClass'] = $options['toolPanelClass'];
+		$view->vars['comparator'] = $options['comparator'];
 	}
 }

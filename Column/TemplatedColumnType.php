@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Column;
 
 use StingerSoft\AggridBundle\Helper\TemplatingTrait;
+use StingerSoft\AggridBundle\Transformer\TwigDataTransformer;
 use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Templating\EngineInterface;
@@ -20,12 +21,10 @@ use Twig\Environment;
 
 class TemplatedColumnType extends AbstractColumnType {
 
-	use ColumnTrait;
-	use TemplatingTrait;
+	protected $transformer;
 
-	public function __construct(?EngineInterface $templating, ?Environment $twig) {
-		$this->templating = $templating;
-		$this->twig = $twig;
+	public function __construct(TwigDataTransformer $transformer) {
+		$this->transformer = $transformer;
 	}
 
 	/**
@@ -49,17 +48,24 @@ class TemplatedColumnType extends AbstractColumnType {
 
 		$that = $this;
 		$resolver->setDefault('value_delegate', function ($item, $path, $options) use ($that, $tableOptions) {
-			$value = $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
-			$originalContext = [
-				'item'         => $item,
-				'path'         => $path,
-				'value'        => $value,
-				'options'      => $options,
-				'tableOptions' => $tableOptions,
-			];
-			$additionalContext = $options['additionalContext'];
-			$context = array_merge($additionalContext, $originalContext);
-			return trim($that->renderView($options['template'], $context));
+			return $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
+//			$originalContext = [
+//				'item'         => $item,
+//				'path'         => $path,
+//				'value'        => $value,
+//				'options'      => $options,
+//				'tableOptions' => $tableOptions,
+//			];
+//			$additionalContext = $options['additionalContext'];
+//			$context = array_merge($additionalContext, $originalContext);
+//			return trim($that->renderView($options['template'], $context));
 		});
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function buildData(ColumnInterface $column, array $options) {
+		$column->addDataTransformer($this->transformer);
 	}
 }

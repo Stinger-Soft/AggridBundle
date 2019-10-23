@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Column;
 
 use StingerSoft\AggridBundle\Transformer\Nl2BrStringDataTransformer;
+use StingerSoft\AggridBundle\Transformer\TranslateStringDataTransformer;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class StringColumnType extends AbstractColumnType {
@@ -21,8 +22,14 @@ class StringColumnType extends AbstractColumnType {
 	 */
 	protected $nl2BrStringDataTransformer;
 
-	public function __construct(Nl2BrStringDataTransformer $nl2BrStringDataTransformer) {
+	/**
+	 * @var TranslateStringDataTransformer
+	 */
+	protected $translateStringDataTransformer;
+
+	public function __construct(Nl2BrStringDataTransformer $nl2BrStringDataTransformer, TranslateStringDataTransformer $translateStringDataTransformer) {
 		$this->nl2BrStringDataTransformer = $nl2BrStringDataTransformer;
+		$this->translateStringDataTransformer = $translateStringDataTransformer;
 	}
 
 	/**
@@ -33,14 +40,21 @@ class StringColumnType extends AbstractColumnType {
 	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()) : void {
 		$resolver->setDefault('nl2br', false);
 		$resolver->setAllowedTypes('nl2br', 'boolean');
+
+		$resolver->setDefault('value_translation_domain', false);
+		$resolver->setAllowedTypes('value_translation_domain', array('string', 'boolean', 'null'));
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	public function buildData(ColumnInterface $column, array $options) {
+		if($options['value_translation_domain'] !== false) {
+			$column->addDataTransformer($this->translateStringDataTransformer);
+		}
 		if(isset($options['nl2br']) && $options['nl2br'] === true) {
 			$column->addDataTransformer($this->nl2BrStringDataTransformer);
 		}
+
 	}
 }

@@ -17,6 +17,9 @@ use Doctrine\ORM\QueryBuilder;
 use ReflectionException;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Filter\Filter;
+use StingerSoft\AggridBundle\Grid\Grid;
+use StingerSoft\AggridBundle\Grid\GridInterface;
+use StingerSoft\AggridBundle\Grid\GridType;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
@@ -481,16 +484,11 @@ class Column implements ColumnInterface {
 	 */
 	protected function generateData($item, $rootAlias, $columnOptions, $gridOptions) {
 		$path = Utils::startsWith($this->getPath(), $rootAlias . '.') ? substr($this->getPath(), strlen($rootAlias) + 1) : $this->getPath();
-		$displayValue = call_user_func($this->valueDelegate, $item, $path, $columnOptions);
+		$orginalValue = $displayValue = call_user_func($this->valueDelegate, $item, $path, $columnOptions);
 		foreach($this->dataTransformers as $transformer) {
 			$displayValue = $transformer->transform($this, $item, $displayValue);
 		}
-//		$data = array('display' => $displayValue);
-//		if($tableOptions['serverSide'] === false) {
-//			$this->appendSortData($data, $item, $path, $rootAlias, $columnOptions);
-//			$this->appendFilterData($data, $item, $path, $rootAlias, $columnOptions);
-//		}
-		return $displayValue;
+		return ['value' => $orginalValue, 'displayValue' => $displayValue];
 	}
 
 	/**

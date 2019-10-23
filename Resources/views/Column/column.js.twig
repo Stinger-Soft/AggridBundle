@@ -58,12 +58,14 @@
 	{% endif %}
 	{% if column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
 	valueFormatter: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}", {{ column.vars.valueFormatterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
+	{% else %}
+    valueFormatter: StingerSoftAggrid.Formatter.getFormatter("DefaultFormatter", []),
 	{% endif %}
 	{% if column.vars.cellRendererParams is defined and column.vars.cellRendererParams is not same as(null) %}
 	cellRendererParams: {{ column.vars.cellRendererParams|json_encode|raw }},
 	{% endif %}
 	{% if column.vars.quickFilter is defined and column.vars.quickFilter is not same as(null) %}
-	getQuickFilterText: StingerSoftAggrid.Filter.getFilter("{{ column.vars.quickFilter }}"),
+	getQuickFilterText: StingerSoftAggrid.Filter.getFilter("{{ column.vars.quickFilter }}", {{ grid.vars.dataMode|json_encode }}),
 	{% elseif column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
 	getQuickFilterText: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}", {{ column.vars.valueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% elseif column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
@@ -107,6 +109,7 @@
 	aggFunc: {{ column.vars.aggFunc|json_encode|raw }},
 	resizable: {{ column.vars.resizable|json_encode|raw }},
 	editable: {{ column.vars.editable|json_encode|raw }},
+	comparator: StingerSoftAggrid.Comparator.getComparator({{ column.vars.comparator|json_encode|raw }}),
 	{% if column.vars.children is defined and column.vars.children and column.vars.children|length > 0 %}
 	{% if column.vars.groupId is defined and column.vars.groupId is not same as(null) %}
 	groupId: {{ column.vars.groupId|json_encode|raw }},

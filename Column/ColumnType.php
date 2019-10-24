@@ -135,6 +135,17 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('exportable', true);
 		$resolver->setAllowedTypes('exportable', 'bool');
 
+		$resolver->setDefault('exportValueFormatter', function(Options $options, $previousValue) {
+			if($previousValue !== null) {
+				return $previousValue;
+			}
+			if($options['route']) {
+				return 'StripHtmlDisplayValueFormatter';
+			}
+			return null;
+		});
+		$resolver->setAllowedTypes('exportValueFormatter', ['null', 'string']);
+
 		$resolver->setDefault('filter_type', static function(Options $options) {
 			return null;
 		});
@@ -341,6 +352,9 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('valueGetter', null);
 		$resolver->setAllowedTypes('valueGetter', ['null', 'string']);
 
+		$resolver->setDefault('filterValueGetter', null);
+		$resolver->setAllowedTypes('filterValueGetter', ['null', 'string']);
+
 		$resolver->setDefault('quickFilter', null);
 		$resolver->setAllowedTypes('quickFilter', ['null', 'string']);
 
@@ -392,6 +406,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['label'] = $options['label'];
 		$view->vars['translation_domain'] = $options['translation_domain'];
 		$view->vars['exportable'] = $options['exportable'];
+		$view->vars['exportValueFormatter'] = $options['exportValueFormatter'];
 		$view->vars['route'] = $options['route'];
 	}
 
@@ -414,6 +429,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['enableRowGroup'] = $options['enableRowGroup'];
 		$view->vars['editable'] = $options['editable'];
 		$view->vars['valueFormatter'] = $options['valueFormatter'];
+		$view->vars['filterValueGetter'] = $options['filterValueGetter'];
 		$view->vars['keyCreator'] = $options['keyCreator'];
 		$view->vars['quickFilter'] = $options['quickFilter'];
 		$view->vars['valueGetter'] = $options['valueGetter'];

@@ -12,12 +12,9 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
-use StingerSoft\AggridBundle\Helper\TemplatingTrait;
 use StingerSoft\AggridBundle\Transformer\TwigDataTransformer;
-use StingerSoft\AggridBundle\View\ColumnView;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Templating\EngineInterface;
-use Twig\Environment;
 
 class TemplatedColumnType extends AbstractColumnType {
 
@@ -46,8 +43,18 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('searchable', AbstractColumnType::CLIENT_SIDE_ONLY);
 		$resolver->setDefault('cellRenderer', 'RawHtmlRenderer');
 
+		$resolver->setDefault('exportValueFormatter', function(Options $options, $previousValue) {
+			if($previousValue !== null) {
+				return $previousValue;
+			}
+			if($options['mapped']) {
+				return 'ValueFormatter';
+			}
+			return 'StripHtmlDisplayValueFormatter';
+		});
+
 		$that = $this;
-		$resolver->setDefault('value_delegate', function ($item, $path, $options) use ($that, $tableOptions) {
+		$resolver->setDefault('value_delegate', function($item, $path, $options) use ($that, $tableOptions) {
 			return $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
 //			$originalContext = [
 //				'item'         => $item,

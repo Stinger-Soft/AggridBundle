@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use StingerSoft\AggridBundle\Filter\NumberFilterType;
 use StingerSoft\AggridBundle\Transformer\NumberFormatterDataTransformer;
 use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
@@ -37,7 +38,10 @@ class NumberFormatterColumnType extends AbstractColumnType {
 	/**
 	 * @inheritdoc
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()) : void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+		$resolver->setDefault('filterValueGetter', 'ValueGetter');
+		$resolver->setDefault('filter_type', NumberFilterType::class);
+
 		$resolver->setRequired('number_formatter_style');
 		$resolver->setDefault('number_formatter_style', \NumberFormatter::DEFAULT_STYLE);
 		$resolver->setAllowedValues('number_formatter_style', [
@@ -56,7 +60,7 @@ class NumberFormatterColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('number_formatter_pattern', null);
 		$resolver->setAllowedTypes('number_formatter_pattern', array('string', 'null'));
-		$resolver->setNormalizer('number_formatter_pattern', function (Options $options, $valueToNormalize) {
+		$resolver->setNormalizer('number_formatter_pattern', function(Options $options, $valueToNormalize) {
 			if($valueToNormalize === null) {
 				if($options['number_formatter_style'] === \NumberFormatter::PATTERN_DECIMAL || $options['number_formatter_style'] === \NumberFormatter::PATTERN_RULEBASED) {
 					throw new InvalidOptionsException(sprintf('When using "number_formatter_style" with a value of %d ("%s") or %d ("%s"), you must provide a value for the "number_formatter_pattern" option!',
@@ -73,7 +77,7 @@ class NumberFormatterColumnType extends AbstractColumnType {
 		$resolver->setRequired('number_formatter_currency');
 		$resolver->setAllowedTypes('number_formatter_currency', array('string', 'null'));
 		$resolver->setDefault('number_formatter_currency', 'EUR');
-		$resolver->setNormalizer('number_formatter_currency', function (Options $options, $valueToNormalize) use ($that) {
+		$resolver->setNormalizer('number_formatter_currency', function(Options $options, $valueToNormalize) use ($that) {
 			if($valueToNormalize === null) {
 				if($options['number_formatter_style'] === \NumberFormatter::CURRENCY) {
 					throw new InvalidOptionsException(sprintf('When using "number_formatter_style" with a value of %d ("%s"), you must provide a value for the "number_formatter_currency" option!',
@@ -87,7 +91,7 @@ class NumberFormatterColumnType extends AbstractColumnType {
 	/**
 	 * @inheritdoc
 	 */
-	public function buildView(ColumnView $view, ColumnInterface $column, array $options) : void {
+	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
 		$view->vars['number_formatter_locale'] = $options['number_formatter_locale'];
 		$view->vars['number_formatter_style'] = $options['number_formatter_style'];
 		$view->vars['number_formatter_pattern'] = $options['number_formatter_pattern'];

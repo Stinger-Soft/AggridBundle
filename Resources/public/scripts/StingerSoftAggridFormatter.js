@@ -52,7 +52,7 @@
                 var format = formatterParams.hasOwnProperty('dateFormat') ? formatterParams.dateFormat : 'L LTS';
                 return moment(date).format(format);
             }
-            return null;
+            return '';
         };
     };
 
@@ -62,11 +62,46 @@
      * @returns {Object}
      * @constructor
      */
-    StingerSoftAggrid.Formatter.DefaultFormatter = function (formatterParams) {
+    StingerSoftAggrid.Formatter.DisplayValueFormatter = function (formatterParams) {
         return function (params) {
             var displayValue = params.value.displayValue;
             return displayValue === null ? '' : displayValue;
         };
     };
+
+    /**
+     *
+     * @param {json} getterParams
+     * @returns {Object}
+     * @constructor
+     */
+    StingerSoftAggrid.Formatter.ValueFormatter = function (formatterParams) {
+        return function (params) {
+            var value = params.value.value;
+            return value === null ? '' : value;
+        };
+    };
+
+    /**
+     *
+     * @param {json} getterParams
+     * @returns {Object}
+     * @constructor
+     */
+    StingerSoftAggrid.Formatter.StripHtmlDisplayValueFormatter = function (formatterParams) {
+        return function (params) {
+            var displayValue = params.value.displayValue;
+            return displayValue === null ? '' : jQuery(displayValue).text();
+        };
+    };
+
+    /**
+     *
+     * @param {json} getterParams
+     * @returns {Object}
+     * @constructor
+     */
+    StingerSoftAggrid.Formatter.DefaultFormatter = StingerSoftAggrid.Formatter.DisplayValueFormatter;
+
 
 }));

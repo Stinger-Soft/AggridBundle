@@ -60,11 +60,35 @@
      * @returns {Object}
      * @constructor
      */
-    StingerSoftAggrid.Getter.InlineModeGetter = function (getterParams) {
-        console.log(getterParams);
+    StingerSoftAggrid.Getter.DisplayValueGetter = function (getterParams) {
         return function (params) {
             return params.data[params.column.colId].displayValue;
         };
     };
+
+    /**
+     *
+     * @param {json} getterParams
+     * @returns {Object}
+     * @constructor
+     */
+    StingerSoftAggrid.Getter.ValueGetter = function (getterParams) {
+        return function (params) {
+            return params.data[params.column.colId].value;
+        };
+    };
+
+    /**
+     *
+     * @param {json} getterParams
+     * @returns {Object}
+     * @constructor
+     */
+    StingerSoftAggrid.Getter.PercentageValueGetter = function (getterParams) {
+        return function (params) {
+            return params.data[params.column.colId].value * 100;
+        };
+    };
+
 
 }));

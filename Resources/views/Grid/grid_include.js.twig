@@ -16,4 +16,13 @@ jQuery(document).ready(function () {
 
 	{{ varAggrid }} = new StingerSoftAggrid('#{{ grid.vars.aggrid_id }}');
 	{{ varAggrid }}.init({{ varAggridOptions }}, {{ varOptions }});
+
+	{# TODO add recursion for children - Denkt doch auch mal an die Kinder! #}
+	{% for column in grid.columns %}
+		{% if column.vars.exportable is defined and column.vars.exportable is not same as(false) %}
+			{{ varAggrid }}.addExportableColumn({{ column.vars.colId|default(column.path)|json_encode|raw }}, {
+				'exportValueFormatter': {{ column.vars.exportValueFormatter|default(null)|json_encode|raw }}
+			});
+		{% endif %}
+	{% endfor %}
 })

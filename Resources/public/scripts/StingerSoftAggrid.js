@@ -3,7 +3,16 @@
 
     if (typeof define === 'function' && define.amd) {
         // AMD
-        define(['jquery', 'moment', 'ag-grid-community'], function (jQuery, moment, agGrid) {
+        var useEnterprise = false;
+        try {
+            define(['ag-grid-enterprise/dist/ag-grid-enterprise.noStyle.js'], function (test) {
+                useEnterprise = true;
+            });
+        } catch (err) {
+            useEnterprise = false;
+        }
+        var useEnterprise = true;
+        define(['jquery', 'moment', useEnterprise ? 'ag-grid-enterprise/dist/ag-grid-enterprise.noStyle.js' : 'ag-grid-community'], function (jQuery, moment, agGrid) {
             return factory(jQuery, moment, agGrid, window, document);
         });
     } else if (typeof exports === 'object') {
@@ -173,21 +182,29 @@
         }
     };
 
+    StingerSoftAggrid.prototype.exportableColumns = [];
+
+    StingerSoftAggrid.prototype.addExportableColumn = function(colId, params) {
+        "use strict";
+        this.exportableColumns[colId] = params || {};
+    };
+
     StingerSoftAggrid.prototype.exportXlsx = function (fileName, sheetName) {
+        var that = this;
         var params = {
             fileName: fileName,
-            sheetName: sheetName
+            sheetName: sheetName,
+            processCellCallback: function(params) {
+                var columnConfig = {};
+                if(that.exportableColumns.hasOwnProperty(params.column.colId)) {
+                    columnConfig = that.exportableColumns[params.column.colId];
+                }
+                var valueGetter = columnConfig.hasOwnProperty('exportValueFormatter') && columnConfig.exportValueFormatter ? StingerSoftAggrid.Formatter.getFormatter(columnConfig.exportValueFormatter) :  StingerSoftAggrid.Formatter.getFormatter("DisplayValueFormatter");
+                return valueGetter(params);
+            }
         };
 
-        var columnsForExport = [];
-
-        this.getColumnApi().getAllColumns().forEach(function (column) {
-            if (column.colDef.exportable) {
-                columnsForExport.push(column.colId);
-            }
-        });
-
-        params.columnKeys = columnsForExport;
+        params.columnKeys = Object.keys(this.exportableColumns);
         this.getGridApi().exportDataAsExcel(params);
     }
 

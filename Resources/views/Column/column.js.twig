@@ -56,6 +56,11 @@
 	{% if column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
 	valueGetter: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}", {{ column.vars.valueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% endif %}
+	{% if column.vars.filterValueGetter is defined and column.vars.filterValueGetter is not same as(null) %}
+	filterValueGetter: StingerSoftAggrid.Getter.getGetter("{{ column.vars.filterValueGetter }}", {{ column.vars.filterValueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
+	{% else %}
+	filterValueGetter: StingerSoftAggrid.Getter.getGetter("DisplayValueGetter", []),
+	{% endif %}
 	{% if column.vars.valueFormatter is defined and column.vars.valueFormatter is not same as(null) %}
 	valueFormatter: StingerSoftAggrid.Formatter.getFormatter("{{ column.vars.valueFormatter }}", {{ column.vars.valueFormatterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% else %}
@@ -85,9 +90,9 @@
 	{% if column.vars.columnGroupShow is defined and column.vars.columnGroupShow is not same as(null) %}
 	columnGroupShow: {{ column.vars.columnGroupShow|json_encode|raw }},
 	{% endif %}
-	{% if column.vars.exportable is defined and column.vars.exportable is not same as(false) %}
-	exportable: {{ column.vars.exportable|json_encode|raw }},
-	{% endif %}
+{#	{% if column.vars.exportable is defined and column.vars.exportable is not same as(false) %}#}
+{#	exportable: {{ column.vars.exportable|json_encode|raw }},#}
+{#	{% endif %}#}
 	{% if column.vars.cellClass is defined and column.vars.cellClass is not same as(null) %}
 	cellClass: {{ column.vars.cellClass|json_encode|raw }},
 	{% endif %}
@@ -104,11 +109,13 @@
 	headerCheckboxSelectionFilteredOnly: {{ column.vars.headerCheckboxSelectionFilteredOnly|default(false)|json_encode|raw }},
 	suppressFilter: {{ column.vars.suppressFilter|default(false)|json_encode|raw }},
 	hide: {{ (not column.vars.visible)|json_encode|raw }},
+	{% if grid.vars.enterpriseLicense is not null %}
 	rowGroup: {{ column.vars.rowGroup|json_encode|raw }},
 	enableRowGroup: {{ column.vars.enableRowGroup|json_encode|raw }},
 	pivot: {{ column.vars.pivot|json_encode|raw }},
 	enablePivot: {{ column.vars.enablePivot|json_encode|raw }},
 	aggFunc: {{ column.vars.aggFunc|json_encode|raw }},
+	{% endif %}
 	resizable: {{ column.vars.resizable|json_encode|raw }},
 	editable: {{ column.vars.editable|json_encode|raw }},
 	comparator: StingerSoftAggrid.Comparator.getComparator({{ column.vars.comparator|json_encode|raw }}),

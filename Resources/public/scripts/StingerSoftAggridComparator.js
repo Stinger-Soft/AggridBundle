@@ -61,7 +61,7 @@
      * @constructor
      */
     StingerSoftAggrid.Comparator.ValueComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
-        return StingerSoftAggrid.Comparator.DefaultComparator(valueA.value, valueB.value, nodeA, nodeB, isInverted);
+        return StingerSoftAggrid.Comparator.DefaultComparator(valueA === null ? null : valueA.value, valueB === null ? null : valueB.value, nodeA, nodeB, isInverted);
     };
 
     /**
@@ -70,7 +70,7 @@
      * @constructor
      */
     StingerSoftAggrid.Comparator.DisplayValueComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
-        return StingerSoftAggrid.Comparator.DefaultComparator(valueA.displayValue, valueB.displayValue, nodeA, nodeB, isInverted);
+        return StingerSoftAggrid.Comparator.DefaultComparator(valueA === null ? null : valueA.displayValue, valueB === null ? null : valueB.displayValue, nodeA, nodeB, isInverted);
     }
 
     /**
@@ -81,10 +81,10 @@
     StingerSoftAggrid.Comparator.DateComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
         var dateA = null;
         var dateB = null;
-        if(valueA.value !== null) {
+        if(valueA !== null && valueA.value !== null) {
             dateA = new Date(valueA.value.date);
         }
-        if(valueB.value !== null) {
+        if(valueB !== null && valueB.value !== null) {
             dateB = new Date(valueB.value.date);
         }
         return StingerSoftAggrid.Comparator.DefaultComparator(dateA, dateB, nodeA, nodeB, isInverted);

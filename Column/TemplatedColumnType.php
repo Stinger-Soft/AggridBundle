@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use StingerSoft\AggridBundle\Filter\SetFilterType;
 use StingerSoft\AggridBundle\Transformer\TwigDataTransformer;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -27,7 +28,7 @@ class TemplatedColumnType extends AbstractColumnType {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setRequired('template');
 		$resolver->setAllowedTypes('template', 'string');
 
@@ -43,6 +44,26 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('searchable', AbstractColumnType::CLIENT_SIDE_ONLY);
 		$resolver->setDefault('cellRenderer', 'RawHtmlRenderer');
 
+		$resolver->setDefault('filter_type', function(Options $options, $previousValue) use ($gridOptions) {
+			if($previousValue !== null) {
+				return $previousValue;
+			}
+			if(isset($gridOptions['enterpriseLicense'])) {
+				return SetFilterType::class;
+			}
+			return null;
+		});
+
+		$resolver->setNormalizer('filter_options', static function(Options $options, $value) {
+			if($value === null) {
+				$value = [];
+			}
+			if(!isset($value['cellRenderer'])) {
+				$value['cellRenderer'] = 'RawHtmlRenderer';
+			}
+			return $value;
+		});
+
 		$resolver->setDefault('exportValueFormatter', function(Options $options, $previousValue) {
 			if($previousValue !== null) {
 				return $previousValue;
@@ -54,7 +75,7 @@ class TemplatedColumnType extends AbstractColumnType {
 		});
 
 		$that = $this;
-		$resolver->setDefault('value_delegate', function($item, $path, $options) use ($that, $tableOptions) {
+		$resolver->setDefault('value_delegate', function($item, $path, $options) use ($that, $gridOptions) {
 			return $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
 //			$originalContext = [
 //				'item'         => $item,

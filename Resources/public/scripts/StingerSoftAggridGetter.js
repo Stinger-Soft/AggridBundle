@@ -62,7 +62,8 @@
      */
     StingerSoftAggrid.Getter.DisplayValueGetter = function (getterParams) {
         return function (params) {
-            return params.data[params.column.colId].displayValue;
+            var value = params.getValue(params.column.colId);
+            return value === null ? null : value.displayValue;
         };
     };
 
@@ -74,7 +75,8 @@
      */
     StingerSoftAggrid.Getter.ValueGetter = function (getterParams) {
         return function (params) {
-            return params.data[params.column.colId].value;
+            var value = params.getValue(params.column.colId);
+            return value === null ? null : value.value;
         };
     };
 
@@ -86,7 +88,8 @@
      */
     StingerSoftAggrid.Getter.PercentageValueGetter = function (getterParams) {
         return function (params) {
-            return params.data[params.column.colId].value * 100;
+            var value = params.getValue(params.column.colId);
+            return value === null ? null : value.value * 100;
         };
     };
 

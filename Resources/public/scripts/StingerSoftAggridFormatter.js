@@ -47,8 +47,9 @@
      */
     StingerSoftAggrid.Formatter.DateTimeObjectFormatter = function (formatterParams) {
         return function (params) {
-            if (params.value.value) {
-                var date = typeof params.value.value == "object" ? params.value.value.date : params.value.value
+            var value = StingerSoftAggrid.getValueFromParams(params);
+            if (value) {
+                var date = typeof value == "object" ? value.date : value
                 var format = formatterParams.hasOwnProperty('dateFormat') ? formatterParams.dateFormat : 'L LTS';
                 return moment(date).format(format);
             }
@@ -64,7 +65,7 @@
      */
     StingerSoftAggrid.Formatter.DisplayValueFormatter = function (formatterParams) {
         return function (params) {
-            var displayValue = params.value.displayValue;
+            var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
             return displayValue === null ? '' : displayValue;
         };
     };
@@ -77,7 +78,7 @@
      */
     StingerSoftAggrid.Formatter.ValueFormatter = function (formatterParams) {
         return function (params) {
-            var value = params.value.value;
+            var value = StingerSoftAggrid.getValueFromParams(params);
             return value === null ? '' : value;
         };
     };
@@ -90,7 +91,7 @@
      */
     StingerSoftAggrid.Formatter.StripHtmlDisplayValueFormatter = function (formatterParams) {
         return function (params) {
-            var displayValue = params.value.displayValue;
+            var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
             return displayValue === null ? '' : jQuery(displayValue).text();
         };
     };

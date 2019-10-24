@@ -69,6 +69,7 @@
         }
     };
 
+
     /**
      * General Ag-Grid object to be initialized,
      * set and used with events or overridden by custom scripts e.g.
@@ -116,6 +117,21 @@
         /** */
         this.foreignFormSelectInputId = false;
     }
+
+
+    StingerSoftAggrid.getValueFromParams = function(params) {
+        if(params.value !== null && typeof params.value === 'object' && params.value.hasOwnProperty('value')) {
+            return params.value.value;
+        }
+        return params.value;
+    };
+
+    StingerSoftAggrid.getDisplayValueFromParams = function(params) {
+        if(params.value !== null && typeof params.value === 'object' && params.value.hasOwnProperty('displayValue')) {
+            return params.value.displayValue;
+        }
+        return params.value;
+    };
 
     /**
      *

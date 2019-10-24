@@ -51,11 +51,20 @@
      * @return {function(*): string}
      */
     StingerSoftAggrid.Renderer.RawHtmlRenderer = function (params) {
-        return params.value.displayValue ? params.value.displayValue : '';
+        var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
+        return displayValue ? displayValue : '';
+    };
+
+    /**
+     * @return {function(*): string}
+     */
+    StingerSoftAggrid.Renderer.StripHtmlRenderer = function (params) {
+        var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
+        return displayValue ? jQuery(displayValue).text() : '';
     };
 
     StingerSoftAggrid.Renderer.KeyValueMappingRenderer = function (rendererParams) {
-        var val = rendererParams.value.value;
+        var val = StingerSoftAggrid.getValueFromParams(params);
         var translationDomain = rendererParams.hasOwnProperty('translation_domain') && rendererParams.translation_domain ? rendererParams.translation_domain : 'messages';
         var keyValueMapping = rendererParams.hasOwnProperty('keyValueMapping') && rendererParams.keyValueMapping ? rendererParams.keyValueMapping : {};
         if (val && keyValueMapping.hasOwnProperty(val)) {
@@ -141,7 +150,10 @@
         this.yesLabel = params.yes_label;
         if (params.value !== "" && params.value !== undefined && params.value !== null) {
             StingerSoft.mapValuesToObject(params, this);
-            var value = params.value.displayValue;
+            var value = params.value;
+            if(typeof params.value === 'object' && params.value.hasOwnProperty('displayValue')) {
+                value =  params.value.displayValue;
+            }
             value = value === 'true' ? true : value;
             value = value === 'false' ? false : value;
 

@@ -121,7 +121,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 			$typeInstance = $this->getColumnTypeInstance($type);
 			return new Column($column, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions, $this->grid->getQueryBuilder());
 		} catch(ReflectionException $re) {
-			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', null, $re);
+			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', 0, $re);
 		}
 	}
 

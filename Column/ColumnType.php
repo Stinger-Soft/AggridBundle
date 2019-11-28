@@ -215,6 +215,9 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('comparator', 'ValueComparator');
 		$resolver->setAllowedTypes('comparator', 'string');
+
+		$resolver->setDefault('renderable', true);
+		$resolver->setAllowedTypes('renderable', 'boolean');
 	}
 
 	protected function configureAggridOptions(OptionsResolver $resolver, array $gridOptions = []): void {
@@ -408,6 +411,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['exportable'] = $options['exportable'];
 		$view->vars['exportValueFormatter'] = $options['exportValueFormatter'];
 		$view->vars['route'] = $options['route'];
+		$view->vars['renderable'] = $options['renderable'];
 	}
 
 	protected function buildAggridView(ColumnView $view, ColumnInterface $column, array $options): void {

@@ -303,7 +303,7 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('getRowClass', null);
 		$resolver->setAllowedTypes('getRowClass', ['null', 'string']);
 		$resolver->setDefault('rowClassRules', null);
-		$resolver->setAllowedTypes('rowClassRules', ['null', 'string']);
+		$resolver->setAllowedTypes('rowClassRules', ['null', 'string', 'array']);
 		$resolver->setDefault('rowHeight', null);
 		$resolver->setAllowedTypes('rowHeight', ['null', 'int']);
 

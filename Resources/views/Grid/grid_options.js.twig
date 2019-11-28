@@ -1,6 +1,7 @@
 {
 	{% block grid_def_start %}
 	{% endblock grid_def_start %}
+	{% import '@StingerSoftAggrid/Grid/macros.html.twig' as me %}
 	columnDefs: [
 	{% for column in grid.columns %}
 		{% include column.template with {'column': column} %}{% if not loop.last %},{% endif %}
@@ -29,7 +30,7 @@
 	, getRowClass: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowClass|json_encode|raw }})
 	{% endif %}
 	{% if grid.vars.rowClassRules is defined and grid.vars.rowClassRules is not same as(null) %}
-	, rowClassRules: {{ grid.vars.rowClassRules|json_encode|raw }}
+	, rowClassRules: {{ me.deserializeOptionArray(grid.vars.rowClassRules) }}
 	{% endif %}
 	{% if grid.vars.icons is defined and grid.vars.icons is not same as(null) %}
 		, icons: {{ grid.vars.icons|json_encode|raw }}

@@ -10,3 +10,23 @@
 		{%- endif -%}
 	{%- endfor -%}
 {%- endmacro attributes -%}
+
+{%- macro deserializeOptionArray(value) -%}
+	{%- apply spaceless -%}
+		{%- if value is not iterable -%}
+			{{ value|json_encode|raw }}
+		{%- else -%}
+			{
+			{%- for key, val in value -%}
+				{{ key|json_encode|raw }}:
+				{%- if val starts with 'function' -%}
+					{{ val|raw  }}
+				{%- else -%}
+					{{ val|json_encode|raw }}
+				{%- endif -%}
+				{%- if not loop.last -%},{% endif %}
+			{%- endfor -%}
+			}
+		{%- endif -%}
+	{%- endapply spaceless -%}
+{%- endmacro deserializeOptionArray -%}

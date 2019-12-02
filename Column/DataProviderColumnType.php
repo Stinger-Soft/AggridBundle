@@ -17,7 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class DataProviderColumnType extends AbstractColumnType {
 
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
-		$resolver->setDefault('renderable', true);
+		$resolver->setDefault('renderable', false);
 	}
 
 }

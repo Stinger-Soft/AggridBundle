@@ -48,7 +48,7 @@ class TemplatedColumnType extends AbstractColumnType {
 			if($previousValue !== null) {
 				return $previousValue;
 			}
-			if(isset($gridOptions['enterpriseLicense'])) {
+			if(isset($gridOptions['enterpriseLicense']) && isset($gridOptions['filterable']) {
 				return SetFilterType::class;
 			}
 			return null;

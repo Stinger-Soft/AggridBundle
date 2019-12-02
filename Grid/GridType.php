@@ -112,6 +112,7 @@ class GridType extends AbstractGridType {
 		$view->vars['persistState'] = $gridOptions['persistState'];
 		$view->vars['searchEnabled'] = $gridOptions['searchEnabled'];
 		$view->vars['paginationDropDown'] = $gridOptions['paginationDropDown'];
+		$view->vars['form_id'] = $gridOptions['form_id'];
 
 		if($gridOptions['versionHash'] === true) {
 			$hashing = hash_init('sha256', HASH_HMAC, 'stingersoft-aggrid');
@@ -172,6 +173,9 @@ class GridType extends AbstractGridType {
 
 		$resolver->setDefault('versionHashModifier', null);
 		$resolver->setAllowedTypes('versionHashModifier', ['null', 'string']);
+
+		$resolver->setDefault('form_id', null);
+		$resolver->setAllowedTypes('form_id', ['null', 'string']);
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {

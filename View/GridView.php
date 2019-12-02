@@ -109,7 +109,8 @@ class GridView {
 		$this->columnViews = [];
 		$rootViews = [];
 		foreach($this->columns as $column) {
-			if($column->getParent() === null && !isset($rootViews[$column->getPath()])) {
+			$options = $column->getColumnOptions();
+			if($column->getParent() === null && !isset($rootViews[$column->getPath()]) && $options['renderable']) {
 				$view = $column->createView();
 				$rootViews[$column->getPath()] = $view;
 				$this->addChildViews($view, $column);

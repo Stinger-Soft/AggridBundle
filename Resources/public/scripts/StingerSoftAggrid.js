@@ -49,7 +49,7 @@
 (function (jQuery, moment, agGrid, window, document, undefined) {
     moment.locale(jQuery('html').attr('lang'));
 
-	var StingerSoft = window.StingerSoft = window.StingerSoft || function () {
+    var StingerSoft = window.StingerSoft = window.StingerSoft || function () {
     };
 
     /**
@@ -119,15 +119,15 @@
     }
 
 
-    StingerSoftAggrid.getValueFromParams = function(params) {
-        if(params.value !== null && typeof params.value === 'object' && params.value.hasOwnProperty('value')) {
+    StingerSoftAggrid.getValueFromParams = function (params) {
+        if (params.value !== null && typeof params.value === 'object' && params.value.hasOwnProperty('value')) {
             return params.value.value;
         }
         return params.value;
     };
 
-    StingerSoftAggrid.getDisplayValueFromParams = function(params) {
-        if(params.value !== null && typeof params.value === 'object' && params.value.hasOwnProperty('displayValue')) {
+    StingerSoftAggrid.getDisplayValueFromParams = function (params) {
+        if (params.value !== null && typeof params.value === 'object' && params.value.hasOwnProperty('displayValue')) {
             return params.value.displayValue;
         }
         return params.value;
@@ -165,6 +165,9 @@
         if (this.options.hasOwnProperty('searchEnabled')) {
             this.searchEnabled = this.options.searchEnabled;
         }
+        if (this.options.hasOwnProperty('foreignFormSelectInputId')) {
+            this.foreignFormSelectInputId = this.options.foreignFormSelectInputId;
+        }
         this.isServerSide = false;
         var that = this;
         if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
@@ -200,7 +203,7 @@
 
     StingerSoftAggrid.prototype.exportableColumns = [];
 
-    StingerSoftAggrid.prototype.addExportableColumn = function(colId, params) {
+    StingerSoftAggrid.prototype.addExportableColumn = function (colId, params) {
         "use strict";
         this.exportableColumns[colId] = params || {};
     };
@@ -210,12 +213,12 @@
         var params = {
             fileName: fileName,
             sheetName: sheetName,
-            processCellCallback: function(params) {
+            processCellCallback: function (params) {
                 var columnConfig = {};
-                if(that.exportableColumns.hasOwnProperty(params.column.colId)) {
+                if (that.exportableColumns.hasOwnProperty(params.column.colId)) {
                     columnConfig = that.exportableColumns[params.column.colId];
                 }
-                var valueGetter = columnConfig.hasOwnProperty('exportValueFormatter') && columnConfig.exportValueFormatter ? StingerSoftAggrid.Formatter.getFormatter(columnConfig.exportValueFormatter) :  StingerSoftAggrid.Formatter.getFormatter("DisplayValueFormatter");
+                var valueGetter = columnConfig.hasOwnProperty('exportValueFormatter') && columnConfig.exportValueFormatter ? StingerSoftAggrid.Formatter.getFormatter(columnConfig.exportValueFormatter) : StingerSoftAggrid.Formatter.getFormatter("DisplayValueFormatter");
                 return valueGetter(params);
             }
         };
@@ -338,6 +341,12 @@
         jQuery(document).on('refresh.aggrid', function () {
             that.refresh(true);
         });
+
+        if (this.foreignFormSelectInputId !== null && this.foreignFormSelectInputId) {
+            this.getGridApi().addEventListener('selectionChanged', function(event) {
+                jQuery.proxy(StingerSoftAggrid.prototype.onRowSelected, that, event)();
+            });
+        }
     };
 
     /**
@@ -457,7 +466,7 @@
         var selectedIds = [];
         selectedRows.forEach(function (selectedRow, index) {
             if (_field in selectedRow) {
-                selectedIds.push(selectedRow[field]);
+                selectedIds.push(selectedRow[_field].value);
             }
         });
         return selectedIds;
@@ -756,8 +765,8 @@
         }
         return aggridComparator;
     };
-	
-	window.StingerSoftAggrid = StingerSoftAggrid;
+
+    window.StingerSoftAggrid = StingerSoftAggrid;
 
     return StingerSoftAggrid;
 }));

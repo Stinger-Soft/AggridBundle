@@ -18,4 +18,7 @@
 	{% if grid.vars.searchEnabled is defined and grid.vars.searchEnabled is not same as(null) %}
 	, searchEnabled: {{ grid.vars.searchEnabled|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.form_id is defined and grid.vars.form_id is not same as(null) %}
+	, foreignFormSelectInputId: {{ grid.vars.form_id|json_encode|raw }}
+	{% endif %}
 }

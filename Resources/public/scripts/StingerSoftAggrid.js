@@ -482,6 +482,7 @@
             var $field = jQuery('#' + this.foreignFormSelectInputId);
             if ($field.length > 0) {
                 $field.val(Object.values(this.getSelectedIds(event.api)).join(','));
+                $field.change();
             }
         }
     };

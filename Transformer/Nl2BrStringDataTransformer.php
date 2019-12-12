@@ -31,7 +31,7 @@ class Nl2BrStringDataTransformer implements DataTransformerInterface {
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
-		if (isset($options['nl2br'])) {
+		if (isset($options['nl2br']) && $value !== null) {
 			return nl2br($value);
 		}
 		return $value;

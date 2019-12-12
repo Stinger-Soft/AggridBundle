@@ -13,18 +13,12 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Helper;
 
 use LogicException;
-use Symfony\Component\Templating\EngineInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 trait TemplatingTrait {
-
-	/**
-	 * @var null|EngineInterface
-	 */
-	protected $templating;
 
 	/**
 	 * @var null|Environment
@@ -44,10 +38,6 @@ trait TemplatingTrait {
 	 * @throws SyntaxError
 	 */
 	public function renderView($view, array $parameters = []): string {
-		if($this->templating) {
-			return $this->templating->render($view, $parameters);
-		}
-
 		if(!$this->twig) {
 			throw new LogicException('You can not use the "renderView" method if the Templating Component or the Twig Bundle are not available.');
 		}

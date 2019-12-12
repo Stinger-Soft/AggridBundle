@@ -30,14 +30,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Templating\EngineInterface;
 use Twig\Environment;
 
 class Grid implements GridInterface {
-	/**
-	 * @var EngineInterface|null
-	 */
-	protected $templating;
+
 	/**
 	 * @var Environment|null
 	 */
@@ -121,13 +117,11 @@ class Grid implements GridInterface {
 	 *            applying filters, searches and ordering (if a query builder is given)
 	 * @param DependencyInjectionExtensionInterface $dependencyInjectionExtension
 	 * @param PaginatorInterface                    $paginator
-	 * @param EngineInterface|null                  $templating
 	 * @param Environment|null                      $twig
 	 * @param array                                 $options
 	 *            an array of options to be passed to the grid type
 	 */
-	public function __construct($gridTypeClass, $dataSource, DependencyInjectionExtensionInterface $dependencyInjectionExtension, PaginatorInterface $paginator, ?EngineInterface $templating, ?Environment $twig, array $options = []) {
-		$this->templating = $templating;
+	public function __construct($gridTypeClass, $dataSource, DependencyInjectionExtensionInterface $dependencyInjectionExtension, PaginatorInterface $paginator, ?Environment $twig, array $options = []) {
 		$this->twig = $twig;
 		$this->paginator = $paginator;
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;

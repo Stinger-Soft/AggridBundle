@@ -15,7 +15,6 @@ namespace StingerSoft\AggridBundle\Service;
 use Doctrine\ORM\QueryBuilder;
 use Knp\Component\Pager\PaginatorInterface;
 use StingerSoft\AggridBundle\Grid\Grid;
-use Symfony\Component\Templating\EngineInterface;
 use Twig\Environment;
 
 class GridService implements GridServiceInterface {
@@ -31,11 +30,6 @@ class GridService implements GridServiceInterface {
 	protected $paginator;
 
 	/**
-	 * @var null|EngineInterface
-	 */
-	protected $templating;
-
-	/**
 	 * @var null|Environment
 	 */
 	protected $twig;
@@ -45,13 +39,11 @@ class GridService implements GridServiceInterface {
 	 *
 	 * @param DependencyInjectionExtensionInterface $dependencyInjectionExtension
 	 * @param PaginatorInterface $paginator
-	 * @param EngineInterface|null $templating
 	 * @param Environment|null $twig
 	 */
-	public function __construct(DependencyInjectionExtensionInterface $dependencyInjectionExtension, PaginatorInterface $paginator, ?EngineInterface $templating, ?Environment $twig) {
+	public function __construct(DependencyInjectionExtensionInterface $dependencyInjectionExtension, PaginatorInterface $paginator, ?Environment $twig) {
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->paginator = $paginator;
-		$this->templating = $templating;
 		$this->twig = $twig;
 	}
 
@@ -64,6 +56,6 @@ class GridService implements GridServiceInterface {
 	 * @return Grid the grid instance
 	 */
 	public function createGrid($type, $dataSource, array $options = array()): Grid {
-		return new Grid($type, $dataSource, $this->dependencyInjectionExtension, $this->paginator, $this->templating, $this->twig, $options);
+		return new Grid($type, $dataSource, $this->dependencyInjectionExtension, $this->paginator, $this->twig, $options);
 	}
 }

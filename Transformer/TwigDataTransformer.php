@@ -14,15 +14,13 @@ namespace StingerSoft\AggridBundle\Transformer;
 
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Helper\TemplatingTrait;
-use Symfony\Component\Templating\EngineInterface;
 use Twig\Environment;
 
 class TwigDataTransformer implements DataTransformerInterface {
 
 	use TemplatingTrait;
 
-	public function __construct(?EngineInterface $templating, ?Environment $twig) {
-		$this->templating = $templating;
+	public function __construct(?Environment $twig) {
 		$this->twig = $twig;
 	}
 
@@ -32,6 +30,9 @@ class TwigDataTransformer implements DataTransformerInterface {
 	 * @param mixed $value
 	 *            The value in the original representation
 	 * @return mixed The value in the transformed representation
+	 * @throws \Twig\Error\LoaderError
+	 * @throws \Twig\Error\RuntimeError
+	 * @throws \Twig\Error\SyntaxError
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();

@@ -31,11 +31,11 @@
 	"require": {
 		"php": ">=7.2",
 		"ext-json": "*",
-		"npm-asset/ag-grid-community": "~21.0",
+		"npm-asset/ag-grid-community": "^21.0",
 		"npm-asset/moment": "~2.24",
 		"symfony/framework-bundle": "^4.3",
 		"symfony/property-access": "^4.3",
-		"symfony/console": "|^4.3",
+		"symfony/console": "^4.3",
 		"symfony/form": "^4.3",
 		"knplabs/knp-components": "~1.3.3|^2.0",
 		"stinger-soft/php-commons": "^1.0.0"

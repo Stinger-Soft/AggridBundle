@@ -27,5 +27,8 @@ class EmailColumnType extends AbstractColumnType {
 		$resolver->setDefault('route', function($item, $value) {
 			return 'mailto:' . $value;
 		});
+		$resolver->setDefault('filter_options', [
+			'cellRenderer' => 'StripHtmlRenderer'
+		]);
 	}
 }

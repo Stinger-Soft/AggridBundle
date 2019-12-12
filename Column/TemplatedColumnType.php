@@ -44,16 +44,6 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('searchable', AbstractColumnType::CLIENT_SIDE_ONLY);
 		$resolver->setDefault('cellRenderer', 'RawHtmlRenderer');
 
-		$resolver->setDefault('filter_type', function(Options $options, $previousValue) use ($gridOptions) {
-			if($previousValue !== null) {
-				return $previousValue;
-			}
-			if(isset($gridOptions['enterpriseLicense']) && isset($gridOptions['filterable'])) {
-				return SetFilterType::class;
-			}
-			return null;
-		});
-
 		$resolver->setNormalizer('filter_options', static function(Options $options, $value) {
 			if($value === null) {
 				$value = [];

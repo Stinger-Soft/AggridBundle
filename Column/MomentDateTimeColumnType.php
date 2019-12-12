@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use StingerSoft\AggridBundle\Filter\DateFilterType;
 use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -28,7 +29,7 @@ class MomentDateTimeColumnType extends AbstractColumnType {
 		$resolver->setDefault('valueFormatter', 'DateTimeObjectFormatter');
 		$resolver->setDefault('exportValueFormatter', 'DateTimeObjectFormatter');
 		$resolver->setDefault('comparator', 'DateComparator');
-		$resolver->setDefault('filter', 'agDateColumnFilter');
+		$resolver->setDefault('filter_type', DateFilterType::class);
 		$resolver->setDefault('js_column_template', '@StingerSoftAggrid/Column/datetime_moment.js.twig');
 	}
 

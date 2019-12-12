@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Column;
 
 use Closure;
+use StingerSoft\AggridBundle\Filter\SetFilterType;
 use StingerSoft\AggridBundle\Transformer\LinkDataTransformer;
 use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
@@ -146,9 +147,16 @@ class ColumnType extends AbstractColumnType {
 		});
 		$resolver->setAllowedTypes('exportValueFormatter', ['null', 'string']);
 
-		$resolver->setDefault('filter_type', static function(Options $options) {
+		$resolver->setDefault('filter_type', function(Options $options, $previousValue) use ($gridOptions) {
+			if($previousValue !== null) {
+				return $previousValue;
+			}
+			if(isset($gridOptions['enterpriseLicense']) && isset($options['filterable']) && $options['filterable']) {
+				return SetFilterType::class;
+			}
 			return null;
 		});
+
 		$resolver->setAllowedTypes('filter_type', [
 			'null',
 			'string',
@@ -201,7 +209,7 @@ class ColumnType extends AbstractColumnType {
 			'callable',
 			'null'
 		));
-		$resolver->setNormalizer('route', function (Options $options, $value) {
+		$resolver->setNormalizer('route', function(Options $options, $value) {
 			if(is_array($value)) {
 				if(!array_key_exists('route', $value)) {
 					throw new InvalidOptionsException('When using "route" option with an array value, you must add a "route" key pointing to the route to be used!');
@@ -380,7 +388,7 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('headerCheckboxSelectionFilteredOnly', 'bool');
 
 		$resolver->setDefault('cellRenderer', null);
-		$resolver->setDefault('cellRenderer', function (Options $options, $previousValue) {
+		$resolver->setDefault('cellRenderer', function(Options $options, $previousValue) {
 			if($previousValue === null && $options['route'] !== null) {
 				return 'RawHtmlRenderer';
 			}

@@ -1,5 +1,9 @@
 stingersoft_aggrid:
   refresh: 'Refresh'
+
+  pagination:
+    entries_per_page: Entries per Page
+
   column_types:
     yes_no:
       no: No

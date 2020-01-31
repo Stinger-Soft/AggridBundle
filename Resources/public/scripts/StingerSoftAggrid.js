@@ -330,6 +330,18 @@
             });
         }
 
+        if (this.options.hasOwnProperty('clearFilterButton') && this.options.clearFilterButton) {
+            jQuery(this.gridId + '_clear').on('click', function () {
+                that.getGridApi().setFilterModel(null);
+            });
+        }
+        
+        if (this.options.hasOwnProperty('reloadButton') && this.options.reloadButton) {
+            jQuery(this.gridId + '_reload').on('click', function () {
+                that.refresh(true);
+            });
+        }
+
         //Save to local storage
         this.$aggrid.on("remove", function () {
             that.save();

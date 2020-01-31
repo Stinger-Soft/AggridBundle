@@ -112,6 +112,10 @@ class GridType extends AbstractGridType {
 		$view->vars['persistState'] = $gridOptions['persistState'];
 		$view->vars['searchEnabled'] = $gridOptions['searchEnabled'];
 		$view->vars['paginationDropDown'] = $gridOptions['paginationDropDown'];
+		$view->vars['reloadButton'] = $gridOptions['reloadButton'];
+		$view->vars['clearFilterButton'] = $gridOptions['clearFilterButton'];
+		$view->vars['autosizeColumnsButton'] = $gridOptions['autosizeColumnsButton'];
+
 		$view->vars['form_id'] = $gridOptions['form_id'];
 
 		if($gridOptions['versionHash'] === true) {
@@ -162,6 +166,15 @@ class GridType extends AbstractGridType {
 			return $previousValue;
 		});
 		$resolver->setAllowedTypes('paginationDropDown', ['null', 'array']);
+
+		$resolver->setDefault('reloadButton', false);
+		$resolver->setAllowedTypes('reloadButton', ['boolean']);
+
+		$resolver->setDefault('clearFilterButton', false);
+		$resolver->setAllowedTypes('clearFilterButton', ['boolean']);
+
+		$resolver->setDefault('autosizeColumnsButton', false);
+		$resolver->setAllowedTypes('autosizeColumnsButton', ['boolean']);
 
 		$resolver->setDefault('versionHash', static function (Options $options, $previousValue) {
 			if($previousValue === null && $options['persistState'] === true) {

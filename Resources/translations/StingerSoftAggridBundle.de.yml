@@ -100,6 +100,9 @@ stingersoft_aggrid:
   paste: 'Einfügen'
   ctrlV: 'Strg+V'
 
+  pagination:
+    entries_per_page: Einträge pro Seite
+
   column_types:
     yes_no:
       no: Nein

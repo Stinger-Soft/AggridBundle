@@ -101,4 +101,10 @@
 		return value === gridKey ? defaultValue : value;
 	}
 	{% endif %}
+	, onColumnResized: function(params) {
+		var length = params.columns.length;
+		for (var i = 0; i < length; i++) {
+			{{ varAggrid }}.addResizedColumn(params.columns[i]);
+		}
+	}
 }

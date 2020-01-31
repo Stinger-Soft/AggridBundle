@@ -21,4 +21,14 @@
 	{% if grid.vars.form_id is defined and grid.vars.form_id is not same as(null) %}
 	, foreignFormSelectInputId: {{ grid.vars.form_id|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.clearFilterButton is defined and grid.vars.clearFilterButton is not same as(null) %}
+	, clearFilterButton: {{ grid.vars.clearFilterButton|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.reloadButton is defined and grid.vars.reloadButton is not same as(null) %}
+	, reloadButton: {{ grid.vars.reloadButton|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.autosizeColumnsButton is defined and grid.vars.autosizeColumnsButton is not same as(null) %}
+	, autosizeColumnsButton: {{ grid.vars.autosizeColumnsButton|json_encode|raw }}
+	{% endif %}
+
 }

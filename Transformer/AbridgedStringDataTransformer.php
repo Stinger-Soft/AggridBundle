@@ -50,7 +50,7 @@ class AbridgedStringDataTransformer implements DataTransformerInterface {
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
 		$path = $column->getPath();
-		$value = $value ?: $this->getDelegateValueOrScalar('empty_value', $item, $path, $options);
+		//$value = $value ?: $this->getDelegateValueOrScalar('empty_value', $item, $path, $options);
 		return $this->environment->render('@StingerSoftAggrid/Column/abridged_string.html.twig', [
 			'item'          => $item,
 			'path'          => $path,

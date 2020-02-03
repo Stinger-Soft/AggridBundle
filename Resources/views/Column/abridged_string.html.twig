@@ -7,7 +7,7 @@
 		{% set tooltipValue = tooltipMax > 0 and value|length > tooltipMax ? value|truncate(tooltipMax) : value %}
 		{% set tooltipValue = tooltipWrap ? value|wordwrap(tooltipWrap) : tooltipValue %}
 		<div class="abridgedStringCell {% if fullscreen %}normalscreen{% endif %}"
-			 title="{{ nl2br ? tooltipValue|nl2br|raw : tooltipValue|raw }}"
+			 title="{{ nl2br ? tooltipValue|striptags('<br />'|nl2br|raw) : tooltipValue|raw }}"
 			 data-toggle="tooltip" data-html="true" data-container="{{ container }}">
 			{{ originalValue|truncate(max)|raw }}
 		</div>

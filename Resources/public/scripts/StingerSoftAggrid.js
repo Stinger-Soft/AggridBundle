@@ -335,10 +335,17 @@
                 that.getGridApi().setFilterModel(null);
             });
         }
-        
+
         if (this.options.hasOwnProperty('reloadButton') && this.options.reloadButton) {
             jQuery(this.gridId + '_reload').on('click', function () {
                 that.refresh(true);
+            });
+        }
+
+        if (this.options.hasOwnProperty('reloadButton') && this.options.reloadButton) {
+            jQuery(this.gridId + '_autosize').on('click', function () {
+                console.log('yoo');
+                that.autoSizeColumns(true);
             });
         }
 
@@ -359,6 +366,36 @@
                 jQuery.proxy(StingerSoftAggrid.prototype.onRowSelected, that, event)();
             });
         }
+    };
+
+    /**
+     *
+     * @param column
+     */
+    StingerSoftAggrid.prototype.addResizedColumn = function(column) {
+        if(this.resizedColumns.indexOf(column.colId) === -1) {
+            this.resizedColumns.push(column.colId);
+        }
+    };
+
+    StingerSoftAggrid.prototype.autoSizeColumns = function(ignoreWidth) {
+        ignoreWidth = typeof ignoreWidth === "undefined" ? true : ignoreWidth;
+        columnApi = this.getColumnApi();
+
+        var that = this;
+        var columnIds = [];
+        columnApi.getAllColumns().forEach(function(column) {
+            if(that.resizedColumns.indexOf(column.colId) === -1 || !ignoreWidth) {
+                if(!("width" in column.colDef) || !ignoreWidth) {
+                    if("width" in column.colDef) {
+                        columnApi.setColumnWidth(column, column.colDef.width);
+                    } else {
+                        columnIds.push(column.colId);
+                    }
+                }
+            }
+        });
+        columnApi.autoSizeColumns(columnIds);
     };
 
     /**

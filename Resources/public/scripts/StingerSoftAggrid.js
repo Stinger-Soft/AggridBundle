@@ -106,6 +106,8 @@
         this.gridOptions = null;
         /** */
         this.options = null;
+        /** */
+        this.resizedColumns = [];
 
         /** */
         this.filterTimeout = 500;
@@ -342,7 +344,7 @@
             });
         }
 
-        if (this.options.hasOwnProperty('reloadButton') && this.options.reloadButton) {
+        if (this.options.hasOwnProperty('autosizeColumnsButton') && this.options.autosizeColumnsButton) {
             jQuery(this.gridId + '_autosize').on('click', function () {
                 console.log('yoo');
                 that.autoSizeColumns(true);

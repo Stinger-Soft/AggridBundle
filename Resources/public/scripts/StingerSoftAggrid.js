@@ -339,14 +339,20 @@
         }
 
         if (this.options.hasOwnProperty('reloadButton') && this.options.reloadButton) {
+            var that = this;
             jQuery(this.gridId + '_reload').on('click', function () {
-                that.refresh(true);
+                if (that.options.hasOwnProperty('dataMode') && that.options.dataMode === 'ajax') {
+                    jQuery.getJSON(that.options.ajaxUrl, function (data) {
+                        that.setData(data.items, true);
+                    });
+                } else {
+                    that.refresh(true);
+                }
             });
         }
 
         if (this.options.hasOwnProperty('autosizeColumnsButton') && this.options.autosizeColumnsButton) {
             jQuery(this.gridId + '_autosize').on('click', function () {
-                console.log('yoo');
                 that.autoSizeColumns(true);
             });
         }

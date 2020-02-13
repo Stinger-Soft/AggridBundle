@@ -341,13 +341,7 @@
         if (this.options.hasOwnProperty('reloadButton') && this.options.reloadButton) {
             var that = this;
             jQuery(this.gridId + '_reload').on('click', function () {
-                if (that.options.hasOwnProperty('dataMode') && that.options.dataMode === 'ajax') {
-                    jQuery.getJSON(that.options.ajaxUrl, function (data) {
-                        that.setData(data.items, true);
-                    });
-                } else {
-                    that.refresh(true);
-                }
+                that.reload();
             });
         }
 
@@ -436,6 +430,17 @@
         if (refresh) {
             this.refresh();
         }
+    };
+    
+    
+    StingerSoftAggrid.prototype.reload = function () {
+        var that = this;
+        if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
+            jQuery.getJSON(this.options.ajaxUrl, function (data) {
+                that.setData(data.items, true);
+            });
+        }
+        this.refresh(true);
     };
 
     /**

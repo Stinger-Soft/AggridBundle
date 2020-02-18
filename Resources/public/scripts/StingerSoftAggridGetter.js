@@ -42,6 +42,21 @@
      * Return the value for the formatter and renderer.
      */
 
+    StingerSoftAggrid.Getter.deepFind = function (obj, path) {
+        var paths = path.split('.')
+            , current = obj
+            , i;
+
+        for (i = 0; i < paths.length; ++i) {
+            if (current[paths[i]] == undefined) {
+                return undefined;
+            } else {
+                current = current[paths[i]];
+            }
+        }
+        return current;
+    }
+
     /**
      *
      * @param {json} getterParams
@@ -62,7 +77,7 @@
      */
     StingerSoftAggrid.Getter.DisplayValueGetter = function (getterParams) {
         return function (params) {
-            var value = params.data[params.column.colId];
+            var value = StingerSoftAggrid.Getter.deepFind(params.data, params.column.colId);
             return value === null ? null : value.displayValue;
         };
     };
@@ -75,7 +90,7 @@
      */
     StingerSoftAggrid.Getter.ValueGetter = function (getterParams) {
         return function (params) {
-            var value = params.data[params.column.colId];
+            var value = StingerSoftAggrid.Getter.deepFind(params.data, params.column.colId);
             return value === null ? null : value.value;
         };
     };
@@ -88,7 +103,7 @@
      */
     StingerSoftAggrid.Getter.PercentageValueGetter = function (getterParams) {
         return function (params) {
-            var value = params.data[params.column.colId];
+            var value = StingerSoftAggrid.Getter.deepFind(params.data, params.column.colId);
             return value === null ? null : value.value * 100;
         };
     };

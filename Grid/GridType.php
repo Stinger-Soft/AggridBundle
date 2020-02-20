@@ -73,7 +73,11 @@ class GridType extends AbstractGridType {
 		$view->vars['stingerSoftAggrid_js_var'] = 'stingerSoftAggrid' . $view->vars['aggrid_js_id'];
 		$view->vars['ajax_url'] = $gridOptions['ajax_url'];
 		$view->vars['dataMode'] = $gridOptions['dataMode'];
-		$gridOptions['attr']['style'] = 'height: ' . $gridOptions['height'];
+		if(!$gridOptions['autoHeight']) {
+			$gridOptions['attr']['style'] = 'height: ' . $gridOptions['height'];
+		} else {
+			$view->vars['domLayout'] = 'autoHeight';
+		}
 		$gridOptions['attr']['class'] = $gridOptions['theme'];
 		$view->vars['attr'] = $gridOptions['attr'];
 
@@ -243,6 +247,9 @@ class GridType extends AbstractGridType {
 			}
 			return $value;
 		});
+
+		$resolver->setDefault('autoHeight', false);
+		$resolver->setAllowedTypes('autoHeight', 'bool');
 
 		$resolver->setDefault('sideBar', false);
 		$resolver->setAllowedValues('sideBar', static function ($valueToCheck) {

@@ -53,6 +53,9 @@
 	{% if grid.vars.paginationAutoPageSize is defined and grid.vars.suppressPaginationPanel is not same as(null) %}
 		, suppressPaginationPanel: {{ grid.vars.paginationAutoPageSize|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.domLayout is defined and grid.vars.domLayout %}
+		, domLayout: {{ grid.vars.domLayout|json_encode|raw }}
+	{% endif %}
 	{% if grid.vars.dataMode == 'inline' %}
 		, rowData: {{ grid.inlineData|raw }}
 	{% endif %}

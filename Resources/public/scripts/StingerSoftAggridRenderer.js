@@ -64,7 +64,7 @@
     };
 
     StingerSoftAggrid.Renderer.KeyValueMappingRenderer = function (rendererParams) {
-        var val = StingerSoftAggrid.getValueFromParams(params);
+        var val = StingerSoftAggrid.getValueFromParams(rendererParams);
         var translationDomain = rendererParams.hasOwnProperty('translation_domain') && rendererParams.translation_domain ? rendererParams.translation_domain : 'messages';
         var keyValueMapping = rendererParams.hasOwnProperty('keyValueMapping') && rendererParams.keyValueMapping ? rendererParams.keyValueMapping : {};
         if (val && keyValueMapping.hasOwnProperty(val)) {

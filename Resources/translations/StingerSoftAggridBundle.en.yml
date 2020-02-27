@@ -4,6 +4,8 @@ stingersoft_aggrid:
   pagination:
     entries_per_page: Entries per Page
 
+  selectAll: 'Select All'
+
   column_types:
     yes_no:
       no: No

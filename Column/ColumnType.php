@@ -85,6 +85,13 @@ class ColumnType extends AbstractColumnType {
 			'boolean',
 		]);
 
+		$resolver->setDefault('headerTooltip_translation_domain', null);
+		$resolver->setAllowedTypes('headerTooltip_translation_domain', [
+			'string',
+			'null',
+			'boolean',
+		]);
+
 		$resolver->setDefault('value_delegate', null);
 		$resolver->setAllowedTypes('value_delegate', [
 			'null',
@@ -378,6 +385,9 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('tooltip', null);
 		$resolver->setAllowedTypes('tooltip', ['null', 'string']);
 
+		$resolver->setDefault('headerTooltip', null);
+		$resolver->setAllowedTypes('headerTooltip', ['null', 'string']);
+
 		$resolver->setDefault('checkboxSelection', false);
 		$resolver->setAllowedTypes('checkboxSelection', 'bool');
 
@@ -416,6 +426,7 @@ class ColumnType extends AbstractColumnType {
 	protected function buildStingerView(ColumnView $view, ColumnInterface $column, array $options): void {
 		$view->vars['label'] = $options['label'];
 		$view->vars['translation_domain'] = $options['translation_domain'];
+		$view->vars['headerTooltip_translation_domain'] = $options['headerTooltip_translation_domain'] ?? $options['translation_domain'];
 		$view->vars['exportable'] = $options['exportable'];
 		$view->vars['exportValueFormatter'] = $options['exportValueFormatter'];
 		$view->vars['route'] = $options['route'];
@@ -449,6 +460,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['suppressMenu'] = $options['suppressMenu'];
 		$view->vars['tooltipField'] = $options['tooltipField'];
 		$view->vars['tooltip'] = $options['tooltip'];
+		$view->vars['headerTooltip'] = $options['headerTooltip'];
 		$view->vars['checkboxSelection'] = $options['checkboxSelection'];
 		$view->vars['headerCheckboxSelection'] = $options['headerCheckboxSelection'];
 		$view->vars['headerCheckboxSelectionFilteredOnly'] = $options['headerCheckboxSelectionFilteredOnly'];

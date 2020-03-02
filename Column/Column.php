@@ -260,6 +260,9 @@ class Column implements ColumnInterface {
 		if($view->vars['translation_domain'] === null) {
 			$view->vars['translation_domain'] = $this->gridOptions['translation_domain'];
 		}
+		if($view->vars['headerTooltip_translation_domain'] === null) {
+			$view->vars['headerTooltip_translation_domain'] = $this->gridOptions['translation_domain'];
+		}
 //		if($view->vars['abbreviation_translation_domain'] === null) {
 //			$view->vars['abbreviation_translation_domain'] = $this->gridOption['translation_domain'];
 //		}

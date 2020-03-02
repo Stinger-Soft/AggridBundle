@@ -8,6 +8,7 @@
 	{% endfor %}
 	],
 	multiSortKey: 'ctrl',
+	enableBrowserTooltips: {{ grid.vars.enableBrowserTooltips|json_encode|raw }},
 	components: {
 		datePicker: StingerSoftAggrid.Editor.DatePicker
 	}

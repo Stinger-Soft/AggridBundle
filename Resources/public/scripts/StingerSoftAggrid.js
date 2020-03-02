@@ -173,7 +173,6 @@
         this.isServerSide = false;
         var that = this;
         if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
-            this.isServerSide = true;
             if (this.options.hasOwnProperty('ajaxUrl')) {
                 jQuery.getJSON(this.options.ajaxUrl, function (data) {
                     that.gridOptions.api.setRowData(data.items);
@@ -334,7 +333,8 @@
 
         if (this.options.hasOwnProperty('clearFilterButton') && this.options.clearFilterButton) {
             jQuery(this.gridId + '_clear').on('click', function () {
-                that.getGridApi().setFilterModel(null);
+                that.$searchField.val('');
+                that.resetFilter();
             });
         }
 

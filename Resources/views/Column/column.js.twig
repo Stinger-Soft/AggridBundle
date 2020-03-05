@@ -119,6 +119,7 @@
 	{% if grid.vars.enterpriseLicense is not null %}
 	rowGroup: {{ column.vars.rowGroup|json_encode|raw }},
 	enableRowGroup: {{ column.vars.enableRowGroup|json_encode|raw }},
+	enableValue: {{ column.vars.enableValue|json_encode|raw }},
 	pivot: {{ column.vars.pivot|json_encode|raw }},
 	enablePivot: {{ column.vars.enablePivot|json_encode|raw }},
 	aggFunc: {{ column.vars.aggFunc|json_encode|raw }},

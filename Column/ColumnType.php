@@ -269,6 +269,9 @@ class ColumnType extends AbstractColumnType {
 			return $value;
 		});
 
+		$resolver->setDefault('enableValue', false);
+		$resolver->setAllowedTypes('enableValue', 'bool');
+
 		$resolver->setDefault('enableRowGroup', false);
 		$resolver->setAllowedValues('enableRowGroup', [
 			true,
@@ -450,6 +453,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['rowGroup'] = $options['rowGroup'];
 		$view->vars['menuTabs'] = $options['menuTabs'];
 		$view->vars['enableRowGroup'] = $options['enableRowGroup'];
+		$view->vars['enableValue'] = $options['enableValue'];
 		$view->vars['editable'] = $options['editable'];
 		$view->vars['valueFormatter'] = $options['valueFormatter'];
 		$view->vars['filterValueGetter'] = $options['filterValueGetter'];

@@ -7,8 +7,18 @@
 		{% include column.template with {'column': column} %}{% if not loop.last %},{% endif %}
 	{% endfor %}
 	],
+	{% if grid.statusBarComponents|length > 0 %}
+		statusBar: {
+			statusPanels: [
+				{% for statusBarComponent in grid.statusBarComponents %}
+					{% include statusBarComponent.template with {'component': statusBarComponent} %}{% if not loop.last %},{% endif %}
+				{% endfor %}
+			]
+		},
+	{% endif %}
 	multiSortKey: 'ctrl',
 	enableBrowserTooltips: {{ grid.vars.enableBrowserTooltips|json_encode|raw }},
+	enableRangeSelection: {{ grid.vars.enableRangeSelection|json_encode|raw }},
 	components: {
 		datePicker: StingerSoftAggrid.Editor.DatePicker
 	}
@@ -102,6 +112,11 @@
 	, localeTextFunc: function(key, defaultValue) {
 		var gridKey = 'stingersoft_aggrid.' + key;
 		var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
+		if(value === gridKey) {
+			console.warn('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
+			return defaultValue;
+		}
+		return value;
 		return value === gridKey ? defaultValue : value;
 	}
 	{% endif %}

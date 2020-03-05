@@ -13,13 +13,17 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Service;
 
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentTypeInterface;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 
 interface DependencyInjectionExtensionInterface {
+
 	public function resolveGridType(string $type): GridTypeInterface;
 
 	public function resolveColumnType(string $type): ColumnTypeInterface;
+
+	public function resolveStatusBarComponentType(string $type): StatusBarComponentTypeInterface;
 
 	public function resolveFilterType(string $type): FilterTypeInterface;
 

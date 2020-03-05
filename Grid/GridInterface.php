@@ -13,15 +13,22 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Grid;
 
 use StingerSoft\AggridBundle\Column\Column;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponent;
 use StingerSoft\AggridBundle\View\GridView;
 
 interface GridInterface {
+
 	/**
 	 * Get all columns belonging to the grid.
 	 *
 	 * @return Column[] all columns belonging to the grid.
 	 */
 	public function getColumns(): array;
+
+	/**
+	 * @return StatusBarComponent[]
+	 */
+	public function getStatusBarComponents() : array;
 
 	public function createJsonData(): string;
 }

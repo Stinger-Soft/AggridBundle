@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\View;
 
-class ColumnView {
+class ColumnView extends AbstractBaseView {
 
 	/**
 	 * @var string The path to access the property on the bound object
@@ -23,11 +23,6 @@ class ColumnView {
 	 * @var string The template which should be used to create the JS configuration for this column
 	 */
 	public $template;
-
-	/**
-	 * @var array Array of data which can be used inside the template
-	 */
-	public $vars;
 
 	/**
 	 * @var FilterView|null the view for the filter of the column (if any).
@@ -46,25 +41,6 @@ class ColumnView {
 	 */
 	public function __construct(ColumnView $parent = null) {
 		$this->parent = $parent;
-	}
-
-	/**
-	 * Gets array of data which can be used inside the template
-	 */
-	public function getVars() {
-		return $this->vars;
-	}
-
-	/**
-	 * Sets array of data which can be used inside the template
-	 *
-	 * @param array $vars
-	 *            Array of data which can be used inside the template
-	 * @return ColumnView
-	 */
-	public function setVars($vars) : self {
-		$this->vars = $vars;
-		return $this;
 	}
 
 }

@@ -12,11 +12,16 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Helper;
 
+use ArrayAccess;
+use Countable;
+use OutOfBoundsException;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
+use Traversable;
 
-interface GridBuilderInterface extends \ArrayAccess, \Traversable, \Countable {
+interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 
 	/**
 	 * Adds a column to the grid
@@ -79,7 +84,7 @@ interface GridBuilderInterface extends \ArrayAccess, \Traversable, \Countable {
 	 *
 	 * @param string $path The path of the column
 	 * @return ColumnInterface
-	 * @throws \OutOfBoundsException If the named column does not exist.
+	 * @throws OutOfBoundsException If the named column does not exist.
 	 */
 	public function get(string $path): ColumnInterface;
 
@@ -105,5 +110,46 @@ interface GridBuilderInterface extends \ArrayAccess, \Traversable, \Countable {
 	 * @return Column[]
 	 */
 	public function all(): array;
+
+	/**
+	 * Adds a status bar component to the grid
+	 *
+	 * @param string      $id      the id of the status bar component
+	 * @param string|null $type    the type (i.e. class) of status bar component
+	 * @param array       $options Options to pass the status bar component type
+	 * @return $this the grid builder, allowing for chaining
+	 * @throws InvalidArgumentTypeException
+	 */
+	public function addStatusBarComponent(string $id, ?string $type = null, array $options = []): self;
+
+	/**
+	 * Removes a status bar component from the grid
+	 *
+	 * @param string $id the id of the status bar component to remove
+	 * @return $this
+	 */
+	public function removeStatusBarComponent(string $id): self;
+
+	/**
+	 * Returns whether a status bar component with the given id exists
+	 *
+	 * @param string $id the id of the status bar component to check its existence
+	 * @return bool
+	 */
+	public function hasStatusBarComponent(string $id): bool;
+
+	/**
+	 * @param string $id the id of the status bar component
+	 * @return StatusBarComponentInterface
+	 * @throws OutOfBoundsException If the status bar component does not exist.
+	 */
+	public function getStatusBarComponent(string $id): StatusBarComponentInterface;
+
+	/**
+	 * Returns all status bar components in this grid.
+	 *
+	 * @return StatusBarComponentInterface[]
+	 */
+	public function allStatusBarComponents(): array;
 
 }

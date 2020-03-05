@@ -13,13 +13,14 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Grid;
 
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use function in_array;
 use Knp\Component\Pager\PaginatorInterface;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
 use StingerSoft\AggridBundle\Helper\GridBuilder;
 use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
@@ -31,6 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Twig\Environment;
+use function in_array;
 
 class Grid implements GridInterface {
 
@@ -38,18 +40,22 @@ class Grid implements GridInterface {
 	 * @var Environment|null
 	 */
 	protected $twig;
+
 	/**
 	 * @var PaginatorInterface
 	 */
 	protected $paginator;
+
 	/**
 	 * @var DependencyInjectionExtensionInterface
 	 */
 	protected $dependencyInjectionExtension;
+
 	/**
 	 * @var array|QueryBuilder
 	 */
 	protected $dataSource;
+
 	/**
 	 * @var array|QueryBuilder
 	 */
@@ -59,6 +65,7 @@ class Grid implements GridInterface {
 	 * @var array
 	 */
 	protected $options;
+
 	/**
 	 * @var GridTypeInterface
 	 */
@@ -73,6 +80,11 @@ class Grid implements GridInterface {
 	 * @var ColumnInterface[]
 	 */
 	protected $columns;
+
+	/**
+	 * @var StatusBarComponentInterface
+	 */
+	protected $statusBarComponents;
 
 	/**
 	 * @var GridBuilderInterface
@@ -144,6 +156,7 @@ class Grid implements GridInterface {
 		$this->builder = new GridBuilder($this, $dependencyInjectionExtension, $this->options);
 		$this->buildGrid($gridType, $this->builder);
 		$this->columns = $this->builder->all();
+		$this->statusBarComponents = $this->builder->allStatusBarComponents();
 	}
 
 	/**
@@ -153,6 +166,13 @@ class Grid implements GridInterface {
 	 */
 	public function getColumns(): array {
 		return $this->columns;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getStatusBarComponents(): array {
+		return $this->statusBarComponents;
 	}
 
 	/**
@@ -196,7 +216,7 @@ class Grid implements GridInterface {
 	 */
 	public function createView(): GridView {
 		$this->orderColumns();
-		$gridView = new GridView($this, $this->gridType, $this->options, $this->columns);
+		$gridView = new GridView($this, $this->gridType, $this->options, $this->columns, $this->statusBarComponents);
 		$this->buildView($gridView, $this->gridType);
 		return $gridView;
 	}
@@ -230,12 +250,18 @@ class Grid implements GridInterface {
 		}
 	}
 
+	/**
+	 * @return Response
+	 * @throws NoResultException
+	 * @throws NonUniqueResultException
+	 */
 	public function createJsonDataResponse(): Response {
 		return new JsonResponse($this->getData());
 	}
 
 	/**
 	 * @return string
+	 * @throws NoResultException
 	 * @throws NonUniqueResultException
 	 */
 	public function createJsonData(): string {
@@ -256,6 +282,7 @@ class Grid implements GridInterface {
 	 *
 	 * @return integer the amount of total results of the query before applying any filter.
 	 * @throws NonUniqueResultException
+	 * @throws NoResultException
 	 */
 	public function getTotalResults(): int {
 		if($this->totalResults === null) {
@@ -314,6 +341,7 @@ class Grid implements GridInterface {
 
 	/**
 	 * @return array
+	 * @throws NoResultException
 	 * @throws NonUniqueResultException
 	 */
 	protected function getData(): array {
@@ -443,18 +471,16 @@ class Grid implements GridInterface {
 		$pathSize = count($groupPath);
 		$groupSize = count($grouping);
 
-		if($groupSize > 0) {
-			if($groupSize > $pathSize) {
-				foreach($grouping as $index => $group) {
-					if($index === $pathSize) {
-						$filterPath = $this->getColumn($group['id'])->getFilterQueryPath();
+		if(($groupSize > 0) && $groupSize > $pathSize) {
+			foreach($grouping as $index => $group) {
+				if($index === $pathSize) {
+					$column = $this->getColumn($group['id']);
+					if($column !== null) {
+						$filterPath = $column->getFilterQueryPath();
 						$this->queryBuilder->select($filterPath);
 						$this->queryBuilder->groupBy($filterPath);
 					}
 				}
-			}
-			if($pathSize > 0) {
-
 			}
 		}
 	}
@@ -514,9 +540,6 @@ class Grid implements GridInterface {
 			$current = &$current[$key];
 		}
 
-		/**
-		 * @noinspection ReferenceMismatchInspection
-		 */
 		$backup = $current;
 		$current = $value;
 

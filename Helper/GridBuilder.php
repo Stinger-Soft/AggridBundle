@@ -20,23 +20,24 @@ use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnGroupType;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponent;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Grid\Grid;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
-use StingerSoft\AggridBundle\View\ColumnView;
 use Traversable;
 
 class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 
 	/**
-	 * @var ColumnInterface[] Array of all column settings
+	 * @var ColumnInterface[] Array of all columns
 	 */
 	protected $columns;
 
 	/**
-	 * @var ColumnInterface[] Array of all column settings
+	 * @var StatusBarComponentInterface[] Array of all status bar components
 	 */
-	protected $groupColumns;
+	protected $statusBarComponents;
 
 	/**
 	 * @var Grid the grid this builder is used for
@@ -58,7 +59,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 		$this->gridOptions = $gridOptions;
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->columns = [];
-		$this->groupColumns = [];
+		$this->statusBarComponents = [];
 	}
 
 	/**
@@ -106,23 +107,6 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 		}
 		$this->columns[$column->getPath()] = $column;
 		return $column;
-	}
-
-	/**
-	 * @param ColumnInterface|string $column
-	 * @param string|null            $type
-	 * @param array                  $options
-	 * @return ColumnInterface
-	 * @throws InvalidArgumentTypeException
-	 */
-	protected function createColumn($column, ?string $type = null, array $options = []): ColumnInterface {
-		$typeInstance = null;
-		try {
-			$typeInstance = $this->getColumnTypeInstance($type);
-			return new Column($column, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions, $this->grid->getQueryBuilder());
-		} catch(ReflectionException $re) {
-			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', 0, $re);
-		}
 	}
 
 	/**
@@ -225,8 +209,69 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 		return $this->columns;
 	}
 
-	public function getGroupColumns(): array {
-		return $this->groupColumns;
+	public function addStatusBarComponent(string $id, ?string $type = null, array $options = []): GridBuilderInterface {
+		$statusBarComponent = $this->createStatusBarComponent($id, $type, $options);
+		$this->statusBarComponents[$statusBarComponent->getId()] = $statusBarComponent;
+
+		return $this;
+
+	}
+
+	public function removeStatusBarComponent(string $id): GridBuilderInterface {
+		if(isset($this->statusBarComponents[$id])) {
+			unset($this->statusBarComponents[$id]);
+		}
+		return $this;
+	}
+
+	public function hasStatusBarComponent(string $id): bool {
+		return isset($this->statusBarComponents[$id]);
+	}
+
+	public function getStatusBarComponent(string $id): StatusBarComponentInterface {
+		if(isset($this->statusBarComponents[$id])) {
+			return $this->statusBarComponents[$id];
+		}
+
+		throw new OutOfBoundsException(sprintf('Status bar component with id "%s" does not exist.', $id));
+	}
+
+	public function allStatusBarComponents(): array {
+		return $this->statusBarComponents;
+	}
+
+	/**
+	 * @param ColumnInterface|string $column
+	 * @param string|null            $type
+	 * @param array                  $options
+	 * @return ColumnInterface
+	 * @throws InvalidArgumentTypeException
+	 */
+	protected function createColumn($column, ?string $type = null, array $options = []): ColumnInterface {
+		$typeInstance = null;
+		try {
+			$typeInstance = $this->getColumnTypeInstance($type);
+			return new Column($column, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions, $this->grid->getQueryBuilder());
+		} catch(ReflectionException $re) {
+			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', 0, $re);
+		}
+	}
+
+	/**
+	 * @param string $id
+	 * @param string $type
+	 * @param array  $options
+	 * @return StatusBarComponentInterface
+	 * @throws InvalidArgumentTypeException
+	 */
+	protected function createStatusBarComponent(string $id, string $type, array $options = []): StatusBarComponentInterface {
+		$typeInstance = null;
+		try {
+			$typeInstance = $this->dependencyInjectionExtension->resolveStatusBarComponentType($type);
+			return new StatusBarComponent($id, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions);
+		} catch(ReflectionException $re) {
+			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', 0, $re);
+		}
 	}
 
 	/**

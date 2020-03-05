@@ -1,0 +1,12 @@
+{
+	statusPanel: {{ component.componentIdentifier|json_encode|raw }}
+	{% if component.vars.key is not null %}
+	, key: {{ component.vars.key|json_encode|raw }}
+	{% endif %}
+	{% if component.vars.align is not null %}
+	, align: {{ component.vars.align|json_encode|raw }}
+	{% endif %}
+	{% if component.vars.params is not null %}
+	, statusPanelParams: {{ component.vars.params|json_encode|raw }}
+	{% endif %}
+}

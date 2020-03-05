@@ -14,6 +14,7 @@ namespace StingerSoft\AggridBundle\Service;
 
 use Psr\Container\ContainerInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentTypeInterface;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 use StingerSoft\AggridBundle\Helper\InstanceHelperTrait;
@@ -41,6 +42,9 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 		return $this->resolveType($type, ColumnTypeInterface::class);
 	}
 
+	public function resolveStatusBarComponentType(string $type): StatusBarComponentTypeInterface {
+		return $this->resolveType($type, StatusBarComponentTypeInterface::class);
+	}
 
 	public function resolveFilterType(string $type): FilterTypeInterface {
 		return $this->resolveType($type, FilterTypeInterface::class);

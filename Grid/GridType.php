@@ -16,7 +16,6 @@ use Doctrine\ORM\QueryBuilder;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\StingerSoftAggridBundle;
 use StingerSoft\AggridBundle\View\GridView;
-use StingerSoft\PhpCommons\Builder\HashCodeBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
@@ -89,9 +88,11 @@ class GridType extends AbstractGridType {
 		$view->vars['enterpriseLicense'] = $gridOptions['enterpriseLicense'];
 		$view->vars['treeData'] = $gridOptions['treeData'];
 		$view->vars['sideBar'] = $gridOptions['sideBar'];
-		$view->vars['sideBarDefaultToolPanel'] = $gridOptions['sideBarDefaultToolPanel'];
-		$view->vars['sideBarPosition'] = $gridOptions['sideBarPosition'];
-		$view->vars['sideBarHiddenByDefault'] = $gridOptions['sideBarHiddenByDefault'];
+		$view->vars['sideBarOptions'] = [
+			'defaultToolPanel' => $gridOptions['sideBarOptions']['defaultToolPanel'] ?? null,
+			'position'         => $gridOptions['sideBarOptions']['position'] ?? null,
+			'hiddenByDefault'  => $gridOptions['sideBarOptions']['hiddenByDefault'] ?? null,
+		];
 		$view->vars['cacheBlockSize'] = $gridOptions['cacheBlockSize'];
 		$view->vars['pagination'] = $gridOptions['pagination'];
 		$view->vars['paginationPageSize'] = $gridOptions['paginationPageSize'];
@@ -111,6 +112,7 @@ class GridType extends AbstractGridType {
 		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
 		$view->vars['nativeOptions'] = $gridOptions['nativeOptions'];
 		$view->vars['getRowNodeId'] = $gridOptions['getRowNodeId'];
+		$view->vars['components'] = $gridOptions['components'];
 	}
 
 	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
@@ -201,10 +203,13 @@ class GridType extends AbstractGridType {
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {
+		$resolver->setDefault('components', null);
+		$resolver->setAllowedTypes('components', ['null', 'array']);
+
 		$resolver->setDefault('enableBrowserTooltips', true);
 		$resolver->setAllowedTypes('enableBrowserTooltips', 'bool');
 
-		$resolver->setDefault('enableRangeSelection',false);
+		$resolver->setDefault('enableRangeSelection', false);
 		$resolver->setAllowedTypes('enableRangeSelection', 'bool');
 
 		$resolver->setDefault('theme', 'ag-theme-balham');
@@ -262,16 +267,27 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('autoHeight', false);
 		$resolver->setAllowedTypes('autoHeight', 'bool');
 
-		$resolver->setDefault('sideBarDefaultToolPanel', null);
-		$resolver->setAllowedTypes('sideBarDefaultToolPanel', ['null', 'string']);
+		$addSideBarOptions = static function(OptionsResolver $sidebarResolver) {
+			$sidebarResolver->setDefault('defaultToolPanel', null);
+			$sidebarResolver->setAllowedTypes('defaultToolPanel', ['null', 'string']);
 
-		$resolver->setDefault('sideBarPosition', null);
-		$resolver->setAllowedValues('sideBarPosition', [null, 'right', 'left']);
+			$sidebarResolver->setDefault('position', null);
+			$sidebarResolver->setAllowedValues('position', [null, 'right', 'left']);
 
-		$resolver->setDefault('sideBarHiddenByDefault', null);
-		$resolver->setAllowedValues('sideBarHiddenByDefault', [null, 'right', 'left']);
+			$sidebarResolver->setDefined('hiddenByDefault');
+			$sidebarResolver->setAllowedValues('hiddenByDefault', [null, true]);
+		};
+		$resolver->setDefault('sideBarOptions', static function (OptionsResolver $sidebarResolver) use ($addSideBarOptions) {
+			$addSideBarOptions($sidebarResolver);
+		});
+		$resolver->setAllowedTypes('sideBarOptions', 'array');
+		$resolver->setNormalizer('sideBarOptions', static function (Options $options, $valueToNormalize) use ($addSideBarOptions) {
+			$sidebarResolver = new OptionsResolver();
+			$addSideBarOptions($sidebarResolver);
+			$sidebarResolver->resolve($valueToNormalize);
+			return $valueToNormalize;
+		});
 
-		$resolver->setDeprecated('sidebar', 'Add components to the sidebar by using the GridBuilder::addComponent method!');
 		$resolver->setDefault('sideBar', false);
 		$resolver->setAllowedValues('sideBar', static function ($valueToCheck) {
 			if($valueToCheck === 'columns' || $valueToCheck === 'filters') {
@@ -294,6 +310,7 @@ class GridType extends AbstractGridType {
 			}
 			return $valueToNormalize;
 		});
+		$resolver->setDeprecated('sideBar', 'Add components to the sidebar by using the GridBuilder::addComponent method!');
 
 		$resolver->setDefault('menuTabs', null);
 		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);

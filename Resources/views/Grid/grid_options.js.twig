@@ -12,6 +12,9 @@
 	enableRangeSelection: {{ grid.vars.enableRangeSelection|json_encode|raw }},
 	components: {
 		datePicker: StingerSoftAggrid.Editor.DatePicker
+		{% for componentAlias, component in grid.additionalComponents %}
+		, {{ componentAlias }}: {{ component }}
+		{% endfor %}
 	}
 	{% if grid.statusBarComponents|length > 0 %}
 	statusBar: {
@@ -25,14 +28,14 @@
 	{% if grid.sideBarComponents|length > 0 or grid.vars.sideBar != false %}
 		{% if grid.sideBarComponents|length > 0 %}
 		, sideBar: {
-			{% if grid.vars.sideBarDefaultToolPanel is not null %}
-			defaultToolPanel: {{ grid.vars.sideBarDefaultToolPanel|json_encode|raw }},
+			{% if grid.vars.sideBarOptions.defaultToolPanel is not null %}
+			defaultToolPanel: {{ grid.vars.sideBarOptions.defaultToolPanel|json_encode|raw }},
 			{% endif %}
-			{% if grid.vars.sideBarPosition is not null %}
-			position: {{ grid.vars.sideBarPosition|json_encode|raw }},
+			{% if grid.vars.sideBarOptions.position is not null %}
+			position: {{ grid.vars.sideBarOptions.position|json_encode|raw }},
 			{% endif %}
-			{% if grid.vars.sideBarHiddenByDefault is not null %}
-			hiddenByDefault: {{ grid.vars.sideBarHiddenByDefault|json_encode|raw }},
+			{% if grid.vars.sideBarOptions.hiddenByDefault is not null %}
+			hiddenByDefault: {{ grid.vars.sideBarOptions.hiddenByDefault|json_encode|raw }},
 			{% endif %}
 			toolPanels: [
 			{% for sideBarComponent in grid.sideBarComponents %}

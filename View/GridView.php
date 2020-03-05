@@ -60,6 +60,9 @@ class GridView extends AbstractBaseView {
 	 */
 	protected $filterColumns;
 
+	/** @var array */
+	protected $additionalComponents;
+
 	/**
 	 * GridView Constructor.
 	 *
@@ -80,6 +83,7 @@ class GridView extends AbstractBaseView {
 		$this->columns = $columns;
 		$this->components = $components;
 		$this->vars = [];
+		$this->additionalComponents = [];
 
 		$this->configureColumnViews();
 		$this->configureComponentViews();
@@ -122,6 +126,10 @@ class GridView extends AbstractBaseView {
 	 */
 	public function getSideBarComponents(): array {
 		return $this->componentViews[ComponentInterface::CATEGORY_SIDE_BAR] ?? [];
+	}
+
+	public function getAdditionalComponents(): array {
+		return array_merge($this->gridOptions['components'] ?? [], $this->additionalComponents);
 	}
 
 	/**
@@ -172,6 +180,9 @@ class GridView extends AbstractBaseView {
 			foreach($components as $component) {
 				if($component->getParent() === null && !isset($rootViews[$category][$component->getId()])) {
 					$view = $component->createView();
+					if($view->component !== null) {
+						$this->additionalComponents[$view->componentAlias] = $view->component;
+					}
 					$rootViews[$category][$component->getId()] = $view;
 					$this->addComponentChildViews($view, $component);
 				}
@@ -189,6 +200,9 @@ class GridView extends AbstractBaseView {
 			foreach($statusBarComponent->getChildren() as $child) {
 				$category = $child->getComponentCategory();
 				$childView = $child->createView($parentView);
+				if($childView->component !== null) {
+					$this->additionalComponents[$childView->componentAlias] = $childView->component;
+				}
 				$this->addComponentChildViews($childView, $child);
 				$childViews[$category][] = $childView;
 			}

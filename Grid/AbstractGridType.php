@@ -41,7 +41,7 @@ class AbstractGridType implements GridTypeInterface {
 	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function getId(array $gridOptions): string {
-		return str_replace('\\','_', __CLASS__);
+		return str_replace('\\','_', static::class);
 	}
 
 	/**

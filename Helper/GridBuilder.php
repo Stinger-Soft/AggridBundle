@@ -20,8 +20,11 @@ use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnGroupType;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Components\ComponentInterface;
+use StingerSoft\AggridBundle\Components\SideBar\SideBarComponent;
+use StingerSoft\AggridBundle\Components\SideBar\SideBarComponentTypeInterface;
 use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponent;
-use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentTypeInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Grid\Grid;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
@@ -35,9 +38,9 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	protected $columns;
 
 	/**
-	 * @var StatusBarComponentInterface[] Array of all status bar components
+	 * @var ComponentInterface[] Array of all status bar components
 	 */
-	protected $statusBarComponents;
+	protected $components;
 
 	/**
 	 * @var Grid the grid this builder is used for
@@ -59,7 +62,10 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 		$this->gridOptions = $gridOptions;
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->columns = [];
-		$this->statusBarComponents = [];
+		$this->components = [
+			ComponentInterface::CATEGORY_STATUS_BAR => [],
+			ComponentInterface::CATEGORY_SIDE_BAR   => [],
+		];
 	}
 
 	/**
@@ -209,35 +215,40 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 		return $this->columns;
 	}
 
-	public function addStatusBarComponent(string $id, ?string $type = null, array $options = []): GridBuilderInterface {
-		$statusBarComponent = $this->createStatusBarComponent($id, $type, $options);
-		$this->statusBarComponents[$statusBarComponent->getId()] = $statusBarComponent;
+	public function addComponent(string $id, ?string $type = null, array $options = []): GridBuilderInterface {
+		$statusBarComponent = $this->createComponent($id, $type, $options);
+
+		$category = $statusBarComponent->getComponentCategory();
+		$this->components[$category][$statusBarComponent->getId()] = $statusBarComponent;
 
 		return $this;
 
 	}
 
-	public function removeStatusBarComponent(string $id): GridBuilderInterface {
-		if(isset($this->statusBarComponents[$id])) {
-			unset($this->statusBarComponents[$id]);
+	public function removeComponent(string $category, string $id): GridBuilderInterface {
+		if(isset($this->components[$category][$id])) {
+			unset($this->components[$category][$id]);
 		}
 		return $this;
 	}
 
-	public function hasStatusBarComponent(string $id): bool {
-		return isset($this->statusBarComponents[$id]);
+	public function hasComponent(string $category, string $id): bool {
+		return isset($this->components[$category][$id]);
 	}
 
-	public function getStatusBarComponent(string $id): StatusBarComponentInterface {
-		if(isset($this->statusBarComponents[$id])) {
-			return $this->statusBarComponents[$id];
+	public function getComponent(string $category, string $id): ComponentInterface {
+		if(isset($this->components[$category][$id])) {
+			return $this->components[$category][$id];
 		}
 
-		throw new OutOfBoundsException(sprintf('Status bar component with id "%s" does not exist.', $id));
+		throw new OutOfBoundsException(sprintf('Component with id "%s" does not exist in category "%s".', $id, $category));
 	}
 
-	public function allStatusBarComponents(): array {
-		return $this->statusBarComponents;
+	public function components(?string $category = null): array {
+		if($category === null) {
+			return $this->components;
+		}
+		return $this->components[$category];
 	}
 
 	/**
@@ -261,17 +272,18 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	 * @param string $id
 	 * @param string $type
 	 * @param array  $options
-	 * @return StatusBarComponentInterface
+	 * @return ComponentInterface
 	 * @throws InvalidArgumentTypeException
 	 */
-	protected function createStatusBarComponent(string $id, string $type, array $options = []): StatusBarComponentInterface {
-		$typeInstance = null;
-		try {
-			$typeInstance = $this->dependencyInjectionExtension->resolveStatusBarComponentType($type);
+	protected function createComponent(string $id, string $type, array $options = []): ComponentInterface {
+		$typeInstance = $this->dependencyInjectionExtension->resolveComponentType($type);
+		if($typeInstance instanceof StatusBarComponentTypeInterface) {
 			return new StatusBarComponent($id, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions);
-		} catch(ReflectionException $re) {
-			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', 0, $re);
 		}
+		if($typeInstance instanceof SideBarComponentTypeInterface) {
+			return new SideBarComponent($id, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions);
+		}
+		throw new InvalidArgumentTypeException(sprintf('%s does neither implement "%s" nor "%s"!', $type, StatusBarComponentTypeInterface::class, SideBarComponentTypeInterface::class));
 	}
 
 	/**

@@ -14,7 +14,7 @@ namespace StingerSoft\AggridBundle\View;
 
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
-use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
+use StingerSoft\AggridBundle\Components\ComponentInterface;
 use StingerSoft\AggridBundle\Grid\GridInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 
@@ -33,13 +33,13 @@ class GridView extends AbstractBaseView {
 	 */
 	protected $columns;
 
-	/** @var StatusBarComponentInterface[]  */
-	protected $statusBarComponents;
+	/** @var ComponentInterface[] */
+	protected $components;
 
 	/**
-	 * @var StatusBarComponentView[]
+	 * @var array|ComponentView[]
 	 */
-	protected $statusBarComponentsViews;
+	protected $componentViews;
 
 	/**
 	 * @var GridTypeInterface the grid type instance
@@ -63,26 +63,26 @@ class GridView extends AbstractBaseView {
 	/**
 	 * GridView Constructor.
 	 *
-	 * @param GridInterface                 $gridInterface       the grid instance
-	 * @param GridTypeInterface             $gridType            the grid type instance
-	 * @param array                         $gridOptions         the options for the grid type, containing information such as the
+	 * @param GridInterface        $gridInterface                the grid instance
+	 * @param GridTypeInterface    $gridType                     the grid type instance
+	 * @param array                $gridOptions                  the options for the grid type, containing information such as the
 	 *                                                           translation_domain etc.
-	 * @param ColumnInterface[]             $columns             the columns belonging to the grid, required for generating the column
+	 * @param ColumnInterface[]    $columns                      the columns belonging to the grid, required for generating the column
 	 *                                                           views
-	 * @param StatusBarComponentInterface[] $statusBarComponents the status bar components belonging to the grid,
+	 * @param ComponentInterface[] $components                   the status bar components belonging to the grid,
 	 *                                                           required for generating the status bar component views
 	 */
-	public function __construct(GridInterface $gridInterface, GridTypeInterface $gridType, array $gridOptions, array $columns, array $statusBarComponents) {
+	public function __construct(GridInterface $gridInterface, GridTypeInterface $gridType, array $gridOptions, array $columns, array $components) {
 		$this->gridOptions = $gridOptions;
 		$this->gridType = $gridType;
 		$this->grid = $gridInterface;
 		$this->gridId = $this->gridType->getId($this->gridOptions);
 		$this->columns = $columns;
-		$this->statusBarComponents = $statusBarComponents;
+		$this->components = $components;
 		$this->vars = [];
 
 		$this->configureColumnViews();
-		$this->configureStatusBarComponentViews();
+		$this->configureComponentViews();
 	}
 
 	/**
@@ -104,10 +104,24 @@ class GridView extends AbstractBaseView {
 	/**
 	 * Gets the status bar component views for the grid.
 	 *
-	 * @return StatusBarComponentView[] an array containing the views for all the status bar components belonging to the grid
+	 * @return ComponentView[] an array containing the views for all the status bar components belonging to the grid
 	 */
-	public function getStatusBarComponents() : array {
-		return $this->statusBarComponentsViews;
+	public function getComponents(): array {
+		return $this->componentViews;
+	}
+
+	/**
+	 * @return ComponentView[]
+	 */
+	public function getStatusBarComponents(): array {
+		return $this->componentViews[ComponentInterface::CATEGORY_STATUS_BAR] ?? [];
+	}
+
+	/**
+	 * @return ComponentView[]
+	 */
+	public function getSideBarComponents(): array {
+		return $this->componentViews[ComponentInterface::CATEGORY_SIDE_BAR] ?? [];
 	}
 
 	/**
@@ -147,26 +161,36 @@ class GridView extends AbstractBaseView {
 		}
 	}
 
-	protected function configureStatusBarComponentViews() : void {
-		$this->statusBarComponentsViews = [];
-		$rootViews = [];
-		foreach($this->statusBarComponents as $statusBarComponent) {
-			if($statusBarComponent->getParent() === null && !isset($rootViews[$statusBarComponent->getId()])) {
-				$view = $statusBarComponent->createView();
-				$rootViews[$statusBarComponent->getId()] = $view;
-				$this->addStatusBarComponentChildViews($view, $statusBarComponent);
+	protected function configureComponentViews(): void {
+		$this->componentViews = [];
+		$rootViews = [
+			ComponentInterface::CATEGORY_STATUS_BAR => [],
+			ComponentInterface::CATEGORY_SIDE_BAR   => [],
+		];
+		foreach($this->components as $category => $components) {
+			/** @var ComponentInterface $component */
+			foreach($components as $component) {
+				if($component->getParent() === null && !isset($rootViews[$category][$component->getId()])) {
+					$view = $component->createView();
+					$rootViews[$category][$component->getId()] = $view;
+					$this->addComponentChildViews($view, $component);
+				}
 			}
 		}
-		$this->statusBarComponentsViews = $rootViews;
+		$this->componentViews = $rootViews;
 	}
 
-	protected function addStatusBarComponentChildViews(StatusBarComponentView $parentView, StatusBarComponentInterface $statusBarComponent): void {
+	protected function addComponentChildViews(ComponentView $parentView, ComponentInterface $statusBarComponent): void {
 		if(count($statusBarComponent->getChildren())) {
-			$childViews = [];
+			$childViews = [
+				ComponentInterface::CATEGORY_STATUS_BAR => [],
+				ComponentInterface::CATEGORY_SIDE_BAR   => [],
+			];
 			foreach($statusBarComponent->getChildren() as $child) {
+				$category = $child->getComponentCategory();
 				$childView = $child->createView($parentView);
-				$this->addStatusBarComponentChildViews($childView, $child);
-				$childViews[] = $childView;
+				$this->addComponentChildViews($childView, $child);
+				$childViews[$category][] = $childView;
 			}
 			$parentView->vars['children'] = $childViews;
 		}

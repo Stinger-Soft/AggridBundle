@@ -20,7 +20,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use Knp\Component\Pager\PaginatorInterface;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
-use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
+use StingerSoft\AggridBundle\Components\ComponentInterface;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
 use StingerSoft\AggridBundle\Helper\GridBuilder;
 use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
@@ -82,9 +82,9 @@ class Grid implements GridInterface {
 	protected $columns;
 
 	/**
-	 * @var StatusBarComponentInterface
+	 * @var ComponentInterface[]
 	 */
-	protected $statusBarComponents;
+	protected $components;
 
 	/**
 	 * @var GridBuilderInterface
@@ -156,7 +156,7 @@ class Grid implements GridInterface {
 		$this->builder = new GridBuilder($this, $dependencyInjectionExtension, $this->options);
 		$this->buildGrid($gridType, $this->builder);
 		$this->columns = $this->builder->all();
-		$this->statusBarComponents = $this->builder->allStatusBarComponents();
+		$this->components = $this->builder->components();
 	}
 
 	/**
@@ -171,8 +171,8 @@ class Grid implements GridInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function getStatusBarComponents(): array {
-		return $this->statusBarComponents;
+	public function getComponents(): array {
+		return $this->components;
 	}
 
 	/**
@@ -216,7 +216,7 @@ class Grid implements GridInterface {
 	 */
 	public function createView(): GridView {
 		$this->orderColumns();
-		$gridView = new GridView($this, $this->gridType, $this->options, $this->columns, $this->statusBarComponents);
+		$gridView = new GridView($this, $this->gridType, $this->options, $this->columns, $this->components);
 		$this->buildView($gridView, $this->gridType);
 		return $gridView;
 	}

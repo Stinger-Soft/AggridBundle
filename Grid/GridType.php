@@ -89,6 +89,9 @@ class GridType extends AbstractGridType {
 		$view->vars['enterpriseLicense'] = $gridOptions['enterpriseLicense'];
 		$view->vars['treeData'] = $gridOptions['treeData'];
 		$view->vars['sideBar'] = $gridOptions['sideBar'];
+		$view->vars['sideBarDefaultToolPanel'] = $gridOptions['sideBarDefaultToolPanel'];
+		$view->vars['sideBarPosition'] = $gridOptions['sideBarPosition'];
+		$view->vars['sideBarHiddenByDefault'] = $gridOptions['sideBarHiddenByDefault'];
 		$view->vars['cacheBlockSize'] = $gridOptions['cacheBlockSize'];
 		$view->vars['pagination'] = $gridOptions['pagination'];
 		$view->vars['paginationPageSize'] = $gridOptions['paginationPageSize'];
@@ -259,6 +262,16 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('autoHeight', false);
 		$resolver->setAllowedTypes('autoHeight', 'bool');
 
+		$resolver->setDefault('sideBarDefaultToolPanel', null);
+		$resolver->setAllowedTypes('sideBarDefaultToolPanel', ['null', 'string']);
+
+		$resolver->setDefault('sideBarPosition', null);
+		$resolver->setAllowedValues('sideBarPosition', [null, 'right', 'left']);
+
+		$resolver->setDefault('sideBarHiddenByDefault', null);
+		$resolver->setAllowedValues('sideBarHiddenByDefault', [null, 'right', 'left']);
+
+		$resolver->setDeprecated('sidebar', 'Add components to the sidebar by using the GridBuilder::addComponent method!');
 		$resolver->setDefault('sideBar', false);
 		$resolver->setAllowedValues('sideBar', static function ($valueToCheck) {
 			if($valueToCheck === 'columns' || $valueToCheck === 'filters') {

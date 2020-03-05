@@ -13,8 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Grid;
 
 use StingerSoft\AggridBundle\Column\Column;
-use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponent;
-use StingerSoft\AggridBundle\View\GridView;
+use StingerSoft\AggridBundle\Components\Component;
 
 interface GridInterface {
 
@@ -26,9 +25,9 @@ interface GridInterface {
 	public function getColumns(): array;
 
 	/**
-	 * @return StatusBarComponent[]
+	 * @return Component[]
 	 */
-	public function getStatusBarComponents() : array;
+	public function getComponents(): array;
 
 	public function createJsonData(): string;
 }

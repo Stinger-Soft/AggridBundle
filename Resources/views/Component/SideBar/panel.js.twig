@@ -1,0 +1,12 @@
+{
+	id: {{ component.id|json_encode|raw }},
+	{% if component.vars.labelKey is not null %}
+	labelKey: {{ component.vars.labelKey|json_encode|raw }},
+	{% endif %}
+	labelDefault: {{ component.vars.labelDefault|json_encode|raw }},
+	iconKey: {{ component.vars.iconKey|json_encode|raw }},
+	toolPanel: {{ component.vars.toolPanel|json_encode|raw }}
+	{% if component.vars.toolPanelParams is not null %}
+	, toolPanelParams: {{ component.vars.toolPanelParams|json_encode|raw }}
+	{% endif %}
+}

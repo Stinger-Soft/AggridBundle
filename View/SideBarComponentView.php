@@ -11,10 +11,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace StingerSoft\AggridBundle\Components\StatusBar;
+namespace StingerSoft\AggridBundle\View;
 
-use StingerSoft\AggridBundle\Components\ComponentInterface;
-
-interface StatusBarComponentInterface extends ComponentInterface {
+class SideBarComponentView extends ComponentView {
 
 }

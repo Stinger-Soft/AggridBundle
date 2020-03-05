@@ -17,6 +17,7 @@ use Countable;
 use OutOfBoundsException;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
+use StingerSoft\AggridBundle\Components\ComponentInterface;
 use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use Traversable;
@@ -120,36 +121,46 @@ interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 	 * @return $this the grid builder, allowing for chaining
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function addStatusBarComponent(string $id, ?string $type = null, array $options = []): self;
+	public function addComponent(string $id, ?string $type = null, array $options = []): self;
 
 	/**
-	 * Removes a status bar component from the grid
+	 * Removes a component from the grid
 	 *
-	 * @param string $id the id of the status bar component to remove
+	 * @param string $category the category of the components to remove
+	 * @param string $id       the id of the status bar component to remove
 	 * @return $this
+	 * @see ComponentInterface::CATEGORIES for categories that can be used
 	 */
-	public function removeStatusBarComponent(string $id): self;
+	public function removeComponent(string $category, string $id): self;
 
 	/**
-	 * Returns whether a status bar component with the given id exists
+	 * Returns whether a component with the given id exists in the given category.
 	 *
-	 * @param string $id the id of the status bar component to check its existence
+	 * @param string $category the category of the component to check
+	 * @param string $id       the id of the component to check
 	 * @return bool
+	 * @see ComponentInterface::CATEGORIES for categories that can be used
 	 */
-	public function hasStatusBarComponent(string $id): bool;
+	public function hasComponent(string $category, string $id): bool;
 
 	/**
-	 * @param string $id the id of the status bar component
-	 * @return StatusBarComponentInterface
-	 * @throws OutOfBoundsException If the status bar component does not exist.
-	 */
-	public function getStatusBarComponent(string $id): StatusBarComponentInterface;
-
-	/**
-	 * Returns all status bar components in this grid.
+	 * Retrieves the component from the given category with the given id.
 	 *
-	 * @return StatusBarComponentInterface[]
+	 * @param string $category the category of the components to retrieve
+	 * @param string $id       the id of the status bar component
+	 * @return StatusBarComponentInterface
+	 * @throws OutOfBoundsException If the category or component within that category does not exist.
+	 * @see ComponentInterface::CATEGORIES for categories that can be used
 	 */
-	public function allStatusBarComponents(): array;
+	public function getComponent(string $category, string $id): ComponentInterface;
+
+	/**
+	 * Returns components in this grid.
+	 *
+	 * @param string|null $category the category of components to retrieve or null to retrieve all
+	 * @return ComponentInterface[]
+	 * @see ComponentInterface::CATEGORIES for categories that can be used
+	 */
+	public function components(?string $category = null): array;
 
 }

@@ -11,7 +11,8 @@
 
 namespace StingerSoft\AggridBundle\Components\StatusBar;
 
-use StingerSoft\AggridBundle\View\StatusBarComponentView;
+use StingerSoft\AggridBundle\Components\ComponentInterface;
+use StingerSoft\AggridBundle\View\ComponentView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AggregationComponentType extends AbstractStatusBarComponentType {
@@ -33,8 +34,8 @@ class AggregationComponentType extends AbstractStatusBarComponentType {
 		}
 	}
 
-	public function buildView(StatusBarComponentView $view, StatusBarComponentInterface $column, array $options): void {
-		$params = $view->vars['params'];
+	public function buildView(ComponentView $view, ComponentInterface $component, array $options): void {
+		$params = $view->vars['statusPanelParams'];
 		if($params === null) {
 			$params = [];
 		}
@@ -45,7 +46,7 @@ class AggregationComponentType extends AbstractStatusBarComponentType {
 			}
 		}
 		if(count($aggregationFunctions) > 0) {
-			$view->vars['params'] = array_merge($params, ['aggFuncs' => $aggregationFunctions]);
+			$view->vars['statusPanelParams'] = array_merge($params, ['aggFuncs' => $aggregationFunctions]);
 		}
 	}
 

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -9,13 +11,13 @@
  * file that was distributed with this source code.
  */
 
-namespace StingerSoft\AggridBundle\Components\StatusBar;
+namespace StingerSoft\AggridBundle\Components\SideBar;
 
 use StingerSoft\AggridBundle\Components\ComponentInterface;
 use StingerSoft\AggridBundle\View\ComponentView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractStatusBarComponentType implements StatusBarComponentTypeInterface {
+abstract class AbstractSideBarComponentType implements SideBarComponentTypeInterface {
 
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 	}
@@ -24,6 +26,6 @@ abstract class AbstractStatusBarComponentType implements StatusBarComponentTypeI
 	}
 
 	public function getParent(): ?string {
-		return StatusBarComponentType::class;
+		return SideBarComponentType::class;
 	}
 }

@@ -11,34 +11,16 @@
 
 namespace StingerSoft\AggridBundle\Components\StatusBar;
 
-use StingerSoft\AggridBundle\View\StatusBarComponentView;
-use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
-use Symfony\Component\OptionsResolver\Options;
+use StingerSoft\AggridBundle\Components\ComponentInterface;
+use StingerSoft\AggridBundle\Components\ComponentType;
+use StingerSoft\AggridBundle\View\ComponentView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class StatusBarComponentType extends AbstractStatusBarComponentType {
 
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
-		$resolver->setRequired('componentIdentifier');
-		$resolver->setAllowedTypes('componentIdentifier', 'string');
-
-		$resolver->setDefault('params', null);
-		$resolver->setAllowedTypes('params', ['null', 'array']);
-
-		$resolver->setDefault('builtIn', false);
-		$resolver->setAllowedTypes('builtIn', 'bool');
-
-		$resolver->setDefault('componentName', null);
-		$resolver->setAllowedTypes('componentName', ['null', 'string']);
-		$resolver->setNormalizer('componentName', static function(Options $options, $valueToNormalize) {
-			if($options['builtIn'] === false && $valueToNormalize === null) {
-				throw new InvalidOptionsException('You must specify a component name, if "builtIn" option is false!');
-			}
-			return $valueToNormalize;
-		});
-
-		$resolver->setDefault('builtIn', false);
-		$resolver->setAllowedTypes('builtIn', 'bool');
+		$resolver->setDefault('statusPanelParams', null);
+		$resolver->setAllowedTypes('statusPanelParams', ['null', 'array']);
 
 		$resolver->setDefault('align', null);
 		$resolver->setAllowedValues('align', [
@@ -49,23 +31,17 @@ class StatusBarComponentType extends AbstractStatusBarComponentType {
 		]);
 
 		$resolver->setDefault('js_component_template', '@StingerSoftAggrid/Component/StatusBar/panel.js.twig');
-		$resolver->setAllowedTypes('js_component_template', 'string');
 	}
 
-	public function buildView(StatusBarComponentView $view, StatusBarComponentInterface $column, array $options): void {
-		$view->id = $column->getId();
-		$view->componentName = $options['componentName'];
-		$view->componentIdentifier = $options['componentIdentifier'];
-		$view->template = $options['js_component_template'];
-
-		$view->vars['builtIn'] = $options['builtIn'];
-		$view->vars['key'] = $column->getId();
+	public function buildView(ComponentView $view, ComponentInterface $component, array $options): void {
+		$view->vars['key'] = $component->getId();
 		$view->vars['align'] = $options['align'];
-		$view->vars['params'] = $options['params'];
+		$view->vars['statusPanelParams'] = $options['statusPanelParams'];
+		$view->vars['statusPanel'] = $view->componentAlias;
 	}
 
 	public function getParent(): ?string {
-		return null;
+		return ComponentType::class;
 	}
 
 }

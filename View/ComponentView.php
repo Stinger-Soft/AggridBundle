@@ -13,10 +13,34 @@ namespace StingerSoft\AggridBundle\View;
 
 class ComponentView extends AbstractBaseView {
 
-	/** @var string|null */
-	public $componentIdentifier;
+	/**
+	 * @var string The id of the side bar component
+	 */
+	public $id;
+
+	/**
+	 * @var string The template which should be used to create the JS configuration for this side bar component
+	 */
+	public $template;
+
+	/**
+	 * @var null|ComponentView the parent of this view (if any).
+	 */
+	public $parent;
 
 	/** @var string */
-	public $componentName;
+	public $componentAlias;
+
+	/** @var string|null */
+	public $component;
+
+	/**
+	 * SideBarComponentView constructor.
+	 *
+	 * @param ComponentView|null $parent the parent of this view (if any).
+	 */
+	public function __construct(ComponentView $parent = null) {
+		$this->parent = $parent;
+	}
 
 }

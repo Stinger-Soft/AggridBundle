@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -9,20 +11,21 @@
  * file that was distributed with this source code.
  */
 
-namespace StingerSoft\AggridBundle\Components\StatusBar;
+namespace StingerSoft\AggridBundle\Components\SideBar;
 
 use StingerSoft\AggridBundle\Components\Component;
 use StingerSoft\AggridBundle\Components\ComponentInterface;
 use StingerSoft\AggridBundle\View\ComponentView;
-use StingerSoft\AggridBundle\View\StatusBarComponentView;
+use StingerSoft\AggridBundle\View\SideBarComponentView;
 
-class StatusBarComponent extends Component implements StatusBarComponentInterface {
+class SideBarComponent extends Component implements SideBarComponentInterface {
 
 	protected function createConcreteView(ComponentView $parent = null): ComponentView {
-		return new StatusBarComponentView($parent);
+		return new SideBarComponentView($parent);
 	}
 
 	public function getComponentCategory(): string {
-		return ComponentInterface::CATEGORY_STATUS_BAR;
+		return ComponentInterface::CATEGORY_SIDE_BAR;
 	}
+
 }

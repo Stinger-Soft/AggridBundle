@@ -7,21 +7,43 @@
 		{% include column.template with {'column': column} %}{% if not loop.last %},{% endif %}
 	{% endfor %}
 	],
-	{% if grid.statusBarComponents|length > 0 %}
-		statusBar: {
-			statusPanels: [
-				{% for statusBarComponent in grid.statusBarComponents %}
-					{% include statusBarComponent.template with {'component': statusBarComponent} %}{% if not loop.last %},{% endif %}
-				{% endfor %}
-			]
-		},
-	{% endif %}
 	multiSortKey: 'ctrl',
 	enableBrowserTooltips: {{ grid.vars.enableBrowserTooltips|json_encode|raw }},
 	enableRangeSelection: {{ grid.vars.enableRangeSelection|json_encode|raw }},
 	components: {
 		datePicker: StingerSoftAggrid.Editor.DatePicker
 	}
+	{% if grid.statusBarComponents|length > 0 %}
+	statusBar: {
+		statusPanels: [
+		{% for statusBarComponent in grid.statusBarComponents %}
+			{% include statusBarComponent.template with {'component': statusBarComponent} %}{% if not loop.last %},{% endif %}
+		{% endfor %}
+		]
+	},
+	{% endif %}
+	{% if grid.sideBarComponents|length > 0 or grid.vars.sideBar != false %}
+		{% if grid.sideBarComponents|length > 0 %}
+		, sideBar: {
+			{% if grid.vars.sideBarDefaultToolPanel is not null %}
+			defaultToolPanel: {{ grid.vars.sideBarDefaultToolPanel|json_encode|raw }},
+			{% endif %}
+			{% if grid.vars.sideBarPosition is not null %}
+			position: {{ grid.vars.sideBarPosition|json_encode|raw }},
+			{% endif %}
+			{% if grid.vars.sideBarHiddenByDefault is not null %}
+			hiddenByDefault: {{ grid.vars.sideBarHiddenByDefault|json_encode|raw }},
+			{% endif %}
+			toolPanels: [
+			{% for sideBarComponent in grid.sideBarComponents %}
+				{% include sideBarComponent.template with {'component': sideBarComponent} %}{% if not loop.last %},{% endif %}
+			{% endfor %}
+			]
+		}
+		{% elseif grid.vars.sideBar != false %}
+			, sideBar: {{ grid.vars.sideBar|json_encode|raw }}
+		{% endif %}
+	{% endif %}
 	{% if grid.vars.rowStyle is defined and grid.vars.rowStyle is not same as(null) %}
 	, rowStyle: {{ grid.vars.rowStyle|json_encode|raw }}
 	{% endif %}
@@ -69,9 +91,6 @@
 	{% endif %}
 	{% if grid.vars.dataMode == 'inline' %}
 		, rowData: {{ grid.inlineData|raw }}
-	{% endif %}
-	{% if grid.vars.sideBar != false %}
-		, sideBar: {{ grid.vars.sideBar|json_encode|raw }}
 	{% endif %}
 	{% if grid.vars.rowSelection is defined and grid.vars.rowSelection is not same as(null) %}
 		, rowSelection: {{ grid.vars.rowSelection|json_encode|raw }}

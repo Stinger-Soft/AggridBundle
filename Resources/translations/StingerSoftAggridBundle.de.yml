@@ -87,11 +87,14 @@ stingersoft_aggrid:
   min: 'Minimum'
   max: 'Maximum'
   none: 'Keins'
-  count: 'Zählen'
+  count: 'Anzahl'
   average: 'Durchschnitt'
   rowAndFilteredCount: 'Zeilen'
   filteredRowCount: 'Gefiltert'
   selectedRowCount: 'Ausgewählt'
+  totalAndFilteredRows: 'Zeilen'
+  totalRows: 'Zeilen gesamt'
+  filteredRows: 'Gefiltert'
 
   # standard menu
   copy: 'Kopieren'

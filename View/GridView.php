@@ -14,16 +14,12 @@ namespace StingerSoft\AggridBundle\View;
 
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
 use StingerSoft\AggridBundle\Grid\GridInterface;
-use StingerSoft\AggridBundle\Grid\GridType;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 
-class GridView {
+class GridView extends AbstractBaseView {
 
-	/**
-	 * @var array
-	 */
-	public $vars;
 	/**
 	 * @var array the options for the grid type, containing information such as the translation_domain etc.
 	 */
@@ -36,6 +32,15 @@ class GridView {
 	 * @var Column[] the columns belonging to the grid
 	 */
 	protected $columns;
+
+	/** @var StatusBarComponentInterface[]  */
+	protected $statusBarComponents;
+
+	/**
+	 * @var StatusBarComponentView[]
+	 */
+	protected $statusBarComponentsViews;
+
 	/**
 	 * @var GridTypeInterface the grid type instance
 	 */
@@ -58,24 +63,26 @@ class GridView {
 	/**
 	 * GridView Constructor.
 	 *
-	 * @param GridInterface     $gridInterface   the grid instance
-	 * @param GridTypeInterface $gridType        the grid type instance
-	 * @param array             $gridOptions     the options for the grid type, containing information such as the
-	 *                                           translation_domain etc.
-	 * @param ColumnInterface[] $columns         the columns belonging to the grid, required for generating the column
-	 *                                           views
+	 * @param GridInterface                 $gridInterface       the grid instance
+	 * @param GridTypeInterface             $gridType            the grid type instance
+	 * @param array                         $gridOptions         the options for the grid type, containing information such as the
+	 *                                                           translation_domain etc.
+	 * @param ColumnInterface[]             $columns             the columns belonging to the grid, required for generating the column
+	 *                                                           views
+	 * @param StatusBarComponentInterface[] $statusBarComponents the status bar components belonging to the grid,
+	 *                                                           required for generating the status bar component views
 	 */
-	public function __construct(GridInterface $gridInterface, GridTypeInterface $gridType, array $gridOptions, array $columns) {
+	public function __construct(GridInterface $gridInterface, GridTypeInterface $gridType, array $gridOptions, array $columns, array $statusBarComponents) {
 		$this->gridOptions = $gridOptions;
 		$this->gridType = $gridType;
 		$this->grid = $gridInterface;
 		$this->gridId = $this->gridType->getId($this->gridOptions);
 		$this->columns = $columns;
+		$this->statusBarComponents = $statusBarComponents;
 		$this->vars = [];
 
 		$this->configureColumnViews();
-//		$this->configureGridSelection();
-//		$this->configureGridView();
+		$this->configureStatusBarComponentViews();
 	}
 
 	/**
@@ -86,12 +93,21 @@ class GridView {
 	}
 
 	/**
-	 * Gets the column views for the table.
+	 * Gets the column views for the grid.
 	 *
-	 * @return ColumnView[] an array containing the views for all the columns belonging to the table
+	 * @return ColumnView[] an array containing the views for all the columns belonging to the grid
 	 */
 	public function getColumns(): array {
 		return $this->columnViews;
+	}
+
+	/**
+	 * Gets the status bar component views for the grid.
+	 *
+	 * @return StatusBarComponentView[] an array containing the views for all the status bar components belonging to the grid
+	 */
+	public function getStatusBarComponents() : array {
+		return $this->statusBarComponentsViews;
 	}
 
 	/**
@@ -119,12 +135,37 @@ class GridView {
 		$this->columnViews = $rootViews;
 	}
 
-	protected function addChildViews(ColumnView $parentView, ColumnInterface $column) : void {
+	protected function addChildViews(ColumnView $parentView, ColumnInterface $column): void {
 		if(count($column->getChildren())) {
 			$childViews = [];
 			foreach($column->getChildren() as $child) {
 				$childView = $child->createView($parentView);
 				$this->addChildViews($childView, $child);
+				$childViews[] = $childView;
+			}
+			$parentView->vars['children'] = $childViews;
+		}
+	}
+
+	protected function configureStatusBarComponentViews() : void {
+		$this->statusBarComponentsViews = [];
+		$rootViews = [];
+		foreach($this->statusBarComponents as $statusBarComponent) {
+			if($statusBarComponent->getParent() === null && !isset($rootViews[$statusBarComponent->getId()])) {
+				$view = $statusBarComponent->createView();
+				$rootViews[$statusBarComponent->getId()] = $view;
+				$this->addStatusBarComponentChildViews($view, $statusBarComponent);
+			}
+		}
+		$this->statusBarComponentsViews = $rootViews;
+	}
+
+	protected function addStatusBarComponentChildViews(StatusBarComponentView $parentView, StatusBarComponentInterface $statusBarComponent): void {
+		if(count($statusBarComponent->getChildren())) {
+			$childViews = [];
+			foreach($statusBarComponent->getChildren() as $child) {
+				$childView = $child->createView($parentView);
+				$this->addStatusBarComponentChildViews($childView, $child);
 				$childViews[] = $childView;
 			}
 			$parentView->vars['children'] = $childViews;

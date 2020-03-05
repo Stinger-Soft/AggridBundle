@@ -85,6 +85,7 @@ class GridType extends AbstractGridType {
 
 	private function configureAggridViewValues(GridView $view, array $gridOptions): void {
 		$view->vars['enableBrowserTooltips'] = $gridOptions['enableBrowserTooltips'];
+		$view->vars['enableRangeSelection'] = $gridOptions['enableRangeSelection'];
 		$view->vars['enterpriseLicense'] = $gridOptions['enterpriseLicense'];
 		$view->vars['treeData'] = $gridOptions['treeData'];
 		$view->vars['sideBar'] = $gridOptions['sideBar'];
@@ -199,6 +200,9 @@ class GridType extends AbstractGridType {
 	private function configureAggridOptions(OptionsResolver $resolver): void {
 		$resolver->setDefault('enableBrowserTooltips', true);
 		$resolver->setAllowedTypes('enableBrowserTooltips', 'bool');
+
+		$resolver->setDefault('enableRangeSelection',false);
+		$resolver->setAllowedTypes('enableRangeSelection', 'bool');
 
 		$resolver->setDefault('theme', 'ag-theme-balham');
 		$resolver->setAllowedTypes('theme', 'string');

@@ -26,7 +26,7 @@ class AggregationComponentType extends AbstractStatusBarComponentType {
 	];
 
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
-		$resolver->setDefault('componentIdentifier', 'agAggregationComponent');
+		$resolver->setDefault('componentAlias', 'agAggregationComponent');
 		$resolver->setDefault('builtIn', true);
 
 		foreach(self::AGGREGATION_FUNCTIONS as $option => $default) {

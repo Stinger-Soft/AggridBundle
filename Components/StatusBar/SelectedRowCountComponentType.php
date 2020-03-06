@@ -16,7 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class SelectedRowCountComponentType extends AbstractStatusBarComponentType {
 
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
-		$resolver->setDefault('componentIdentifier', 'agSelectedRowCountComponent');
+		$resolver->setDefault('componentAlias', 'agSelectedRowCountComponent');
 		$resolver->setDefault('builtIn', true);
 	}
 }

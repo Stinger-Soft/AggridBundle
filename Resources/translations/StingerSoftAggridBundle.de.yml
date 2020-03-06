@@ -5,8 +5,8 @@ stingersoft_aggrid:
   # for filter panel
   page: 'Seite'
   more: 'Mehr'
-  to: 'Bis'
-  of: 'Von'
+  to: 'bis'
+  of: 'von'
   next: 'Nächste'
   last: 'Letzte'
   first: 'Erste'
@@ -95,6 +95,7 @@ stingersoft_aggrid:
   totalAndFilteredRows: 'Zeilen'
   totalRows: 'Zeilen gesamt'
   filteredRows: 'Gefiltert'
+  selectedRows: 'Ausgewählt'
 
   # standard menu
   copy: 'Kopieren'

@@ -16,7 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class TotalRowCountComponentType extends AbstractStatusBarComponentType {
 	
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
-		$resolver->setDefault('componentIdentifier', 'agTotalRowCountComponent');
+		$resolver->setDefault('componentAlias', 'agTotalRowCountComponent');
 		$resolver->setDefault('builtIn', true);
 	}
 

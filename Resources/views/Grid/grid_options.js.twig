@@ -17,13 +17,13 @@
 		{% endfor %}
 	}
 	{% if grid.statusBarComponents|length > 0 %}
-	statusBar: {
+	, statusBar: {
 		statusPanels: [
 		{% for statusBarComponent in grid.statusBarComponents %}
 			{% include statusBarComponent.template with {'component': statusBarComponent} %}{% if not loop.last %},{% endif %}
 		{% endfor %}
 		]
-	},
+	}
 	{% endif %}
 	{% if grid.sideBarComponents|length > 0 or grid.vars.sideBar != false %}
 		{% if grid.sideBarComponents|length > 0 %}

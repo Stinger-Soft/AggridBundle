@@ -128,6 +128,7 @@ class GridType extends AbstractGridType {
 		$view->vars['autosizeColumnsButton'] = $gridOptions['autosizeColumnsButton'];
 
 		$view->vars['form_id'] = $gridOptions['form_id'];
+		$view->vars['templateTopBar'] = $gridOptions['templateTopBar'];
 
 		if($gridOptions['versionHash'] === true) {
 			$hashing = hash_init('sha256', HASH_HMAC, 'stingersoft-aggrid');
@@ -194,6 +195,9 @@ class GridType extends AbstractGridType {
 			return $previousValue;
 		});
 		$resolver->setAllowedTypes('versionHash', ['bool', 'null', 'string']);
+
+		$resolver->setDefault('templateTopBar', '@StingerSoftAggrid/Grid/grid_search_pagination.html.twig');
+		$resolver->setAllowedTypes('templateTopBar', 'string');
 
 		$resolver->setDefault('versionHashModifier', null);
 		$resolver->setAllowedTypes('versionHashModifier', ['null', 'string']);

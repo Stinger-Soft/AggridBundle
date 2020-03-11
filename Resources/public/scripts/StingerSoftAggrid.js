@@ -154,6 +154,7 @@
         //Init
         this.handleOptions();
         this.registerListeners();
+        this.load();
         return this;
     };
 

@@ -45,6 +45,7 @@ class MappingColumnType extends AbstractColumnType {
 		$resolver->setDefault('value_translation_domain', null);
 		$resolver->setAllowedTypes('value_translation_domain', array('string', 'boolean', 'null'));
 
+		$resolver->setDefault('empty_value', null);
 	}
 
 	/**

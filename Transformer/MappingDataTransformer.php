@@ -31,7 +31,7 @@ class MappingDataTransformer implements DataTransformerInterface {
 			return call_user_func($options['mapping'], $item, $column, $value, $options);
 		}
 		if (!isset($options['mapping'][$value])) {
-			return $options['empty_value'];
+			return $options['empty_value'] ?? null;
 		}
 		return $options['mapping'][$value];
 	}

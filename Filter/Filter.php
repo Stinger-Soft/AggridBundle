@@ -217,7 +217,7 @@ class Filter implements FilterInterface {
 	public function applyFilter(QueryBuilder $queryBuilder, $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
 		$delegate = $this->filterDelegate;
 		if($delegate && is_callable($delegate)) {
-			return $delegate($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias);
+			return $delegate($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias, $this->getFilterType());
 		}
 
 		return $this->getFilterType()->applyFilter($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias);

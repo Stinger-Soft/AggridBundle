@@ -17,6 +17,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Knp\Component\Pager\Pagination\AbstractPagination;
 use Knp\Component\Pager\PaginatorInterface;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
@@ -122,15 +123,15 @@ class Grid implements GridInterface {
 	/**
 	 * Constructs a new grid.
 	 *
-	 * @param string                                $gridTypeClass
+	 * @param string $gridTypeClass
 	 *            FQCN of the grid type to be used
-	 * @param QueryBuilder|array                    $dataSource
+	 * @param QueryBuilder|array $dataSource
 	 *            data source the grid will use for retrieving entries,
 	 *            applying filters, searches and ordering (if a query builder is given)
 	 * @param DependencyInjectionExtensionInterface $dependencyInjectionExtension
-	 * @param PaginatorInterface                    $paginator
-	 * @param Environment|null                      $twig
-	 * @param array                                 $options
+	 * @param PaginatorInterface $paginator
+	 * @param Environment|null $twig
+	 * @param array $options
 	 *            an array of options to be passed to the grid type
 	 */
 	public function __construct($gridTypeClass, $dataSource, DependencyInjectionExtensionInterface $dependencyInjectionExtension, PaginatorInterface $paginator, ?Environment $twig, array $options = []) {
@@ -186,7 +187,7 @@ class Grid implements GridInterface {
 
 		//Group request. So we just return the last requested column
 		if($groupSize > 0 && $groupSize > $pathSize) {
-			$groupKeys = array_map(static function ($item) {
+			$groupKeys = array_map(static function($item) {
 				return $item['id'];
 			}, $this->requestGroupCols);
 			$dataColumns = [];
@@ -356,6 +357,9 @@ class Grid implements GridInterface {
 				'total' => $this->getTotalResults(),
 			];
 		}
+		if($this->options['dataMode'] === GridType::DATA_MODE_ENTERPRISE && $items instanceof AbstractPagination) {
+			$result['total'] = $items->getTotalItemCount();
+		}
 		return $result;
 	}
 
@@ -386,7 +390,7 @@ class Grid implements GridInterface {
 	}
 
 	/**
-	 * @param mixed    $item
+	 * @param mixed $item
 	 * @param Column[] $columns
 	 * @return array
 	 */
@@ -522,11 +526,11 @@ class Grid implements GridInterface {
 	 * Sets a value in a nested array based on path
 	 * See http://stackoverflow.com/a/9628276/419887
 	 *
-	 * @param array  $array
+	 * @param array $array
 	 *            The array to modify
 	 * @param string $path
 	 *            The path in the array
-	 * @param mixed  $value
+	 * @param mixed $value
 	 *            The value to set
 	 * @param string $delimiter
 	 *            The separator for the path
@@ -549,7 +553,7 @@ class Grid implements GridInterface {
 	/**
 	 * Merges the grid columns of each type in the hierarchy starting from the top most type.
 	 *
-	 * @param GridTypeInterface    $gridType
+	 * @param GridTypeInterface $gridType
 	 *            the grid type to build the columns from
 	 * @param GridBuilderInterface $builder
 	 *            the grid builder
@@ -570,7 +574,7 @@ class Grid implements GridInterface {
 	 * @param GridTypeInterface $gridType
 	 *            the type to resolve the options for, also used for determining any parents
 	 *            whose options are to be resolved as well
-	 * @param array             $options
+	 * @param array $options
 	 *            the initial options to also be resolved (if any).
 	 * @return array the resolved options for the given grid type.
 	 */
@@ -664,7 +668,7 @@ class Grid implements GridInterface {
 	 *      for ordering
 	 */
 	protected function applyOrderBy(array $orderByEntries): void {
-		$orderByEntries = array_filter($orderByEntries, static function ($entry) {
+		$orderByEntries = array_filter($orderByEntries, static function($entry) {
 			// we only want to have entry containing a column AND a direction
 			return isset($entry['colId'], $entry['sort']) && $entry['sort'] !== '';
 		});
@@ -789,7 +793,7 @@ class Grid implements GridInterface {
 	 *
 	 * @param GridTypeInterface $gridType
 	 *            the grid type to resolve the options from
-	 * @param OptionsResolver   $resolver
+	 * @param OptionsResolver $resolver
 	 *            the resolver used for checking option values and defaults etc.
 	 */
 	private function resolveOptions(GridTypeInterface $gridType, OptionsResolver $resolver): void {

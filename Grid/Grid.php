@@ -378,15 +378,26 @@ class Grid implements GridInterface {
 			if(!$this->options['hydrateAsObject']) {
 				$query->setHydrationMode(Query::HYDRATE_ARRAY);
 			}
+			$this->applyQueryHints($query);
 
 			return $this->paginator->paginate($query, $this->requestOffset / $this->requestCount + 1, $this->requestCount, $paginationOptions);
 		}
 		if($this->options['hydrateAsObject']) {
-			return $this->queryBuilder->getQuery()->getResult();
+			return $this->applyQueryHints($this->queryBuilder->getQuery())->getResult();
 		}
 
-		return $this->queryBuilder->getQuery()->getArrayResult();
+		return $this->applyQueryHints($this->queryBuilder->getQuery())->getArrayResult();
 
+	}
+
+	protected function applyQueryHints(Query $query): Query {
+		if(!isset($this->options['queryHints'])) {
+			return $query;
+		}
+		foreach($this->options['queryHints'] as $hintKey => $hintValue) {
+			$query->setHint($hintKey, $hintValue);
+		}
+		return $query;
 	}
 
 	/**

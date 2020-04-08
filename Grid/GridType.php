@@ -165,6 +165,12 @@ class GridType extends AbstractGridType {
 			'boolean',
 		]);
 
+		$resolver->setDefault('queryHints', null);
+		$resolver->setAllowedTypes('queryHints', [
+			'null',
+			'array'
+		]);
+
 		$resolver->setDefault('persistState', false);
 		$resolver->setAllowedTypes('persistState', ['boolean']);
 

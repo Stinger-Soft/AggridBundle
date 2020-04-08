@@ -441,6 +441,9 @@
                 that.setData(data.items, true);
             });
         }
+        if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'enterprise') {
+            this.gridOptions.api.purgeServerSideCache();
+        }
         this.refresh(true);
     };
 

@@ -202,7 +202,10 @@
             this.gridOptions.api.setServerSideDatasource(serverSideDatasource);
         }
         if(this.options.hasOwnProperty('defaultOrderProperty')) {
-            this.gridOptions.columnApi.getColumn(this.options.defaultOrderProperty).setSort(this.options.hasOwnProperty('defaultOrderDirection') ? this.options.defaultOrderDirection : 'asc')
+            var column = this.gridOptions.columnApi.getColumn(this.options.defaultOrderProperty);
+            if(column !== null) {
+                column.setSort(this.options.hasOwnProperty('defaultOrderDirection') ? this.options.defaultOrderDirection : 'asc');
+            }
         }
     };
 

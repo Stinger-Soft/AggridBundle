@@ -30,5 +30,10 @@
 	{% if grid.vars.autosizeColumnsButton is defined and grid.vars.autosizeColumnsButton is not same as(null) %}
 	, autosizeColumnsButton: {{ grid.vars.autosizeColumnsButton|json_encode|raw }}
 	{% endif %}
-
+	{% if grid.vars.default_order_property is defined and grid.vars.default_order_property is not same as(null)  %}
+	, defaultOrderProperty:  {{ grid.vars.default_order_property|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.default_order_direction is defined and grid.vars.default_order_direction is not same as(null) %}
+	, defaultOrderDirection:  {{ grid.vars.default_order_direction|json_encode|raw }}
+	{% endif %}
 }

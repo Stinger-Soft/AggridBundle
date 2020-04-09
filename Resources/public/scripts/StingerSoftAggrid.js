@@ -201,6 +201,9 @@
             };
             this.gridOptions.api.setServerSideDatasource(serverSideDatasource);
         }
+        if(this.options.hasOwnProperty('defaultOrderProperty')) {
+            this.gridOptions.columnApi.getColumn(this.options.defaultOrderProperty).setSort(this.options.hasOwnProperty('defaultOrderDirection') ? this.options.defaultOrderDirection : 'asc')
+        }
     };
 
     StingerSoftAggrid.prototype.exportableColumns = [];

@@ -46,10 +46,10 @@
         if (valueB === null) {
             return -1;
         }
-        if (valueA > valueB) {
+        if (valueA < valueB) {
             return -1;
         }
-        if (valueB > valueA) {
+        if (valueB < valueA) {
             return 1;
         }
         return 0;

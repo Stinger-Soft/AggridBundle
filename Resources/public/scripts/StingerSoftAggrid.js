@@ -502,7 +502,7 @@
 
             var storageKey = this.stateSavePrefix + this.stateSaveKey;
             var storageObject = JSON.parse(storage.getItem(storageKey));
-            if (typeof storageObject === 'object' && storageObject.hasOwnProperty('version')) {
+            if (storageObject !== null && typeof storageObject === 'object' && storageObject.hasOwnProperty('version')) {
                 if (storageObject.version === this.versionHash) {
                     var columnState = storageObject.hasOwnProperty('columns') && storageObject.columns ? storageObject.columns : [];
                     var columnGroupState = storageObject.hasOwnProperty('groups') && storageObject.groups ? storageObject.groups : [];

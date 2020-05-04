@@ -57,25 +57,25 @@
 
     /**
      *
-     * @return {function(*): string}
+     * @return {number}
      * @constructor
      */
     StingerSoftAggrid.Comparator.ValueComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
-        return StingerSoftAggrid.Comparator.DefaultComparator(valueA === null ? null : valueA.value, valueB === null ? null : valueB.value, nodeA, nodeB, isInverted);
+        return StingerSoftAggrid.Comparator.DefaultComparator(valueA === null || typeof valueA === 'undefined' ? null : valueA.value, valueB === null || typeof valueB === 'undefined' ? null : valueB.value, nodeA, nodeB, isInverted);
     };
 
     /**
      *
-     * @return {function(*): string}
+     * @return {number}
      * @constructor
      */
     StingerSoftAggrid.Comparator.DisplayValueComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
-        return StingerSoftAggrid.Comparator.DefaultComparator(valueA === null ? null : valueA.displayValue, valueB === null ? null : valueB.displayValue, nodeA, nodeB, isInverted);
+        return StingerSoftAggrid.Comparator.DefaultComparator(valueA === null || typeof valueA === 'undefined'  ? null : valueA.displayValue, valueB === null || typeof valueB === 'undefined' ? null : valueB.displayValue, nodeA, nodeB, isInverted);
     }
 
     /**
      *
-     * @return {function(*): string}
+     * @return {number}
      * @constructor
      */
     StingerSoftAggrid.Comparator.DateComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {

@@ -110,7 +110,11 @@
 	toolPanelClass: {{ column.vars.toolPanelClass|json_encode|raw }},
 	{% endif %}
 	{%- block column_checkbox_selection -%}
-	checkboxSelection: {{ column.vars.checkboxSelection|default(false)|json_encode|raw }},
+	{% if column.vars.checkboxSelection is same as(true) or column.vars.checkboxSelection is same as(false)  %}
+    checkboxSelection: {{ column.vars.checkboxSelection|default(false)|json_encode|raw }},
+	{% else %}
+    checkboxSelection: {{ column.vars.checkboxSelection|raw }},
+	{% endif %}
 	{%- endblock column_checkbox_selection -%}
 	headerCheckboxSelection: {{ column.vars.headerCheckboxSelection|default(false)|json_encode|raw }},
 	headerCheckboxSelectionFilteredOnly: {{ column.vars.headerCheckboxSelectionFilteredOnly|default(false)|json_encode|raw }},

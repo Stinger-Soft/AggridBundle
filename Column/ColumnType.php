@@ -392,7 +392,7 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('headerTooltip', ['null', 'string']);
 
 		$resolver->setDefault('checkboxSelection', false);
-		$resolver->setAllowedTypes('checkboxSelection', 'bool');
+		$resolver->setAllowedTypes('checkboxSelection', ['bool', 'string']);
 
 		$resolver->setDefault('headerCheckboxSelection', false);
 		$resolver->setAllowedTypes('headerCheckboxSelection', 'bool');

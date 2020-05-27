@@ -18,7 +18,7 @@ class SetFilterType extends AbstractFilterType {
 		$resolver->setAllowedTypes('data', ['null', 'array', 'boolean', 'callable']);
 
 		$resolver->setDefault('keyValueMapping', null);
-		$resolver->setAllowedTypes('keyValueMapping', ['null', 'array']);
+		$resolver->setAllowedTypes('keyValueMapping', ['null', 'array', 'callable']);
 
 		$resolver->setDefault('cellRenderer', static function (Options $options, $previousValue) {
 			if($options['keyValueMapping'] !== null) {
@@ -101,7 +101,12 @@ class SetFilterType extends AbstractFilterType {
 		if($cellRendererParams === null) {
 			$cellRendererParams = [];
 		}
-		$cellRendererParams['keyValueMapping'] = $options['keyValueMapping'];
+		$keyValueMapping = $options['keyValueMapping'];
+		if(is_callable($keyValueMapping)) {
+			$keyValueMapping = call_user_func($keyValueMapping, $filter, $rawData, $options, $dataSource, $queryPath, $rootAlias);
+		}
+
+		$cellRendererParams['keyValueMapping'] = $keyValueMapping;
 		$cellRendererParams['translation_domain'] = $translationDomain;
 		$view->vars = array_replace($view->vars, [
 			'data'               => $rawData,

@@ -111,21 +111,17 @@
 	{% endif %}
 	{% if grid.vars.treeData %}
 		, treeData: true,
-		getDataPath: function (data) {
-			return data.orgHierarchy;
+        getDataPath: function (data) {
+	        return data.orgHierarchy.value;
 		},
-		autoGroupColumnDef: {
-			headerName: "Path",
-			filter: true,
-			resizable: true,
-			valueGetter: function(params) {
-				var label = params.node.key;
-				if(label.includes('$$')) {
-					label = label.split('$$')[1];
-				}
-				return label;
-			}
-		}
+	    autoGroupColumnDef: {
+	        headerName: "Group",
+            filter: true,
+            resizable: true,
+            valueGetter: function(params) {
+	            return '';
+	        }
+	    }
 	{% endif %}
 	, onGridReady: function(params) {
 		{{ varAggrid }}.load(params.columnApi, params.api);

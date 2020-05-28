@@ -120,7 +120,7 @@
 	headerCheckboxSelectionFilteredOnly: {{ column.vars.headerCheckboxSelectionFilteredOnly|default(false)|json_encode|raw }},
 	suppressFilter: {{ column.vars.suppressFilter|default(false)|json_encode|raw }},
 	hide: {{ (not column.vars.visible)|json_encode|raw }},
-	{% if grid.vars.enterpriseLicense is not null %}
+	{% if grid.vars.enterpriseLicense is not null and grid.vars.treeData is not same as(true) %}
 	rowGroup: {{ column.vars.rowGroup|json_encode|raw }},
 	enableRowGroup: {{ column.vars.enableRowGroup|json_encode|raw }},
 	enableValue: {{ column.vars.enableValue|json_encode|raw }},

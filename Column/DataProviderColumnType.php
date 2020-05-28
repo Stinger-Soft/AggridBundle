@@ -18,6 +18,9 @@ class DataProviderColumnType extends AbstractColumnType {
 
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('renderable', false);
+		$resolver->setDefault('filterable', false);
+		$resolver->setDefault('searchable', false);
+		$resolver->setDefault('orderable', false);
 	}
 
 }

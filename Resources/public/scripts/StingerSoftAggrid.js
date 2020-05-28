@@ -186,9 +186,9 @@
                 url: this.options.ajaxUrl,
                 ajaxReq: null,
                 getRows: function (params) {
-                    if (this.ajaxReq !== null) {
-                        this.ajaxReq.abort();
-                    }
+                    // if (this.ajaxReq !== null) {
+                    //     this.ajaxReq.abort();
+                    // }
                     var searchString = that.quickFilterSearchString || '';
                     var requestObject = params.request;
                     requestObject['search'] = searchString;

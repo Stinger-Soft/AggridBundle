@@ -14,6 +14,7 @@ namespace StingerSoft\AggridBundle\Grid;
 
 use Doctrine\ORM\QueryBuilder;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Filter\FilterType;
 use StingerSoft\AggridBundle\StingerSoftAggridBundle;
 use StingerSoft\AggridBundle\View\GridView;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -210,6 +211,13 @@ class GridType extends AbstractGridType {
 
 		$resolver->setDefault('form_id', null);
 		$resolver->setAllowedTypes('form_id', ['null', 'string']);
+
+		$resolver->setDefault('filterNewRowsAction', null);
+		$resolver->setAllowedValues('filterNewRowsAction', [
+			null,
+			FilterType::NEW_ROWS_ACTION_DEFAULT,
+			FilterType::NEW_ROWS_ACTION_KEEP
+		]);
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {

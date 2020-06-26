@@ -396,8 +396,8 @@ class GridType extends AbstractGridType {
 
 		//Possible icons: https://www.ag-grid.com/javascript-grid-icons/
 		$resolver->setDefault('icons', [
-			'sortAscending'  => '<i class="fas fa-sort-amount-down"></i>',
-			'sortDescending' => '<i class="fas fa-sort-amount-up"></i>',
+			'sortAscending'  => '<i class="fas fa-sort-amount-up"></i>',
+			'sortDescending' => '<i class="fas fa-sort-amount-down"></i>',
 			'menu'           => '<i class="far fa-bars" style="width: 12px;"></i>',
 			'menuPin'        => '<i class="far fa-thumbtack"></i>',
 			'filter'         => '<i class="far fa-filter"></i>',

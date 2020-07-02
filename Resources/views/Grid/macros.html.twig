@@ -20,17 +20,17 @@
 				{{ value|json_encode|raw }}
 			{%- endif -%}
 		{%- else -%}
-			{% set indexed = value|keys == range(0, value|length - 1) %}
-			{% if indexed %}[{% else %}{ {% endif %}
+			{% set isIndexed = not (value|aggrid_is_associative) %}
+			{% if isIndexed %}[{% else %}{ {% endif %}
 			{%- for key, val in value -%}
-				{% if not indexed %}{{ key|json_encode|raw }}:{% endif %}
+				{% if not isIndexed %}{{ key|json_encode|raw }}:{% endif %}
 				{%- if val starts with 'function' -%}
 					{{ val|raw  }}
 				{%- else -%}
 					{{ val|json_encode|raw }}
 				{%- endif -%}
 				{%- if not loop.last -%},{% endif %}
-			{%- endfor -%}{% if indexed %}]{% else %} }{% endif %}
+			{%- endfor -%}{% if isIndexed %}]{% else %} }{% endif %}
 		{%- endif -%}
 	{%- endapply -%}
 {%- endmacro deserializeOptionArray -%}

@@ -18,6 +18,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class GridRenderExtension extends AbstractExtension {
@@ -64,6 +65,28 @@ class GridRenderExtension extends AbstractExtension {
 				],
 			]),
 		];
+	}
+
+	public function getFilters() {
+		return [
+			new TwigFilter('aggrid_is_associative', [
+				self::class,
+				'isAssociativeArray',
+			]),
+		];
+	}
+
+	public static function isAssociativeArray($array): bool {
+		if(!is_array($array)) {
+			return false;
+		}
+		$keys = array_keys($array);
+		foreach($keys as $key) {
+			if(is_string($keys)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

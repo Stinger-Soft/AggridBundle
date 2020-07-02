@@ -29,6 +29,9 @@ class GridType extends AbstractGridType {
 	public const DATA_MODE_AJAX = 'ajax';
 	public const DATA_MODE_ENTERPRISE = 'enterprise';
 
+	public const COLUMN_AUTO_SIZE_TO_FIT = 'sizeToFit';
+	public const COLUMN_AUTO_SIZE_ALL = 'all';
+
 	private $licenseKey;
 
 	public function __construct(ParameterBagInterface $parameterBag) {
@@ -127,6 +130,7 @@ class GridType extends AbstractGridType {
 		$view->vars['reloadButton'] = $gridOptions['reloadButton'];
 		$view->vars['clearFilterButton'] = $gridOptions['clearFilterButton'];
 		$view->vars['autosizeColumnsButton'] = $gridOptions['autosizeColumnsButton'];
+		$view->vars['autoResizeColumns'] = $gridOptions['autoResizeColumns'];
 
 		$view->vars['form_id'] = $gridOptions['form_id'];
 		$view->vars['templateTopBar'] = $gridOptions['templateTopBar'];
@@ -218,6 +222,9 @@ class GridType extends AbstractGridType {
 			FilterType::NEW_ROWS_ACTION_DEFAULT,
 			FilterType::NEW_ROWS_ACTION_KEEP
 		]);
+
+		$resolver->setDefault('autoResizeColumns', false);
+		$resolver->setAllowedValues('autoResizeColumns', [false, self::COLUMN_AUTO_SIZE_ALL, self::COLUMN_AUTO_SIZE_TO_FIT]);
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {

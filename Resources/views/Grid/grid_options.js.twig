@@ -125,6 +125,13 @@
 	{% endif %}
 	, onGridReady: function(params) {
 		{{ varAggrid }}.load(params.columnApi, params.api);
+		{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns is not same as(false) %}
+			{% if grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_TO_FIT') %}
+				{{ varAggrid }}.getGridApi().sizeColumnsToFit();
+			{% elseif grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_ALL') %}
+				{{ varAggrid }}.autoSizeColumns(true);
+			{% endif %}
+		{% endif %}
 	}
 	{% if app.request.locale != 'en' %}
 	, localeTextFunc: function(key, defaultValue) {

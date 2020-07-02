@@ -69,11 +69,19 @@ class GridRenderExtension extends AbstractExtension {
 
 	public function getFilters() {
 		return [
-			new TwigFilter('aggrid_is_associative', [
+			new TwigFilter('aggrid_array_is_associative', [
 				self::class,
 				'isAssociativeArray',
 			]),
+			new TwigFilter('aggrid_array_is_indexed', [
+				self::class,
+				'isIndexedArray',
+			]),
 		];
+	}
+
+	public static function isIndexedArray($array): bool {
+		return !self::isAssociativeArray($array);
 	}
 
 	public static function isAssociativeArray($array): bool {
@@ -82,11 +90,11 @@ class GridRenderExtension extends AbstractExtension {
 		}
 		$keys = array_keys($array);
 		foreach($keys as $key) {
-			if(is_string($keys)) {
-				return false;
+			if(is_string($key)) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	/**

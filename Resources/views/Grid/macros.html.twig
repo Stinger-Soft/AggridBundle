@@ -20,7 +20,7 @@
 				{{ value|json_encode|raw }}
 			{%- endif -%}
 		{%- else -%}
-			{% set isIndexed = not (value|aggrid_is_associative) %}
+			{% set isIndexed = value|aggrid_array_is_indexed %}
 			{% if isIndexed %}[{% else %}{ {% endif %}
 			{%- for key, val in value -%}
 				{% if not isIndexed %}{{ key|json_encode|raw }}:{% endif %}

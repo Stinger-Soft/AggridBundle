@@ -415,14 +415,20 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('columnGroupShow', null);
 		$resolver->setAllowedValues('columnGroupShow', [null, 'closed', 'open', true]);
 
+		$resolver->setDefault('cellStyle', null);
+		$resolver->setAllowedTypes('cellStyle', ['null', 'string', 'array']);
+
 		$resolver->setDefault('cellClass', null);
-		$resolver->setAllowedTypes('cellClass', ['null', 'string']);
+		$resolver->setAllowedTypes('cellClass', ['null', 'string', 'array']);
+
+		$resolver->setDefault('cellClassRules', null);
+		$resolver->setAllowedTypes('cellClassRules', ['null', 'string', 'array']);
 
 		$resolver->setDefault('headerClass', null);
-		$resolver->setAllowedTypes('headerClass', ['null', 'string']);
+		$resolver->setAllowedTypes('headerClass', ['null', 'string', 'array']);
 
 		$resolver->setDefault('toolPanelClass', null);
-		$resolver->setAllowedTypes('toolPanelClass', ['null', 'string']);
+		$resolver->setAllowedTypes('toolPanelClass', ['null', 'string', 'array']);
 
 	}
 
@@ -471,7 +477,9 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['cellRenderer'] = $options['cellRenderer'];
 		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
 		$view->vars['columnGroupShow'] = $options['columnGroupShow'];
+		$view->vars['cellStyle'] = $options['cellStyle'];
 		$view->vars['cellClass'] = $options['cellClass'];
+		$view->vars['cellClassRules'] = $options['cellClassRules'];
 		$view->vars['headerClass'] = $options['headerClass'];
 		$view->vars['toolPanelClass'] = $options['toolPanelClass'];
 		$view->vars['comparator'] = $options['comparator'];

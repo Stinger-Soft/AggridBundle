@@ -57,13 +57,13 @@
 	, rowHeight: {{ grid.vars.rowHeight|json_encode|raw }}
 	{% endif %}
 	{% if grid.vars.getRowStyle is defined and grid.vars.getRowStyle is not same as(null) %}
-	, getRowStyle: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowStyle|json_encode|raw }})
+	, getRowStyle: {% if grid.vars.getRowStyle starts with 'function' %}{{ grid.vars.getRowStyle|raw }}{% else %}StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowStyle|json_encode|raw }}){% endif %}
 	{% endif %}
 	{% if grid.vars.rowClass is defined and grid.vars.rowClass is not same as(null) %}
 	, rowClass: {{ grid.vars.rowClass|json_encode|raw }}
 	{% endif %}
 	{% if grid.vars.getRowClass is defined and grid.vars.getRowClass is not same as(null) %}
-	, getRowClass: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowClass|json_encode|raw }})
+	, getRowClass: {% if grid.vars.getRowClass starts with 'function' %}{{ grid.vars.getRowClass|raw }}{% else %}StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowClass|json_encode|raw }}){% endif %}
 	{% endif %}
 	{% if grid.vars.rowClassRules is defined and grid.vars.rowClassRules is not same as(null) %}
 	, rowClassRules: {{ me.deserializeOptionArray(grid.vars.rowClassRules) }}

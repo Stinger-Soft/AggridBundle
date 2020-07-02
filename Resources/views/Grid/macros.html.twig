@@ -14,19 +14,23 @@
 {%- macro deserializeOptionArray(value) -%}
 	{%- apply spaceless -%}
 		{%- if value is not iterable -%}
-			{{ value|json_encode|raw }}
+			{%- if value starts with 'function' -%}
+				{{ value|raw  }}
+			{%- else -%}
+				{{ value|json_encode|raw }}
+			{%- endif -%}
 		{%- else -%}
-			{
+			{% set indexed = value|keys == range(0, value|length - 1) %}
+			{% if indexed %}[{% else %}{ {% endif %}
 			{%- for key, val in value -%}
-				{{ key|json_encode|raw }}:
+				{% if not indexed %}{{ key|json_encode|raw }}:{% endif %}
 				{%- if val starts with 'function' -%}
 					{{ val|raw  }}
 				{%- else -%}
 					{{ val|json_encode|raw }}
 				{%- endif -%}
 				{%- if not loop.last -%},{% endif %}
-			{%- endfor -%}
-			}
+			{%- endfor -%}{% if indexed %}]{% else %} }{% endif %}
 		{%- endif -%}
 	{%- endapply -%}
 {%- endmacro deserializeOptionArray -%}

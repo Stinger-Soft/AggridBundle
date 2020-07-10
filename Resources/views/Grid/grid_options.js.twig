@@ -7,6 +7,9 @@
 		{% include column.template with {'column': column} %}{% if not loop.last %},{% endif %}
 	{% endfor %}
 	],
+	processCellForClipboard: function(params) {
+		return params.value.displayValue;
+	},
 	multiSortKey: 'ctrl',
 	enableBrowserTooltips: {{ grid.vars.enableBrowserTooltips|json_encode|raw }},
 	enableRangeSelection: {{ grid.vars.enableRangeSelection|json_encode|raw }},

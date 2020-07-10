@@ -81,11 +81,11 @@
     StingerSoftAggrid.Comparator.DateComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
         var dateA = null;
         var dateB = null;
-        if(valueA !== null && valueA.value !== null) {
-            dateA = new Date(valueA.value.date);
+        if(valueA !== null && valueA !== undefined && valueA.value !== null && valueA.value !== undefined) {
+            dateA = valueA.value.hasOwnProperty('date') ? new Date(valueA.value.date) : null;
         }
-        if(valueB !== null && valueB.value !== null) {
-            dateB = new Date(valueB.value.date);
+        if(valueB !== null && valueB !== undefined && valueB.value !== null && valueB.value !== undefined) {
+            dateB = valueB.value.hasOwnProperty('date') ? new Date(valueB.value.date) : null;
         }
         return StingerSoftAggrid.Comparator.DefaultComparator(dateA, dateB, nodeA, nodeB, isInverted);
     }

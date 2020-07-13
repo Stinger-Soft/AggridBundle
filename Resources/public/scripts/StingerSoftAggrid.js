@@ -108,6 +108,8 @@
 		this.options = null;
 		/** */
 		this.resizedColumns = [];
+		/** */
+		this.clipboardValueFormatters = {};
 
 		/** */
 		this.filterTimeout = 500;
@@ -627,6 +629,27 @@
 	 */
 	StingerSoftAggrid.prototype.getGridOptions = function () {
 		return this.gridOptions;
+	};
+
+	StingerSoftAggrid.prototype.processCellForClipboard = function(params) {
+		var value = params.value.displayValue;
+		var callbackName = this.clipboardValueFormatters.hasOwnProperty(params.column.colId) ?
+			this.clipboardValueFormatters[params.column.colId] : false;
+		if(callbackName === false) {
+			value = params.value.displayValue;
+		}
+		if(typeof callbackName === 'string') {
+			var renderer = StingerSoftAggrid.Formatter.getFormatter(callbackName);
+			value = renderer(params);
+		}
+		value = typeof value === "string" ? value.trim() : value;
+		return value;
+	};
+
+	StingerSoftAggrid.prototype.setClipboardValueFormatter = function(colId, callback) {
+		if(!this.clipboardValueFormatters.hasOwnProperty(colId)) {
+			this.clipboardValueFormatters[colId] = callback;
+		}
 	};
 
 	/**

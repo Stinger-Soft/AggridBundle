@@ -57,6 +57,19 @@
         };
     };
 
+     /**
+     *
+     * @return {function(*): string}
+     * @constructor
+     * @param {json} formatterParams
+     */
+    StingerSoftAggrid.Formatter.NullFormatter = function (formatterParams) {
+        return function (params) {
+            return '';
+        };
+    };
+
+
     /**
      *
      * @param {json} getterParams

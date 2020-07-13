@@ -1,6 +1,7 @@
 {% set varAggrid = grid.vars.stingerSoftAggrid_js_var %}
 {% set varAggridOptions = "stingerSoftAggridOptions" ~ grid.vars.aggrid_js_id %}
 {% set varOptions = "stingerSoftOptions" ~ grid.vars.aggrid_js_id %}
+{% import '@StingerSoftAggrid/Grid/macros.html.twig' as me %}
 var {{ varAggrid }};
 jQuery(document).ready(function () {
 	if(typeof moment !== 'undefined') {
@@ -23,6 +24,12 @@ jQuery(document).ready(function () {
 			{{ varAggrid }}.addExportableColumn({{ column.vars.colId|default(column.path)|json_encode|raw }}, {
 				'exportValueFormatter': {{ column.vars.exportValueFormatter|default(null)|json_encode|raw }}
 			});
+		{% endif %}
+		{% if column.vars.clipboardValueFormatter %}
+			{{ varAggrid }}.setClipboardValueFormatter(
+				{{ column.vars.colId|default(column.path)|json_encode|raw }},
+				{{ me.functionalize(column.vars.clipboardValueFormatter) }}
+			);
 		{% endif %}
 	{% endfor %}
 })

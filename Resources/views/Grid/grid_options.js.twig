@@ -8,7 +8,7 @@
 	{% endfor %}
 	],
 	processCellForClipboard: function(params) {
-		return params.value.displayValue;
+		return {{ varAggrid }}.processCellForClipboard(params);
 	},
 	multiSortKey: 'ctrl',
 	enableBrowserTooltips: {{ grid.vars.enableBrowserTooltips|json_encode|raw }},

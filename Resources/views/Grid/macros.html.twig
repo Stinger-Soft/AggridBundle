@@ -11,24 +11,26 @@
 	{%- endfor -%}
 {%- endmacro attributes -%}
 
+{%- macro functionalize(value) -%}{%- apply spaceless -%}
+	{%- if value starts with 'function' -%}
+		{{ value|raw  }}
+	{%- else -%}
+		{{ value|json_encode|raw }}
+	{%- endif -%}
+{%- endapply -%}
+{%- endmacro -%}
+
 {%- macro deserializeOptionArray(value) -%}
+	{% import _self as me %}
 	{%- apply spaceless -%}
 		{%- if value is not iterable -%}
-			{%- if value starts with 'function' -%}
-				{{ value|raw  }}
-			{%- else -%}
-				{{ value|json_encode|raw }}
-			{%- endif -%}
+			{{ me.functionalize(value) }}
 		{%- else -%}
 			{% set isIndexed = value|aggrid_array_is_indexed %}
 			{% if isIndexed %}[{% else %}{ {% endif %}
 			{%- for key, val in value -%}
 				{% if not isIndexed %}{{ key|json_encode|raw }}:{% endif %}
-				{%- if val starts with 'function' -%}
-					{{ val|raw  }}
-				{%- else -%}
-					{{ val|json_encode|raw }}
-				{%- endif -%}
+				{{ me.functionalize(val) }}
 				{%- if not loop.last -%},{% endif %}
 			{%- endfor -%}{% if isIndexed %}]{% else %} }{% endif %}
 		{%- endif -%}

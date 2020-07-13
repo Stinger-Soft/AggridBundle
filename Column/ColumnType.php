@@ -233,6 +233,9 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('renderable', true);
 		$resolver->setAllowedTypes('renderable', 'boolean');
+
+		$resolver->setDefault('clipboardValueFormatter', 'DisplayValueFormatter');
+		$resolver->setAllowedTypes('clipboardValueFormatter', 'string');
 	}
 
 	protected function configureAggridOptions(OptionsResolver $resolver, array $gridOptions = []): void {
@@ -429,7 +432,6 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('toolPanelClass', null);
 		$resolver->setAllowedTypes('toolPanelClass', ['null', 'string', 'array']);
-
 	}
 
 	protected function buildStingerView(ColumnView $view, ColumnInterface $column, array $options): void {
@@ -440,6 +442,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['exportValueFormatter'] = $options['exportValueFormatter'];
 		$view->vars['route'] = $options['route'];
 		$view->vars['renderable'] = $options['renderable'];
+		$view->vars['clipboardValueFormatter'] = $options['clipboardValueFormatter'];
 	}
 
 	protected function buildAggridView(ColumnView $view, ColumnInterface $column, array $options): void {

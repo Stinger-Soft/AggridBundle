@@ -1,18 +1,15 @@
 {% extends '@StingerSoftAggrid/Filter/filter.js.twig' %}
 {% block filter_params %}
 	comparator: function(filterLocalDateAtMidnight, cellValue) {
-		//using moment js
-		cellValue = new Date(cellValue.date);
-		var cellDate = new Date(cellValue.getYear(),  cellValue.getMonth(),  cellValue.getDate());
-
+		var cellValueDate = cellValue.hasOwnProperty('date') ? cellValue.date : cellValue;
+		cellValueDate = new Date(cellValueDate);
+		var cellDate = new Date(cellValueDate.getFullYear(),  cellValueDate.getMonth(),  cellValueDate.getDate());
 		if (filterLocalDateAtMidnight.getTime() == cellDate.getTime()) {
 			return 0;
 		}
-
 		if (cellDate < filterLocalDateAtMidnight) {
 			return -1;
 		}
-
 		if (cellDate > filterLocalDateAtMidnight) {
 			return 1;
 		}

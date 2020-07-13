@@ -13,6 +13,12 @@ class DateFilterType extends AbstractFilterType {
 		$resolver->setDefault('filter_type', 'agDateColumnFilter');
 		$resolver->setDefault('date_format', $columnOptions['date_format'] ?? null);
 		$resolver->setDefault('jsTemplate', '@StingerSoftAggrid/Filter/date_filter.js.twig');
+		$resolver->setDefault('includeBlanksInEquals', false);
+		$resolver->setAllowedTypes('includeBlanksInEquals', 'bool');
+		$resolver->setDefault('includeBlanksInLessThan', false);
+		$resolver->setAllowedTypes('includeBlanksInLessThan', 'bool');
+		$resolver->setDefault('includeBlanksInGreaterThan', false);
+		$resolver->setAllowedTypes('includeBlanksInGreaterThan', 'bool');
 	}
 
 	/**
@@ -20,6 +26,9 @@ class DateFilterType extends AbstractFilterType {
 	 */
 	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void {
 		$view->vars['date_format'] = $options['date_format'];
+		$view->vars['includeBlanksInEquals'] = $options['includeBlanksInEquals'];
+		$view->vars['includeBlanksInLessThan'] = $options['includeBlanksInLessThan'];
+		$view->vars['includeBlanksInGreaterThan'] = $options['includeBlanksInGreaterThan'];
 	}
 
 	public function handleFilterRequest(QueryBuilder $queryBuilder, array $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {

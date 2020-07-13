@@ -11,6 +11,15 @@ filterParams: {
 	{% if filter.vars.newRowsAction is defined and filter.vars.newRowsAction is not same as(null) %}
 	newRowsAction: {{ filter.vars.newRowsAction|json_encode|raw }},
 	{% endif %}
+	{% if filter.vars.includeBlanksInEquals is defined and filter.vars.includeBlanksInEquals is not same as(null)%}
+	includeBlanksInEquals: {{ filter.vars.includeBlanksInEquals|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.includeBlanksInLessThan is defined and filter.vars.includeBlanksInLessThan is not same as(null)%}
+	includeBlanksInLessThan: {{ filter.vars.includeBlanksInLessThan|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.includeBlanksInGreaterThan is defined and filter.vars.includeBlanksInGreaterThan is not same as(null)%}
+	includeBlanksInGreaterThan: {{ filter.vars.includeBlanksInGreaterThan|json_encode|raw }},
+	{% endif %}
 	{% if filter.vars.applyButton is defined and filter.vars.applyButton is not same as(null) %}
 		applyButton: {{ filter.vars.applyButton|json_encode|raw }},
 		{% if filter.vars.debounceMs is defined and filter.vars.debounceMs is not same as(null) and filter.vars.applyButton != true %}

@@ -47,6 +47,7 @@ class DateTimeColumnType extends AbstractColumnType {
 		$resolver->setAllowedValues('calendar', array('gregorian', 'traditional'));
 
 		$resolver->setDefault('comparator', 'DateComparator');
+		$resolver->setDefault('filterValueGetter', 'ValueGetter');
 	}
 
 	/**

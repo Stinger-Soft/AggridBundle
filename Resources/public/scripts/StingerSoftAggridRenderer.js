@@ -60,7 +60,7 @@
      */
     StingerSoftAggrid.Renderer.StripHtmlRenderer = function (params) {
         var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
-        return displayValue ? jQuery(displayValue).text() : '';
+        return displayValue ? jQuery("<div/>").html(displayValue).text() : '';
     };
 
     StingerSoftAggrid.Renderer.KeyValueMappingRenderer = function (rendererParams) {

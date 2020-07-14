@@ -194,11 +194,16 @@
 					var searchString = that.quickFilterSearchString || '';
 					var requestObject = params.request;
 					requestObject['search'] = searchString;
+					that.gridOptions.api.showLoadingOverlay();
 					this.ajaxReq = jQuery.post(this.url, {
 						'agGrid': JSON.stringify(requestObject),
 					}, function (data) {
 						params.successCallback(data.items, data.total);
-					}, "json").fail(params.failCallback);
+						that.gridOptions.api.hideOverlay();
+					}, "json").fail(function() {
+						that.gridOptions.api.hideOverlay();
+						params.failCallback();
+					});
 				}
 			};
 			this.gridOptions.api.setServerSideDatasource(serverSideDatasource);
@@ -445,8 +450,11 @@
 	StingerSoftAggrid.prototype.reload = function () {
 		var that = this;
 		if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
+			that.gridOptions.api.showLoadingOverlay();
 			jQuery.getJSON(this.options.ajaxUrl, function (data) {
 				that.setData(data.items, true);
+			}).always(function() {
+				that.gridOptions.api.hideOverlay();
 			});
 		}
 		if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'enterprise') {

@@ -45,7 +45,7 @@ class StringFormatterDataTransformer implements DataTransformerInterface {
 			// ah the parameters itself are callable and should return an array of key => values, so call the delegate
 			$additionalParameters = call_user_func($additionalParameters, $item, $value, $column->getPath());
 		}
-		if(count($additionalParameters)) {
+		if(is_array($additionalParameters) && count($additionalParameters)) {
 			// there are additional parameters!
 			foreach($additionalParameters as $additionalParameterKey => $additionalParameterValue) {
 				if(is_callable($additionalParameterValue)) {

@@ -35,6 +35,10 @@ class StringFormatterDataTransformer implements DataTransformerInterface {
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
+		$formatNullValue = $options['format_null'];
+		if($value === null && !$formatNullValue) {
+			return null;
+		}
 		$itemFormat = $options['string_format'];
 		$additionalParameters = $options['string_format_parameters'];
 		if(is_callable($itemFormat)) {

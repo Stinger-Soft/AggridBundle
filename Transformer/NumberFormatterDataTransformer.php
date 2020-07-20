@@ -30,6 +30,10 @@ class NumberFormatterDataTransformer implements DataTransformerInterface {
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
+		$formatNullValue = $options['format_null'];
+		if($value === null && !$formatNullValue) {
+			return null;
+		}
 		if($options['number_formatter_pattern'] === null) {
 			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
 		} else {

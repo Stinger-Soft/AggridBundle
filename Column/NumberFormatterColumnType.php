@@ -42,6 +42,9 @@ class NumberFormatterColumnType extends AbstractColumnType {
 		$resolver->setDefault('filterValueGetter', 'ValueGetter');
 		$resolver->setDefault('filter_type', NumberFilterType::class);
 
+		$resolver->setDefault('format_null', true);
+		$resolver->setAllowedTypes('format_null', 'boolean');
+
 		$resolver->setRequired('number_formatter_style');
 		$resolver->setDefault('number_formatter_style', \NumberFormatter::DEFAULT_STYLE);
 		$resolver->setAllowedValues('number_formatter_style', [

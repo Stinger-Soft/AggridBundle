@@ -38,9 +38,6 @@ class CurrencyColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('currency', 'EUR');
 		$resolver->setAllowedTypes('currency', array('string', 'callable'));
-
-		$resolver->setDefault('format_null', true);
-		$resolver->setAllowedTypes('format_null', 'boolean');
 	}
 
 	/**

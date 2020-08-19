@@ -40,6 +40,9 @@ class FormattedStringColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('string_format_parameters', null);
 		$resolver->setAllowedTypes('string_format_parameters', ['null', 'array', 'callable']);
+
+		$resolver->setDefault('format_null', true);
+		$resolver->setAllowedTypes('format_null', 'boolean');
 	}
 
 	/**

@@ -32,7 +32,7 @@ class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 		$options = $column->getColumnOptions();
 		$formatNullValue = $options['format_null'];
 		if($value === null && !$formatNullValue) {
-			return $value;
+			return null;
 		}
 		if($options['number_formatter_pattern'] === null) {
 			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);

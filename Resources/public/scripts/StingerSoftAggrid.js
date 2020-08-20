@@ -179,7 +179,11 @@
 		var that = this;
 		if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
 			if (this.options.hasOwnProperty('ajaxUrl')) {
-				jQuery.getJSON(this.options.ajaxUrl, function (data) {
+				jQuery.getJSON(this.options.ajaxUrl, {
+					'agGrid': {
+						'gridId': that.getGridId()
+					}
+				}, function (data) {
 					that.gridOptions.api.setRowData(data.items);
 				});
 			}
@@ -196,6 +200,7 @@
 					var searchString = that.quickFilterSearchString || '';
 					var requestObject = params.request;
 					requestObject['search'] = searchString;
+					requestObject['gridId'] = that.getGridId();
 					that.gridOptions.api.showLoadingOverlay();
 					this.ajaxReq = jQuery.post(this.url, {
 						'agGrid': JSON.stringify(requestObject),
@@ -478,7 +483,11 @@
 		var that = this;
 		if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
 			that.gridOptions.api.showLoadingOverlay();
-			jQuery.getJSON(this.options.ajaxUrl, function (data) {
+			jQuery.getJSON(this.options.ajaxUrl, {
+				'agGrid': {
+					'gridId': that.getGridId()
+				}
+			}, function (data) {
 				that.setData(data.items, true);
 			}).always(function() {
 				that.gridOptions.api.hideOverlay();

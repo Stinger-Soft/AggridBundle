@@ -98,6 +98,11 @@ class Grid implements GridInterface {
 	protected $orderer;
 
 	/**
+	 * @var bool
+	 */
+	protected $isSubmitted = false;
+
+	/**
 	 *
 	 * @var integer Paging first record indicator. This is the start point in the current data set (0 index based - i.e.
 	 *      0 is the first record).
@@ -222,7 +227,41 @@ class Grid implements GridInterface {
 		return $gridView;
 	}
 
+	/**
+	 * Returns whether the grid is submitted.
+	 * @return bool if the grid is submitted, false otherwise
+	 */
+	public function isSubmitted(): bool {
+		return $this->isSubmitted;
+	}
+
+	protected function doCheckIsSubmitted(Request $request): void {
+		if($this->options['dataMode'] === GridType::DATA_MODE_INLINE) {
+			$this->isSubmitted = false;
+			return;
+		}
+		$paramBag = $this->options['dataMode'] === GridType::DATA_MODE_ENTERPRISE ? $request->request : $request->query;
+
+		$requestString = $paramBag->get('agGrid', null);
+		if($requestString === null) {
+			$this->isSubmitted = false;
+			return;
+		}
+		$requestData = is_array($requestString) ? $requestString : json_decode($requestString, true);
+		if(!isset($requestData['gridId'])) {
+			$this->isSubmitted = false;
+			return;
+		}
+		$gridId = $this->gridType->getId($this->options);
+		if(mb_stripos($gridId, '#') !== 0) {
+			$gridId = '#' . $gridId;
+		}
+		$this->isSubmitted = $requestData['gridId'] === $gridId;
+	}
+
 	public function handleRequest(Request $request): void {
+		$this->doCheckIsSubmitted($request);
+		//todo do nothing if grid was not submitted. BC break?
 		$requestString = $request->request->get('agGrid', null);
 		if($requestString === null) {
 			return;

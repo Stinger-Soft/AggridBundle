@@ -15,6 +15,12 @@
 	{% if grid.vars.versionHash is defined and grid.vars.versionHash is not same as(null) %}
 	, versionHash: {{ grid.vars.versionHash|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.autoResizeManuallyResizedColumns is defined and grid.vars.autoResizeManuallyResizedColumns is not same as(null) %}
+	, autoResizeManuallyResizedColumns: {{ grid.vars.autoResizeManuallyResizedColumns|json_encode|raw }}
+	{% endif %}
+	{% if grid.vars.autoResizeFixedWidthColumns is defined and grid.vars.autoResizeFixedWidthColumns is not same as(null) %}
+	, autoResizeFixedWidthColumns: {{ grid.vars.autoResizeFixedWidthColumns|json_encode|raw }}
+	{% endif %}
 	{% if grid.vars.searchEnabled is defined and grid.vars.searchEnabled is not same as(null) %}
 	, searchEnabled: {{ grid.vars.searchEnabled|json_encode|raw }}
 	{% endif %}

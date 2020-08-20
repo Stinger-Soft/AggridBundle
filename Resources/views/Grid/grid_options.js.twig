@@ -128,23 +128,29 @@
 	{% endif %}
 	, onGridReady: function(params) {
 		{{ varAggrid }}.load(params.columnApi, params.api);
-		{% if grid.vars.dataMode == 'inline' %}
+		{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_INLINE') %}
 			{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns is not same as(false) %}
 				{% if grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_TO_FIT') %}
 					{{ varAggrid }}.getGridApi().sizeColumnsToFit();
 				{% elseif grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_ALL') %}
-					{{ varAggrid }}.autoSizeColumns(true);
+					{{ varAggrid }}.autoSizeColumns();
 				{% endif %}
+			{% endif %}
+		{% elseif grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_ENTERPRISE') %}
+			{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_ALL') %}
+					{{ varAggrid }}.autoSizeColumnsWhenReady();
 			{% endif %}
 		{% endif %}
 	}
-	{% if grid.vars.dataMode != 'inline' %}
+	{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_AJAX') or grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_ENTERPRISE')%}
 		{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns is not same as(false) %}
 	, onFirstDataRendered: function() {
 		{% if grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_TO_FIT') %}
 			{{ varAggrid }}.getGridApi().sizeColumnsToFit();
 		{% elseif grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_ALL') %}
-			{{ varAggrid }}.autoSizeColumns(true);
+			{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_AJAX') %}
+				{{ varAggrid }}.autoSizeColumns();
+			{% endif %}
 		{% endif %}
 		}
 		{% endif %}
@@ -161,9 +167,11 @@
 	}
 	{% endif %}
 	, onColumnResized: function(params) {
-		var length = params.columns.length;
-		for (var i = 0; i < length; i++) {
-			{{ varAggrid }}.addResizedColumn(params.columns[i]);
+		if(params.source == 'uiColumnDragged') {
+			var length = params.columns.length;
+			for (var i = 0; i < length; i++) {
+				{{ varAggrid }}.addResizedColumn(params.columns[i]);
+			}
 		}
 	}
 }

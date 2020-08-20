@@ -173,6 +173,8 @@
 		if (this.options.hasOwnProperty('foreignFormSelectInputId')) {
 			this.foreignFormSelectInputId = this.options.foreignFormSelectInputId;
 		}
+		this.autoResizeManuallyResizedColumns = this.options.hasOwnProperty('autoResizeManuallyResizedColumns') ? this.options.autoResizeManuallyResizedColumns : false;
+		this.autoResizeFixedWidthColumns = this.options.hasOwnProperty('autoResizeFixedWidthColumns') ? this.options.autoResizeFixedWidthColumns : false;
 		this.isServerSide = false;
 		var that = this;
 		if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'ajax') {
@@ -361,7 +363,7 @@
 
 		if (this.options.hasOwnProperty('autosizeColumnsButton') && this.options.autosizeColumnsButton) {
 			jQuery(this.gridId + '_autosize').on('click', function () {
-				that.autoSizeColumns(true);
+				that.autoSizeColumns();
 			});
 		}
 
@@ -394,24 +396,49 @@
 		}
 	};
 
-	StingerSoftAggrid.prototype.autoSizeColumns = function (ignoreWidth) {
-		ignoreWidth = typeof ignoreWidth === "undefined" ? true : ignoreWidth;
+	StingerSoftAggrid.prototype.autoSizeColumnsWhenReady = function () {
+		var that = this;
+		var interval = setInterval(function() {
+			if (that.checkIfBlocksLoaded(that.getGridApi())) {
+				clearInterval(interval);
+				that.autoSizeColumns();
+			}
+		}, 50);
+	};
+
+	StingerSoftAggrid.prototype.checkIfBlocksLoaded = function(api) {
+		if (api.getCacheBlockState() === null) {
+			return false;
+		}
+
+		var status = api.getCacheBlockState()[0]
+			? api.getCacheBlockState()[0].pageStatus
+			: false;
+		return status === 'loaded';
+	};
+
+	StingerSoftAggrid.prototype.autoSizeColumns = function (resizeWithWidthSpecified, resizeManuallyResized) {
+		resizeWithWidthSpecified = typeof resizeWithWidthSpecified === "undefined" ? this.autoResizeFixedWidthColumns : resizeWithWidthSpecified;
+		resizeManuallyResized = typeof resizeManuallyResized === "undefined" ? this.autoResizeManuallyResizedColumns : resizeManuallyResized;
 		columnApi = this.getColumnApi();
 
 		var that = this;
-		var columnIds = [];
+		var columnIdsToResize = [];
 		columnApi.getAllColumns().forEach(function (column) {
-			if (that.resizedColumns.indexOf(column.colId) === -1 || !ignoreWidth) {
-				if (!("width" in column.colDef) || !ignoreWidth) {
-					if ("width" in column.colDef) {
-						columnApi.setColumnWidth(column, column.colDef.width);
-					} else {
-						columnIds.push(column.colId);
-					}
-				}
+			var columnWasManuallyResized = that.resizedColumns.indexOf(column.colId) !== -1;
+			if(columnWasManuallyResized && !resizeManuallyResized) {
+				return;
+			}
+			var columnHasWidthSpecified = "width" in column.colDef;
+			if(columnHasWidthSpecified && !resizeWithWidthSpecified) {
+				columnApi.setColumnWidth(column, column.colDef.width);
+			} else {
+				columnIdsToResize.push(column.colId);;
 			}
 		});
-		columnApi.autoSizeColumns(columnIds);
+		if(columnIdsToResize.length > 0) {
+			columnApi.autoSizeColumns(columnIdsToResize);
+		}
 	};
 
 	/**

@@ -131,6 +131,8 @@ class GridType extends AbstractGridType {
 		$view->vars['clearFilterButton'] = $gridOptions['clearFilterButton'];
 		$view->vars['autosizeColumnsButton'] = $gridOptions['autosizeColumnsButton'];
 		$view->vars['autoResizeColumns'] = $gridOptions['autoResizeColumns'];
+		$view->vars['autoResizeManuallyResizedColumns'] = $gridOptions['autoResizeManuallyResizedColumns'];
+		$view->vars['autoResizeFixedWidthColumns'] = $gridOptions['autoResizeFixedWidthColumns'];
 
 		$view->vars['form_id'] = $gridOptions['form_id'];
 		$view->vars['templateTopBar'] = $gridOptions['templateTopBar'];
@@ -225,6 +227,11 @@ class GridType extends AbstractGridType {
 
 		$resolver->setDefault('autoResizeColumns', false);
 		$resolver->setAllowedValues('autoResizeColumns', [false, self::COLUMN_AUTO_SIZE_ALL, self::COLUMN_AUTO_SIZE_TO_FIT]);
+
+		$resolver->setDefault('autoResizeManuallyResizedColumns', false);
+		$resolver->setAllowedTypes('autoResizeManuallyResizedColumns', 'bool');
+		$resolver->setDefault('autoResizeFixedWidthColumns', false);
+		$resolver->setAllowedTypes('autoResizeFixedWidthColumns', 'bool');
 	}
 
 	private function configureAggridOptions(OptionsResolver $resolver): void {
@@ -470,7 +477,7 @@ class GridType extends AbstractGridType {
 
 		$optionsResolver->setDefault('toolPanel', null);
 		$optionsResolver->setAllowedTypes('toolPanel', ['string', 'null']);
-		$optionsResolver->setNormalizer('toolPanel', function (Options $options, $toolPanel) {
+		$optionsResolver->setNormalizer('toolPanel', static function (Options $options, $toolPanel) {
 			if($toolPanel === null && $options['toolPanelFramework'] === null) {
 				throw new InvalidOptionsException('You must specify a value for either "toolPanel" or "toolPanelFramework" !');
 			}
@@ -479,7 +486,7 @@ class GridType extends AbstractGridType {
 
 		$optionsResolver->setDefault('toolPanelFramework', null);
 		$optionsResolver->setAllowedTypes('toolPanelFramework', ['string', 'null']);
-		$optionsResolver->setNormalizer('toolPanelFramework', function (Options $options, $toolPanel) {
+		$optionsResolver->setNormalizer('toolPanelFramework', static function (Options $options, $toolPanel) {
 			if($toolPanel === null && $options['toolPanel'] === null) {
 				throw new InvalidOptionsException('You must specify a value for either "toolPanel" or "toolPanelFramework" !');
 			}

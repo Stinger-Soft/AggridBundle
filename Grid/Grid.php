@@ -207,6 +207,13 @@ class Grid implements GridInterface {
 	}
 
 	/**
+	 * @return array|QueryBuilder
+	 */
+	public function getDataSource() {
+		return $this->dataSource ?: $this->queryBuilder;
+	}
+
+	/**
 	 * Get the query builder this table operates on.
 	 *
 	 * @return QueryBuilder the query builder this table operates on.

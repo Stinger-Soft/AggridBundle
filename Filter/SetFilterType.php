@@ -87,9 +87,7 @@ class SetFilterType extends AbstractFilterType {
 				$rawData = array_values($rawData);
 			}
 		} else if(is_callable($options['data'])) {
-			if($dataSource instanceof QueryBuilder) {
-				$rawData = call_user_func($options['data'], $filter, $options, $dataSource, $queryPath, $rootAlias);
-			}
+			$rawData = call_user_func($options['data'], $filter, $options, $dataSource, $queryPath, $rootAlias);
 		}
 
 		$translationDomain = $options['translation_domain'];

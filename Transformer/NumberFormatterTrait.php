@@ -22,10 +22,10 @@ trait NumberFormatterTrait {
 		}
 		if(isset($options['number_formatter_attributes']) && is_array($options['number_formatter_attributes'])) {
 			foreach($options['number_formatter_attributes'] as $attributeName => $attributeValue) {
-				$formatter->setTextAttribute($attributeName, $attributeValue);
+				$formatter->setAttribute($attributeName, $attributeValue);
 			}
 		}
-		if(isset($options['number_formatter_text_attributes']) && is_array($options['number_formatter_attributes'])) {
+		if(isset($options['number_formatter_text_attributes']) && is_array($options['number_formatter_text_attributes'])) {
 			foreach($options['number_formatter_text_attributes'] as $attributeName => $attributeValue) {
 				$formatter->setTextAttribute($attributeName, $attributeValue);
 			}

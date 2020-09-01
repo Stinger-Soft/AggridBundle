@@ -41,6 +41,6 @@ class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 		if(is_callable($currency)) {
 			$currency = $currency($item, $column->getPath(), $options);
 		}
-		return $formatter->formatCurrency($value, $currency);
+		return $formatter->formatCurrency($value ?? 0.0, $currency);
 	}
 }

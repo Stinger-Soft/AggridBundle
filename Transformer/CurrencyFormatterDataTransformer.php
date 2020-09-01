@@ -21,6 +21,8 @@ use StingerSoft\AggridBundle\Column\ColumnInterface;
  */
 class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 
+	use NumberFormatterTrait;
+
 	/**
 	 * @param ColumnInterface $column
 	 * @param                 $item
@@ -34,14 +36,10 @@ class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 		if($value === null && !$formatNullValue) {
 			return null;
 		}
-		if($options['number_formatter_pattern'] === null) {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
-		} else {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
-		}
+		$formatter = $this->getNumberFormatter($options);
 		$currency = $options['currency'];
 		if(is_callable($currency)) {
-			$currency = call_user_func($currency, $item, $column->getPath(), $options);
+			$currency = $currency($item, $column->getPath(), $options);
 		}
 		return $formatter->formatCurrency($value, $currency);
 	}

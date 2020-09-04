@@ -340,7 +340,7 @@ class Grid implements GridInterface {
 		$endRow = $requestData['endRow'] ?? 0;
 		$count = $endRow - $offset;
 		$order = $requestData['sortModel'] ?? [];
-		$search = $requestData['search'] ?? [];
+		$search = $requestData['search'] ?? '';
 		$filter = $requestData['filterModel'] ?? [];
 		$groupCols = $requestData['rowGroupCols'] ?? [];
 		$groupColsKey = $requestData['groupKeys'] ?? [];

@@ -176,7 +176,7 @@
 			// TODO group keys are missing, not sure how to implement them....
 			requestObject['groupKeys'] = [];
 		}
-		return requestObject;
+		return {'agGrid': requestObject};
 	};
 
 	StingerSoftAggrid.prototype.getRequestParametersAsJson = function() {

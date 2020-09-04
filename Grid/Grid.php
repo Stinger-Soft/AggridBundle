@@ -331,7 +331,11 @@ class Grid implements GridInterface {
 
 	protected function parseRequest(Request $request): array {
 		$requestString = $request->request->get('agGrid', null);
-		$requestData = $requestString !== null ? json_decode($requestString, true) : [];
+		if($requestString !== null) {
+			$requestData = is_string($requestString) ? json_decode($requestString, true) : $requestString;
+		} else {
+			$requestData = [];
+		}
 		$offset = $requestData['startRow'] ?? 0;
 		$endRow = $requestData['endRow'] ?? 0;
 		$count = $endRow - $offset;
@@ -493,17 +497,14 @@ class Grid implements GridInterface {
 		return $this->applyQueryHints($this->queryBuilder->getQuery())->getArrayResult();
 	}
 
-	public function getQueryBuilderMatchingRequest(Request $request) : ?QueryBuilder {
+	public function getQueryBuilderMatchingRequest(Request $request) : QueryBuilder {
 		$this->queryBuilder = clone $this->originalQueryBuilder;
 		[$offset, $count, $order, $search, $filter, $groupColumns, $groupColumnKeys] = $this->parseRequest($request);
 		return $this->applyQueryBuilderExpressions($order, $search, $filter, $groupColumns, $groupColumnKeys);
 	}
 
 
-	protected function applyQueryBuilderExpressions(array $orderBy, ?string $search, array $filter, array $groupColumns, array $groupColumnKeys): ?QueryBuilder {
-		if($this->queryBuilder === null) {
-			return null;
-		}
+	protected function applyQueryBuilderExpressions(array $orderBy, ?string $search, array $filter, array $groupColumns, array $groupColumnKeys): QueryBuilder {
 		$this->applyOrderBy($orderBy);
 		$this->applySearch($search);
 		$this->applyFilter($filter);

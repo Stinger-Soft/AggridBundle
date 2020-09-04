@@ -160,6 +160,30 @@
 		return this;
 	};
 
+	StingerSoftAggrid.prototype.getRequestParameters = function() {
+		var requestObject = {};
+		requestObject['search'] = this.quickFilterSearchString || '';
+		requestObject['gridId'] = this.getGridId();
+		requestObject['filterModel'] = this.getGridApi().getFilterModel();
+		requestObject['sortModel'] =  this.getGridApi().getSortModel();
+
+		if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'enterprise') {
+			var rowParams = this.getGridApi().rowModel.cacheParams;
+			requestObject['rowGroupCols'] = rowParams.rowGroupCols || [];
+			requestObject['valueCols'] = rowParams.valueCols || [];
+			requestObject['pivotCols'] = rowParams.pivotCols || [];
+			requestObject['pivotMode'] = this.getGridApi().columnController.isPivotMode();
+			// TODO group keys are missing, not sure how to implement them....
+			requestObject['groupKeys'] = [];
+		}
+		return requestObject;
+	};
+
+	StingerSoftAggrid.prototype.getRequestParametersAsJson = function() {
+		var requestObject = this.getRequestParameters();
+		return JSON.stringify(requestObject);
+	};
+
 	StingerSoftAggrid.prototype.handleOptions = function () {
 		if (this.options.hasOwnProperty('persistState')) {
 			this.persistState = this.options.persistState;

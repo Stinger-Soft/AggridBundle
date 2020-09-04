@@ -227,7 +227,7 @@
 					requestObject['gridId'] = that.getGridId();
 					that.gridOptions.api.showLoadingOverlay();
 					this.ajaxReq = jQuery.post(this.url, {
-						'agGrid': JSON.stringify(requestObject),
+						'agGrid': requestObject,
 					}, function (data) {
 						params.successCallback(data.items, data.total);
 						that.gridOptions.api.hideOverlay();
@@ -242,7 +242,6 @@
 		if (this.options.hasOwnProperty('defaultOrderProperties')) {
 			var orderColumns = this.options.defaultOrderProperties || [];
 			var keys = Object.keys(orderColumns);
-			var that = this;
 			keys.forEach(function(path) {
 				var column = that.gridOptions.columnApi.getColumn(path);
 				if (column !== null) {

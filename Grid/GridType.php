@@ -124,6 +124,7 @@ class GridType extends AbstractGridType {
 		$view->vars['total_results_query_builder'] = $gridOptions['total_results_query_builder'];
 		$view->vars['default_order_property'] = $gridOptions['default_order_property'];
 		$view->vars['default_order_direction'] = $gridOptions['default_order_direction'];
+		$view->vars['default_orders'] = $gridOptions['default_orders'];
 		$view->vars['persistState'] = $gridOptions['persistState'];
 		$view->vars['searchEnabled'] = $gridOptions['searchEnabled'];
 		$view->vars['paginationDropDown'] = $gridOptions['paginationDropDown'];
@@ -161,9 +162,32 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('total_results_query_builder', ['null', QueryBuilder::class]);
 
 		$resolver->setDefault('default_order_property', 'id');
-		$resolver->setAllowedTypes('default_order_property', ['string', 'null']);
+		$resolver->setAllowedTypes('default_order_property', ['null', 'string', 'null']);
 		$resolver->setDefault('default_order_direction', 'asc');
 		$resolver->setAllowedValues('default_order_direction', ['asc', 'desc']);
+
+		$resolver->setDefault('default_orders', null);
+		$resolver->setAllowedTypes('default_orders', ['array', 'null']);
+		$resolver->setNormalizer('default_orders', static function (Options $options, $valueToNormalize) {
+			if(is_array($valueToNormalize) && count($valueToNormalize) > 0) {
+				foreach($valueToNormalize as $key => $direction) {
+					$hasValidKey = is_string($key);
+					$fixedDirection = strtolower(trim($direction));
+					$hasValidDirection = $fixedDirection === 'asc' || $fixedDirection === 'desc';
+					if(!$hasValidKey || !$hasValidDirection) {
+						$message = '';
+						if(!$hasValidKey) {
+							$message = sprintf('The option "%s" with value [%s => %s] is invalid. Entry keys must be strings as they represent query paths and not %s! ', 'default_orders', $key, $direction, $key);
+						}
+						if(!$hasValidDirection) {
+							$message .= sprintf('The option "%s" with value [%s => %s] is invalid. Entry values must either be "asc" or "desc" but not %s!', 'default_orders', $key, $direction, $direction);
+						}
+						throw new InvalidOptionsException($message);
+					}
+				}
+			}
+			return $valueToNormalize;
+		});
 
 		$resolver->setDefault('height', '50vh');
 

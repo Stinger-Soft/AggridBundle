@@ -215,7 +215,17 @@
 			};
 			this.gridOptions.api.setServerSideDatasource(serverSideDatasource);
 		}
-		if (this.options.hasOwnProperty('defaultOrderProperty')) {
+		if (this.options.hasOwnProperty('defaultOrderProperties')) {
+			var orderColumns = this.options.defaultOrderProperties || [];
+			var keys = Object.keys(orderColumns);
+			var that = this;
+			keys.forEach(function(path) {
+				var column = that.gridOptions.columnApi.getColumn(path);
+				if (column !== null) {
+					column.setSort( orderColumns[path] || 'asc');
+				}
+			});
+		} else if (this.options.hasOwnProperty('defaultOrderProperty')) {
 			var column = this.gridOptions.columnApi.getColumn(this.options.defaultOrderProperty);
 			if (column !== null) {
 				column.setSort(this.options.hasOwnProperty('defaultOrderDirection') ? this.options.defaultOrderDirection : 'asc');

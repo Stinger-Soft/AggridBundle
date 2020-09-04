@@ -42,4 +42,7 @@
 	{% if grid.vars.default_order_direction is defined and grid.vars.default_order_direction is not same as(null) %}
 	, defaultOrderDirection:  {{ grid.vars.default_order_direction|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.default_orders is defined and grid.vars.default_orders is not same as(null)  %}
+	, defaultOrderProperties:  {{ grid.vars.default_orders|json_encode|raw }}
+	{% endif %}
 }

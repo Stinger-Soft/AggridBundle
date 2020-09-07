@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle;
 
-use Pec\Bundle\ShopBundle\DependencyInjection\PecShopExtension;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\DependencyInjection\Compiler\GridCompilerPass;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;

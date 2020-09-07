@@ -32,7 +32,9 @@ class GridType extends AbstractGridType {
 	public const COLUMN_AUTO_SIZE_TO_FIT = 'sizeToFit';
 	public const COLUMN_AUTO_SIZE_ALL = 'all';
 
-	private $licenseKey;
+	public const DEFAULT_IDENTITY_COLUMN_SEPARATOR = "\0";
+
+	protected $licenseKey;
 
 	public function __construct(ParameterBagInterface $parameterBag) {
 		if($parameterBag->has(StingerSoftAggridBundle::PARAMETER_LICENSE_KEY)) {
@@ -69,7 +71,7 @@ class GridType extends AbstractGridType {
 		$this->configureAggridOptions($resolver);
 	}
 
-	private function configureDefaultViewValues(GridView $view, array $gridOptions, array $columns): void {
+	protected function configureDefaultViewValues(GridView $view, array $gridOptions, array $columns): void {
 		$view->vars['id'] = $gridOptions['attr']['id'] = $view->getGridId();
 		$view->vars['aggrid_id'] = str_replace('-', '_', $view->vars['id']);
 		$view->vars['aggrid_js_id'] = str_replace([' ', '#'], ['_', ''], $view->vars['aggrid_id']);
@@ -86,7 +88,7 @@ class GridType extends AbstractGridType {
 
 	}
 
-	private function configureAggridViewValues(GridView $view, array $gridOptions): void {
+	protected function configureAggridViewValues(GridView $view, array $gridOptions): void {
 		$view->vars['enableBrowserTooltips'] = $gridOptions['enableBrowserTooltips'];
 		$view->vars['enableRangeSelection'] = $gridOptions['enableRangeSelection'];
 		$view->vars['enterpriseLicense'] = $gridOptions['enterpriseLicense'];
@@ -119,7 +121,7 @@ class GridType extends AbstractGridType {
 		$view->vars['components'] = $gridOptions['components'];
 	}
 
-	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
+	protected function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
 		$view->vars['translation_domain'] = $gridOptions['translation_domain'];
 		$view->vars['total_results_query_builder'] = $gridOptions['total_results_query_builder'];
 		$view->vars['default_order_property'] = $gridOptions['default_order_property'];
@@ -151,7 +153,7 @@ class GridType extends AbstractGridType {
 		$view->vars['versionHash'] = $gridOptions['versionHash'];
 	}
 
-	private function configureStingerOptions(OptionsResolver $resolver): void {
+	protected function configureStingerOptions(OptionsResolver $resolver): void {
 		$resolver->setDefault('translation_domain', 'messages');
 		$resolver->setAllowedTypes('translation_domain', [
 			'string',
@@ -188,7 +190,7 @@ class GridType extends AbstractGridType {
 			}
 			return $valueToNormalize;
 		});
-		$resolver->setDefault('identityColumnSeparator', "\0");
+		$resolver->setDefault('identityColumnSeparator', self::DEFAULT_IDENTITY_COLUMN_SEPARATOR);
 		$resolver->setAllowedTypes('identityColumnSeparator', 'string');
 
 		$resolver->setDefault('height', '50vh');
@@ -260,7 +262,7 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('autoResizeFixedWidthColumns', 'bool');
 	}
 
-	private function configureAggridOptions(OptionsResolver $resolver): void {
+	protected function configureAggridOptions(OptionsResolver $resolver): void {
 		$resolver->setDefault('components', null);
 		$resolver->setAllowedTypes('components', ['null', 'array']);
 
@@ -374,7 +376,7 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);
 		$resolver->setNormalizer('menuTabs', static function (Options $options, $value) {
 			if($value === null) {
-				return $value;
+				return null;
 			}
 			if(is_array($value)) {
 				foreach($value as $item) {
@@ -487,7 +489,8 @@ class GridType extends AbstractGridType {
 		throw new InvalidOptionsException(sprintf('"%s" is not a valid option for the sidebar as it must be an array!', (string)$sidebarOption));
 	}
 
-	protected function validateToolPanel(Options $options, $valueToNormalize) {
+	/** @noinspection PhpUnusedParameterInspection */
+	protected function validateToolPanel(Options $options, $valueToNormalize): void {
 		$optionsResolver = new OptionsResolver();
 		$optionsResolver->setRequired('id');
 		$optionsResolver->setAllowedTypes('id', 'string');

@@ -507,7 +507,7 @@
 	StingerSoftAggrid.prototype.autoSizeColumns = function (resizeWithWidthSpecified, resizeManuallyResized) {
 		resizeWithWidthSpecified = typeof resizeWithWidthSpecified === "undefined" ? this.autoResizeFixedWidthColumns : resizeWithWidthSpecified;
 		resizeManuallyResized = typeof resizeManuallyResized === "undefined" ? this.autoResizeManuallyResizedColumns : resizeManuallyResized;
-		columnApi = this.getColumnApi();
+		var columnApi = this.getColumnApi();
 
 		var that = this;
 		var columnIdsToResize = [];
@@ -520,7 +520,7 @@
 			if(columnHasWidthSpecified && !resizeWithWidthSpecified) {
 				columnApi.setColumnWidth(column, column.colDef.width);
 			} else {
-				columnIdsToResize.push(column.colId);;
+				columnIdsToResize.push(column.colId);
 			}
 		});
 		if(columnIdsToResize.length > 0) {

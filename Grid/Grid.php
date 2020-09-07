@@ -111,6 +111,9 @@ class Grid implements GridInterface {
 	/** @var Query\Expr[] */
 	protected $filterExpressions = [];
 
+	/** @var Query\Expr[] */
+	protected $idExpressions = [];
+
 	/**
 	 * @var bool
 	 */
@@ -138,6 +141,7 @@ class Grid implements GridInterface {
 	protected $requestFilter;
 	protected $requestGroupCols;
 	protected $requestGroupColsKey;
+	protected $requestIds;
 
 	/**
 	 * Constructs a new grid.
@@ -287,7 +291,6 @@ class Grid implements GridInterface {
 		return $this->filterExpressions;
 	}
 
-
 	protected function doCheckIsSubmitted(Request $request): void {
 		if($this->options['dataMode'] === GridType::DATA_MODE_INLINE) {
 			$this->isSubmitted = false;
@@ -319,7 +322,7 @@ class Grid implements GridInterface {
 		if($requestString === null) {
 			return;
 		}
-		[$offset, $count, $order, $search, $filter, $groupCols, $groupColsKey] = $this->parseRequest($request);
+		[$offset, $count, $order, $search, $filter, $groupCols, $groupColsKey, $ids] = $this->parseRequest($request);
 		$this->requestOffset = $offset;
 		$this->requestCount = $count;
 		$this->requestOrder = $order;
@@ -327,9 +330,10 @@ class Grid implements GridInterface {
 		$this->requestFilter = $filter;
 		$this->requestGroupCols = $groupCols;
 		$this->requestGroupColsKey = $groupColsKey;
+		$this->requestIds = $ids;
 	}
 
-	protected function parseRequest(Request $request): array {
+	protected function parseRequest(?Request $request): array {
 		$requestString = $request->request->get('agGrid', null);
 		if($requestString !== null) {
 			$requestData = is_string($requestString) ? json_decode($requestString, true) : $requestString;
@@ -344,6 +348,7 @@ class Grid implements GridInterface {
 		$filter = $requestData['filterModel'] ?? [];
 		$groupCols = $requestData['rowGroupCols'] ?? [];
 		$groupColsKey = $requestData['groupKeys'] ?? [];
+		$ids = $requestData['__ids'] ?? [];
 
 		$groupPathSize = count($groupColsKey);
 		if($groupPathSize > 0) {
@@ -359,7 +364,7 @@ class Grid implements GridInterface {
 			}
 		}
 		return [
-			$offset, $count, $order, $search, $filter, $groupCols, $groupColsKey,
+			$offset, $count, $order, $search, $filter, $groupCols, $groupColsKey, $ids,
 		];
 	}
 
@@ -482,7 +487,7 @@ class Grid implements GridInterface {
 		$this->queryBuilder = clone $this->originalQueryBuilder;
 		if($this->options['dataMode'] === GridType::DATA_MODE_ENTERPRISE) {
 			$paginationOptions = $this->getPaginationOptions();
-			$this->applyQueryBuilderExpressions($this->requestOrder, $this->requestSearch, $this->requestFilter, $this->requestGroupCols, $this->requestGroupColsKey);
+			$this->applyQueryBuilderExpressions($this->requestOrder, $this->requestSearch, $this->requestFilter, $this->requestGroupCols, $this->requestGroupColsKey, $this->requestIds);
 			$query = $this->queryBuilder->getQuery();
 			if(!$this->options['hydrateAsObject']) {
 				$query->setHydrationMode(Query::HYDRATE_ARRAY);
@@ -497,18 +502,31 @@ class Grid implements GridInterface {
 		return $this->applyQueryHints($this->queryBuilder->getQuery())->getArrayResult();
 	}
 
-	public function getQueryBuilderMatchingRequest(Request $request) : QueryBuilder {
+	public function getQueryBuilderMatchingRequest(Request $request): QueryBuilder {
 		$this->queryBuilder = clone $this->originalQueryBuilder;
-		[$offset, $count, $order, $search, $filter, $groupColumns, $groupColumnKeys] = $this->parseRequest($request);
-		return $this->applyQueryBuilderExpressions($order, $search, $filter, $groupColumns, $groupColumnKeys);
+		[
+			$offset, $count, $order, $search, $filter, $groupColumns, $groupColumnKeys, $ids,
+		] = $this->parseRequest($request);
+		return $this->applyQueryBuilderExpressions($order, $search, $filter, $groupColumns, $groupColumnKeys, $ids);
 	}
 
+	public function getQueryBuilderMatchingIds(array $ids): QueryBuilder {
+		$this->queryBuilder = clone $this->originalQueryBuilder;
+		[
+			$offset, $count, $order, $search, $filter, $groupColumns, $groupColumnKeys, $ids,
+		] = $this->parseRequest(null);
+		return $this->applyQueryBuilderExpressions($order, $search, $filter, $groupColumns, $groupColumnKeys, $ids);
+	}
 
-	protected function applyQueryBuilderExpressions(array $orderBy, ?string $search, array $filter, array $groupColumns, array $groupColumnKeys): QueryBuilder {
+	protected function applyQueryBuilderExpressions(array $orderBy, ?string $search, array $filter, array $groupColumns, array $groupColumnKeys, array $ids): QueryBuilder {
+		if(count($ids)) {
+			$this->applyIds($ids);
+		} else {
+			$this->applySearch($search);
+			$this->applyFilter($filter);
+			$this->applyGrouping($groupColumns, $groupColumnKeys);
+		}
 		$this->applyOrderBy($orderBy);
-		$this->applySearch($search);
-		$this->applyFilter($filter);
-		$this->applyGrouping($groupColumns, $groupColumnKeys);
 		return $this->queryBuilder;
 	}
 
@@ -868,6 +886,36 @@ class Grid implements GridInterface {
 		}
 	}
 
+	protected function applyIds(array $ids): void {
+		$this->idExpressions = [];
+		if(is_array($ids)) {
+			$bindingCounter = 0;
+			$ors = [];
+			foreach($ids as $idEntry) {
+				$ands = [];
+				foreach($idEntry as $columnId => $value) {
+					$column = $this->columns[$columnId];
+					$idParameterBinding = ':_id_' . $bindingCounter;
+					$queryPath = $column->getQueryPath();
+					if(false === strpos($queryPath, '.')) {
+						$queryPath = $this->rootAlias . '.' . $queryPath;
+					}
+					if(is_array($value)) {
+						$expression = $this->queryBuilder->expr()->in($queryPath, $idParameterBinding);
+					} else {
+						$expression = $this->queryBuilder->expr()->eq($queryPath, $idParameterBinding);
+					}
+					$this->queryBuilder->setParameter($idParameterBinding, $value);
+					$bindingCounter++;
+					$ands[] = $expression;
+					$this->idExpressions[] = $expression;
+				}
+				$ors[] = $this->queryBuilder->expr()->andX()->addMultiple($ands);
+			}
+			$this->queryBuilder->andWhere($this->queryBuilder->expr()->orX()->addMultiple($ors));
+		}
+	}
+
 	/**
 	 * Get the names / ids of columns which are providing identity.
 	 *
@@ -875,7 +923,7 @@ class Grid implements GridInterface {
 	 *
 	 * @return string[] the names / ids of columns which are providing identity.
 	 */
-	protected function getIdentifyingPaths() : array {
+	protected function getIdentifyingPaths(): array {
 		$result = [];
 		foreach($this->columns as $columnId => $column) {
 			if($column->isIdentityProvider()) {

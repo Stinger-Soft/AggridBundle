@@ -161,37 +161,53 @@
 	};
 
 	StingerSoftAggrid.prototype.getRowNodeId = function(data) {
-		var that = this;
-		var identityColumns = this.options.hasOwnProperty('identityColumns') ? this.options.identityColumns : {};
-		var identityColumnSeparator = this.options.hasOwnProperty('identityColumnSeparator') ? this.options.identityColumnSeparator : '\0';
-		var paths = Object.keys(identityColumns);
-		var idParts = [];
+		const that = this;
+		const identityColumns = this.options.hasOwnProperty('identityColumns') ? this.options.identityColumns : {};
+		const paths = Object.keys(identityColumns);
+		let idParts = {};
 		paths.forEach(function(path) {
-			var valueGetterName = identityColumns[path];
-			var valueGetter = StingerSoftAggrid.Getter.getGetter(valueGetterName);
-			var params = {'data': data};
-			var column = that.grid.gridOptions.columnApi.getColumn(path);
+			const valueGetterName = identityColumns[path];
+			const valueGetter = StingerSoftAggrid.Getter.getGetter(valueGetterName);
+			let params = {'data': data};
+			const column = that.grid.gridOptions.columnApi.getColumn(path);
 			if(column !== null) {
 				params['column'] = column;
 			} else {
 				params['column'] = {'colId': path};
 			}
-			var idValue = valueGetter(params);
-			idParts.push(idValue);
+			idParts[path] = valueGetter(params);
 		});
-		var idString = idParts.join(identityColumnSeparator);
-		return idString;
+		return JSON.stringify(idParts);
 	}
 
-	StingerSoftAggrid.prototype.getRequestParameters = function() {
-		var requestObject = {};
+	StingerSoftAggrid.prototype.getRowNodeIds = function(filteredAndSorted) {
+		const that = this;
+		let rowIds = [];
+		let hasIdentityColumns = this.options.hasOwnProperty('identityColumns') && this.options.identityColumns;
+		let rowNodeCollector = function(rowNode) {
+			let nodeId = rowNode.id;
+			if(hasIdentityColumns) {
+				nodeId = JSON.parse(nodeId);
+			}
+			rowIds.push(nodeId);
+		};
+		if (this.isServerSide || (typeof filteredAndSorted !== 'undefined' && !filteredAndSorted)) {
+			this.getGridApi().forEachNode(rowNodeCollector);
+		} else {
+			this.getGridApi().forEachNodeAfterFilterAndSort(rowNodeCollector);
+		}
+		return rowIds;
+	}
+
+	StingerSoftAggrid.prototype.getRequestParameters = function(addIds, filteredAndSorted) {
+		let requestObject = {};
 		requestObject['search'] = this.quickFilterSearchString || '';
 		requestObject['gridId'] = this.getGridId();
 		requestObject['filterModel'] = this.getGridApi().getFilterModel();
 		requestObject['sortModel'] =  this.getGridApi().getSortModel();
 
-		if (this.options.hasOwnProperty('dataMode') && this.options.dataMode === 'enterprise') {
-			var rowParams = this.getGridApi().rowModel.cacheParams;
+		if (this.isServerSide) {
+			const rowParams = this.getGridApi().rowModel.cacheParams;
 			requestObject['rowGroupCols'] = rowParams.rowGroupCols || [];
 			requestObject['valueCols'] = rowParams.valueCols || [];
 			requestObject['pivotCols'] = rowParams.pivotCols || [];
@@ -199,11 +215,21 @@
 			// TODO group keys are missing, not sure how to implement them....
 			requestObject['groupKeys'] = [];
 		}
+		if(addIds) {
+			requestObject['__ids'] = this.getRowNodeIds(filteredAndSorted);
+		}
 		return {'agGrid': requestObject};
 	};
 
-	StingerSoftAggrid.prototype.getRequestParametersAsJson = function() {
-		var requestObject = this.getRequestParameters();
+	StingerSoftAggrid.prototype.getRequestIds = function(filteredAndSorted) {
+		let requestObject = {};
+		requestObject['gridId'] = this.getGridId();
+		requestObject['__ids'] = this.getRowNodeIds(filteredAndSorted);
+		return {'agGrid': requestObject};
+	};
+
+	StingerSoftAggrid.prototype.getRequestParametersAsJson = function(addIds, filteredAndSorted) {
+		const requestObject = this.getRequestParameters(addIds, filteredAndSorted);
 		return JSON.stringify(requestObject);
 	};
 

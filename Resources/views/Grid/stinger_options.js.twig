@@ -45,4 +45,10 @@
 	{% if grid.vars.default_orders is defined and grid.vars.default_orders is not same as(null)  %}
 	, defaultOrderProperties:  {{ grid.vars.default_orders|json_encode|raw }}
 	{% endif %}
+	{% if grid.identityColumns is defined and grid.identityColumns is not same as(null) and grid.identityColumns|length > 0 %}
+	, identityColumns: {{ grid.identityColumns|json_encode|raw }}
+	{% if grid.vars.identityColumnSeparator is defined and grid.vars.identityColumnSeparator is not same as(null)  %}
+	, identityColumnSeparator: {{ grid.vars.identityColumnSeparator|json_encode|raw }}
+	{% endif %}
+	{% endif %}
 }

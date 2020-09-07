@@ -141,6 +141,12 @@ class ColumnType extends AbstractColumnType {
 			AbstractColumnType::SERVER_SIDE_ONLY,
 		]);
 
+		$resolver->setDefault('providesIdentity', false);
+		$resolver->setAllowedTypes('providesIdentity', 'bool');
+
+		$resolver->setDefault('identityValueGetter', 'ValueGetter');
+		$resolver->setAllowedTypes('identityValueGetter', 'string');
+
 		$resolver->setDefault('exportable', true);
 		$resolver->setAllowedTypes('exportable', 'bool');
 
@@ -215,7 +221,7 @@ class ColumnType extends AbstractColumnType {
 			'callable',
 			'null',
 		]);
-		$resolver->setNormalizer('route', function (Options $options, $value) {
+		$resolver->setNormalizer('route', static function (Options $options, $value) {
 			if(is_array($value)) {
 				if(!array_key_exists('route', $value)) {
 					throw new InvalidOptionsException('When using "route" option with an array value, you must add a "route" key pointing to the route to be used!');
@@ -442,6 +448,8 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['route'] = $options['route'];
 		$view->vars['renderable'] = $options['renderable'];
 		$view->vars['clipboardValueFormatter'] = $options['clipboardValueFormatter'];
+		$view->vars['providesIdentity'] = $options['providesIdentity'];
+		$view->vars['identityValueGetter'] = $options['identityValueGetter'];
 	}
 
 	protected function buildAggridView(ColumnView $view, ColumnInterface $column, array $options): void {

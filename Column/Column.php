@@ -124,6 +124,11 @@ class Column implements ColumnInterface {
 	protected $searchable = false;
 
 	/**
+	 * @var bool whether the column provides identity
+	 */
+	protected $identityProvider = false;
+
+	/**
 	 * @var Filter the filter object, resolved from filter type option and filter options option.
 	 * The object is only created for the view and as such not available before the view was created.
 	 */
@@ -207,14 +212,21 @@ class Column implements ColumnInterface {
 	}
 
 	/**
-	 * @inheritdoc
+	 * {@inheritDoc}
 	 */
 	public function isOrderable(): bool {
 		return $this->orderable;
 	}
 
 	/**
-	 * @inheritdoc
+	 * {@inheritDoc}
+	 */
+	public function isIdentityProvider() : bool {
+		return $this->identityProvider;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function isFilterable(): bool {
 		return $this->filterable;
@@ -444,6 +456,7 @@ class Column implements ColumnInterface {
 		$this->orderable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['orderable'], $dataMode);
 		$this->filterable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['filterable'], $dataMode);
 		$this->searchable = AbstractColumnType::getBooleanValueDependingOnClientOrServer($this->columnOptions['searchable'], $dataMode);
+		$this->identityProvider = $this->columnOptions['providesIdentity'];
 		$this->serverSideOrderDelegate = $this->columnOptions['order_server_delegate'];
 		$this->serverSideSearchDelegate = $this->columnOptions['search_server_delegate'];
 

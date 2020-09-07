@@ -869,6 +869,23 @@ class Grid implements GridInterface {
 	}
 
 	/**
+	 * Get the names / ids of columns which are providing identity.
+	 *
+	 * A column is providing identity, if column->isIdentityProvider() returns true
+	 *
+	 * @return string[] the names / ids of columns which are providing identity.
+	 */
+	protected function getIdentifyingPaths() : array {
+		$result = [];
+		foreach($this->columns as $columnId => $column) {
+			if($column->isIdentityProvider()) {
+				$result[] = $column->getPath();
+			}
+		}
+		return $result;
+	}
+
+	/**
 	 * Get the names / ids of columns which are orderable.
 	 *
 	 * A column is orderable, if column->isOrderable() returns true

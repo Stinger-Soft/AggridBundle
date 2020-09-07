@@ -160,6 +160,29 @@
 		return this;
 	};
 
+	StingerSoftAggrid.prototype.getRowNodeId = function(data) {
+		var that = this;
+		var identityColumns = this.options.hasOwnProperty('identityColumns') ? this.options.identityColumns : {};
+		var identityColumnSeparator = this.options.hasOwnProperty('identityColumnSeparator') ? this.options.identityColumnSeparator : '\0';
+		var paths = Object.keys(identityColumns);
+		var idParts = [];
+		paths.forEach(function(path) {
+			var valueGetterName = identityColumns[path];
+			var valueGetter = StingerSoftAggrid.Getter.getGetter(valueGetterName);
+			var params = {'data': data};
+			var column = that.grid.gridOptions.columnApi.getColumn(path);
+			if(column !== null) {
+				params['column'] = column;
+			} else {
+				params['column'] = {'colId': path};
+			}
+			var idValue = valueGetter(params);
+			idParts.push(idValue);
+		});
+		var idString = idParts.join(identityColumnSeparator);
+		return idString;
+	}
+
 	StingerSoftAggrid.prototype.getRequestParameters = function() {
 		var requestObject = {};
 		requestObject['search'] = this.quickFilterSearchString || '';

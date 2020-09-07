@@ -24,10 +24,12 @@ class GridView extends AbstractBaseView {
 	 * @var array the options for the grid type, containing information such as the translation_domain etc.
 	 */
 	protected $gridOptions;
+
 	/**
 	 * @var ColumnView[] the views for all columns belonging to the grid
 	 */
 	protected $columnViews;
+
 	/**
 	 * @var Column[] the columns belonging to the grid
 	 */
@@ -45,6 +47,7 @@ class GridView extends AbstractBaseView {
 	 * @var GridTypeInterface the grid type instance
 	 */
 	protected $gridType;
+
 	/**
 	 * @var GridInterface the grid instance
 	 */
@@ -60,8 +63,15 @@ class GridView extends AbstractBaseView {
 	 */
 	protected $filterColumns;
 
-	/** @var array */
+	/**
+	 * @var array
+	 */
 	protected $additionalComponents;
+
+	/**
+	 * @var null|ColumnInterface[]
+	 */
+	protected $identityColumns;
 
 	/**
 	 * GridView Constructor.
@@ -225,6 +235,19 @@ class GridView extends AbstractBaseView {
 			}
 		}
 		return $this->filterColumns;
+	}
+
+	public function getIdentityColumns(): array {
+		if($this->identityColumns === null) {
+			$this->identityColumns = [];
+			foreach($this->columns as $index => $column) {
+				if($column->isIdentityProvider()) {
+					$columnOptions = $column->getColumnOptions();
+					$this->identityColumns[$index] = $columnOptions['identityValueGetter'];
+				}
+			}
+		}
+		return $this->identityColumns;
 	}
 
 	public function getInlineData(): ?string {

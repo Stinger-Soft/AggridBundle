@@ -142,6 +142,11 @@
 			{% endif %}
 		{% endif %}
 	}
+	{% if grid.identityColumns is defined and grid.identityColumns is not same as(null) and grid.identityColumns|length > 0 %}
+	, getRowNodeId: function(data) {
+		return {{ varAggrid }}.getRowNodeId(data);
+	}
+	{% endif %}
 	{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_AJAX') or grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_ENTERPRISE')%}
 		{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns is not same as(false) %}
 	, onFirstDataRendered: function() {

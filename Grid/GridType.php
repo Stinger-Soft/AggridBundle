@@ -134,7 +134,7 @@ class GridType extends AbstractGridType {
 		$view->vars['autoResizeColumns'] = $gridOptions['autoResizeColumns'];
 		$view->vars['autoResizeManuallyResizedColumns'] = $gridOptions['autoResizeManuallyResizedColumns'];
 		$view->vars['autoResizeFixedWidthColumns'] = $gridOptions['autoResizeFixedWidthColumns'];
-
+		$view->vars['identityColumnSeparator'] = $gridOptions['identityColumnSeparator'];
 		$view->vars['form_id'] = $gridOptions['form_id'];
 		$view->vars['templateTopBar'] = $gridOptions['templateTopBar'];
 
@@ -188,6 +188,8 @@ class GridType extends AbstractGridType {
 			}
 			return $valueToNormalize;
 		});
+		$resolver->setDefault('identityColumnSeparator', "\0");
+		$resolver->setAllowedTypes('identityColumnSeparator', 'string');
 
 		$resolver->setDefault('height', '50vh');
 

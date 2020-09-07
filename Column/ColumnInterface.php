@@ -125,6 +125,8 @@ interface ColumnInterface {
 
 	public function isOrderable(): bool;
 
+	public function isIdentityProvider(): bool;
+
 	/**
 	 * Get the hash code of the column.
 	 *

@@ -18,11 +18,13 @@ use Doctrine\ORM\QueryBuilder;
 use ReflectionException;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Filter\Filter;
+use StingerSoft\AggridBundle\Grid\GridTypeExtensionInterface;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\PhpCommons\Builder\HashCodeBuilder;
 use StingerSoft\PhpCommons\String\Utils;
+use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class Column implements ColumnInterface {
@@ -144,6 +146,10 @@ class Column implements ColumnInterface {
 	 */
 	protected $dataConfigured = false;
 
+	/** @var ColumnTypeExtensionInterface[] */
+	protected $typeExtensions = [];
+
+
 	/**
 	 * Column constructor.
 	 *
@@ -159,12 +165,26 @@ class Column implements ColumnInterface {
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException
 	 */
-	public function __construct(string $path, ColumnTypeInterface $columnType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $columnTypeOptions = [], array $gridOption = [], $dataSource = null, ColumnInterface $parent = null) {
+	public function __construct(
+		string $path,
+		ColumnTypeInterface $columnType,
+		DependencyInjectionExtensionInterface $dependencyInjectionExtension,
+		array $columnTypeOptions = [],
+		array $gridOption = [],
+		$dataSource = null,
+		ColumnInterface $parent = null
+	) {
 		$this->children = new ArrayCollection();
 		$this->columnType = $columnType;
 		$this->gridOptions = $gridOption;
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->path = $path;
+		$this->typeExtensions = $this->dependencyInjectionExtension->resolveColumnTypeExtensions(get_class($columnType));
+		foreach ($this->typeExtensions as $extension) {
+			if (!$extension instanceof ColumnTypeExtensionInterface) {
+				throw new UnexpectedTypeException($extension, ColumnTypeExtensionInterface::class);
+			}
+		}
 		$this->resolver = new OptionsResolver();
 		$this->columnOptions = $this->setupFilterOptionsResolver($columnType, $columnTypeOptions);
 		$this->setParent($parent);
@@ -533,6 +553,10 @@ class Column implements ColumnInterface {
 			$this->resolveOptions($parentType, $resolver);
 		}
 		$columnType->configureOptions($resolver, $this->gridOptions);
+
+		foreach($this->typeExtensions as $extension) {
+			$extension->configureOptions($resolver, $this->gridOptions);
+		}
 	}
 
 	/**
@@ -551,6 +575,10 @@ class Column implements ColumnInterface {
 			$this->buildView($columnView, $parentType, $columnOptions);
 		}
 		$columnType->buildView($columnView, $this, $columnOptions);
+
+		foreach($this->typeExtensions as $extension) {
+			$extension->buildView($columnView, $this, $columnOptions);
+		}
 
 		if($columnView->vars['translation_domain'] === null) {
 			$columnView->vars['translation_domain'] = $this->columnOptions['translation_domain'];
@@ -576,6 +604,10 @@ class Column implements ColumnInterface {
 			$this->buildData($parentType, $options);
 		}
 		$columnType->buildData($this, $options);
+
+		foreach($this->typeExtensions as $extension) {
+			$extension->buildData($this, $options);
+		}
 
 		$this->dataConfigured = true;
 	}

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle;
 
+use StingerSoft\AggridBundle\Column\ColumnTypeExtensionInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\DependencyInjection\Compiler\GridCompilerPass;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
@@ -29,6 +30,7 @@ class StingerSoftAggridBundle extends Bundle {
 	public const GRID_TYPE_EXTENSION_SERVICE_TAG = 'stingersoft_aggrid.grid_extension';
 
 	public const COLUMN_TYPE_SERVICE_TAG = 'stingersoft_aggrid.column';
+	public const COLUMN_TYPE_EXTENSION_SERVICE_TAG = 'stingersoft_aggrid.column_extension';
 
 	public const FILTER_TYPE_SERVICE_TAG = 'stingersoft_aggrid.filter';
 
@@ -50,13 +52,15 @@ class StingerSoftAggridBundle extends Bundle {
 		$container->registerForAutoconfiguration(ColumnTypeInterface::class)->addTag(self::COLUMN_TYPE_SERVICE_TAG);
 		$container->registerForAutoconfiguration(FilterTypeInterface::class)->addTag(self::FILTER_TYPE_SERVICE_TAG);
 		$container->registerForAutoconfiguration(GridTypeExtensionInterface::class)->addTag(self::GRID_TYPE_EXTENSION_SERVICE_TAG);
+		$container->registerForAutoconfiguration(ColumnTypeExtensionInterface::class)->addTag(self::COLUMN_TYPE_EXTENSION_SERVICE_TAG);
 		$container->addCompilerPass(
 			new GridCompilerPass(
 				self::GRID_EXTENSION_SERVICE_ID,
 				self::GRID_TYPE_SERVICE_TAG,
 				self::COLUMN_TYPE_SERVICE_TAG,
 				self::FILTER_TYPE_SERVICE_TAG,
-				self::GRID_TYPE_EXTENSION_SERVICE_TAG
+				self::GRID_TYPE_EXTENSION_SERVICE_TAG,
+				self::COLUMN_TYPE_EXTENSION_SERVICE_TAG,
 			));
 	}
 }

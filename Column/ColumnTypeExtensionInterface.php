@@ -11,21 +11,19 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace StingerSoft\AggridBundle\Grid;
+namespace StingerSoft\AggridBundle\Column;
 
-use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
-use StingerSoft\AggridBundle\View\GridView;
+use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @method static iterable getExtendedTypes() Gets the extended types
  */
-interface GridTypeExtensionInterface {
+interface ColumnTypeExtensionInterface {
 
-	public function buildGrid(GridBuilderInterface $builder, array $gridOptions): void;
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void;
 
-	public function buildView(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void;
+	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void;
 
-	public function configureOptions(OptionsResolver $resolver): void;
-
+	public function buildData(ColumnInterface $column, array $options);
 }

@@ -14,6 +14,7 @@ namespace StingerSoft\AggridBundle\Service;
 
 use Psr\Container\ContainerInterface;
 use ReflectionException;
+use StingerSoft\AggridBundle\Column\ColumnTypeExtensionInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Components\ComponentTypeInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
@@ -33,13 +34,18 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 	/** @var array|GridTypeExtensionInterface[] */
 	protected $gridTypeExtensions = [];
 
+	/** @var array|ColumnTypeExtensionInterface[] */
+	protected $columnTypeExtensions = [];
+
 	/**
 	 * @param ContainerInterface           $typeContainer
 	 * @param GridTypeExtensionInterface[] $gridTypeExtensions
+	 * @param ColumnTypeExtensionInterface[] $columnTypeExtensions
 	 */
-	public function __construct(ContainerInterface $typeContainer, array $gridTypeExtensions) {
+	public function __construct(ContainerInterface $typeContainer, array $gridTypeExtensions, array $columnTypeExtensions) {
 		$this->typeContainer = $typeContainer;
 		$this->gridTypeExtensions = $gridTypeExtensions;
+		$this->columnTypeExtensions = $columnTypeExtensions;
 	}
 
 	public function resolveGridType(string $type): GridTypeInterface {
@@ -61,6 +67,13 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 	public function resolveGridTypeExtensions(string $type): array {
 		if(array_key_exists($type, $this->gridTypeExtensions)) {
 			return $this->gridTypeExtensions[$type];
+		}
+		return [];
+	}
+
+	public function resolveColumnTypeExtensions(string $type): array {
+		if(array_key_exists($type, $this->columnTypeExtensions)) {
+			return $this->columnTypeExtensions[$type];
 		}
 		return [];
 	}

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Service;
 
 use ReflectionException;
+use StingerSoft\AggridBundle\Column\ColumnTypeExtensionInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Components\ComponentTypeInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
@@ -43,6 +44,12 @@ interface DependencyInjectionExtensionInterface {
 	 * @throws ReflectionException
 	 */
 	public function resolveColumnType(string $type): ColumnTypeInterface;
+
+	/**
+	 * @param string $type
+	 * @return ColumnTypeExtensionInterface[]
+	 */
+	public function resolveColumnTypeExtensions(string $type) : array;
 
 	/**
 	 * @param string $type

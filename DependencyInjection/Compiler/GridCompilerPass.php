@@ -41,17 +41,22 @@ class GridCompilerPass implements CompilerPassInterface {
 	/** @var string */
 	protected $gridTypeExtensionTag;
 
+	/** @var string */
+	protected $columnTypeExtensionTag;
+
 	public function __construct(
 		string $gridExtensionService = DependencyInjectionExtensionInterface::class,
 		string $gridTypeTag = StingerSoftAggridBundle::GRID_TYPE_SERVICE_TAG,
 		string $columnTypeTag = StingerSoftAggridBundle::COLUMN_TYPE_SERVICE_TAG,
 		string $filterTypeTag = StingerSoftAggridBundle::FILTER_TYPE_SERVICE_TAG,
-		string $gridTypeExtensionTag = StingerSoftAggridBundle::GRID_TYPE_EXTENSION_SERVICE_TAG
+		string $gridTypeExtensionTag = StingerSoftAggridBundle::GRID_TYPE_EXTENSION_SERVICE_TAG,
+		string $columnTypeExtensionTag = StingerSoftAggridBundle::COLUMN_TYPE_EXTENSION_SERVICE_TAG
 	) {
 		$this->gridExtensionService = $gridExtensionService;
 		$this->gridTypeTag = $gridTypeTag;
 		$this->gridTypeExtensionTag = $gridTypeExtensionTag;
 		$this->columnTypeTag = $columnTypeTag;
+		$this->columnTypeExtensionTag = $columnTypeExtensionTag;
 		$this->filterTypeTag = $filterTypeTag;
 	}
 
@@ -71,11 +76,10 @@ class GridCompilerPass implements CompilerPassInterface {
 		$this->processTypes($container, $this->gridTypeTag, $servicesMap);
 		$this->processTypes($container, $this->columnTypeTag, $servicesMap);
 		$this->processTypes($container, $this->filterTypeTag, $servicesMap);
-
 		$definition->addArgument(ServiceLocatorTagPass::register($container, $servicesMap));
 
-		$gridTypesExtensionsMap = $this->processExtensionType($container, $this->gridTypeExtensionTag);
-		$definition->addArgument($gridTypesExtensionsMap);
+		$definition->addArgument($this->processExtensionType($container, $this->gridTypeExtensionTag));
+		$definition->addArgument($this->processExtensionType($container, $this->columnTypeExtensionTag));
 	}
 
 	protected function processExtensionType(ContainerBuilder $container, string $tagType): array {

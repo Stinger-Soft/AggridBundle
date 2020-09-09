@@ -32,7 +32,6 @@ use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\Service\GridOrderer;
 use StingerSoft\AggridBundle\View\GridView;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
-use Symfony\Component\Form\FormTypeExtensionInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -166,8 +165,8 @@ class Grid implements GridInterface {
 
 		$gridType = $this->dependencyInjectionExtension->resolveGridType($gridTypeClass);
 		$this->typeExtensions = $this->dependencyInjectionExtension->resolveGridTypeExtensions($gridTypeClass);
-		foreach ($this->typeExtensions as $extension) {
-			if (!$extension instanceof GridTypeExtensionInterface) {
+		foreach($this->typeExtensions as $extension) {
+			if(!$extension instanceof GridTypeExtensionInterface) {
 				throw new UnexpectedTypeException($extension, GridTypeExtensionInterface::class);
 			}
 		}
@@ -259,7 +258,7 @@ class Grid implements GridInterface {
 	public function createView(): GridView {
 		$this->orderColumns();
 		$gridView = new GridView($this, $this->gridType, $this->options, $this->columns, $this->components);
-		$this->buildView($gridView, $this->gridType);
+		$this->buildView($gridView, $this->gridType, $this->typeExtensions);
 		return $gridView;
 	}
 
@@ -761,24 +760,28 @@ class Grid implements GridInterface {
 	protected function setupOptionsResolver(GridTypeInterface $gridType, array $options): array {
 		$resolver = new OptionsResolver();
 		$this->resolveOptions($gridType, $resolver);
+		foreach($this->typeExtensions as $extension) {
+			$extension->configureOptions($resolver);
+		}
 		$options = $resolver->resolve($options);
 		return $options;
 	}
 
 	/**
-	 * @param GridView          $view
-	 * @param GridTypeInterface $gridType
+	 * @param GridView                     $view
+	 * @param GridTypeInterface            $gridType
+	 * @param GridTypeExtensionInterface[] $extensions the extensions to be applied
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException
 	 */
-	protected function buildView(GridView $view, GridTypeInterface $gridType): void {
+	protected function buildView(GridView $view, GridTypeInterface $gridType, array $extensions = []): void {
 		if($gridType->getParent()) {
 			$parentType = $this->dependencyInjectionExtension->resolveGridType($gridType->getParent());
 			$this->buildView($view, $parentType);
 		}
 		$gridType->buildView($view, $this, $this->options, $this->columns);
 
-		foreach($this->typeExtensions as $extension) {
+		foreach($extensions as $extension) {
 			$extension->buildView($view, $this, $this->options, $this->columns);
 		}
 	}
@@ -1063,10 +1066,6 @@ class Grid implements GridInterface {
 			$this->resolveOptions($parentType, $resolver);
 		}
 		$gridType->configureOptions($resolver);
-
-		foreach($this->typeExtensions as $extension) {
-			$extension->configureOptions($resolver);
-		}
 	}
 
 }

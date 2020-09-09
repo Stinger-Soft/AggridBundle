@@ -18,7 +18,6 @@ use Doctrine\ORM\QueryBuilder;
 use ReflectionException;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Filter\Filter;
-use StingerSoft\AggridBundle\Grid\GridTypeExtensionInterface;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\Transformer\DataTransformerInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
@@ -149,7 +148,6 @@ class Column implements ColumnInterface {
 	/** @var ColumnTypeExtensionInterface[] */
 	protected $typeExtensions = [];
 
-
 	/**
 	 * Column constructor.
 	 *
@@ -180,8 +178,8 @@ class Column implements ColumnInterface {
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->path = $path;
 		$this->typeExtensions = $this->dependencyInjectionExtension->resolveColumnTypeExtensions(get_class($columnType));
-		foreach ($this->typeExtensions as $extension) {
-			if (!$extension instanceof ColumnTypeExtensionInterface) {
+		foreach($this->typeExtensions as $extension) {
+			if(!$extension instanceof ColumnTypeExtensionInterface) {
 				throw new UnexpectedTypeException($extension, ColumnTypeExtensionInterface::class);
 			}
 		}
@@ -286,7 +284,7 @@ class Column implements ColumnInterface {
 		}
 
 		$view = new ColumnView($parent);
-		$this->buildView($view, $this->columnType, $this->columnOptions);
+		$this->buildView($view, $this->columnType, $this->columnOptions, $this->typeExtensions);
 
 		if($view->vars['translation_domain'] === null) {
 			$view->vars['translation_domain'] = $this->gridOptions['translation_domain'];
@@ -306,7 +304,7 @@ class Column implements ColumnInterface {
 	 * @inheritdoc
 	 */
 	public function createData($item, string $rootAlias) {
-		$this->buildData($this->columnType, $this->columnOptions);
+		$this->buildData($this->columnType, $this->columnOptions, $this->typeExtensions);
 		return $this->generateData($item, $rootAlias, $this->columnOptions, $this->gridOptions);
 	}
 
@@ -536,6 +534,9 @@ class Column implements ColumnInterface {
 	 */
 	protected function setupFilterOptionsResolver(ColumnTypeInterface $columnType, array $options = []): array {
 		$this->resolveOptions($columnType, $this->resolver);
+		foreach($this->typeExtensions as $extension) {
+			$extension->configureOptions($this->resolver, $this->gridOptions);
+		}
 		return $this->resolver->resolve($options);
 	}
 
@@ -553,30 +554,27 @@ class Column implements ColumnInterface {
 			$this->resolveOptions($parentType, $resolver);
 		}
 		$columnType->configureOptions($resolver, $this->gridOptions);
-
-		foreach($this->typeExtensions as $extension) {
-			$extension->configureOptions($resolver, $this->gridOptions);
-		}
 	}
 
 	/**
 	 * Updates the given view.
 	 *
-	 * @param ColumnView          $columnView    the view to be updated
-	 * @param ColumnTypeInterface $columnType    the column type containing the information that may be relevant for the view
-	 * @param array               $columnOptions the options defined for the column type, containing information
-	 *                                           such as the translation_domain etc.
+	 * @param ColumnView                     $columnView    the view to be updated
+	 * @param ColumnTypeInterface            $columnType    the column type containing the information that may be relevant for the view
+	 * @param array                          $columnOptions the options defined for the column type, containing information
+	 *                                                      such as the translation_domain etc.
+	 * @param ColumnTypeExtensionInterface[] $extensions    the extensions to be applied to the view
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException
 	 */
-	protected function buildView(ColumnView $columnView, ColumnTypeInterface $columnType, array $columnOptions = []): void {
+	protected function buildView(ColumnView $columnView, ColumnTypeInterface $columnType, array $columnOptions = [], array $extensions = []): void {
 		if($columnType->getParent()) {
 			$parentType = $this->dependencyInjectionExtension->resolveColumnType($columnType->getParent());
 			$this->buildView($columnView, $parentType, $columnOptions);
 		}
 		$columnType->buildView($columnView, $this, $columnOptions);
 
-		foreach($this->typeExtensions as $extension) {
+		foreach($extensions as $extension) {
 			$extension->buildView($columnView, $this, $columnOptions);
 		}
 
@@ -590,12 +588,13 @@ class Column implements ColumnInterface {
 	 * any data transformers along the hierarchy to be triggered.
 	 * In case this method was already called once, it will immediately return.
 	 *
-	 * @param ColumnTypeInterface $columnType the column type to call the buildData method on, and all its parents.
-	 * @param array               $options    the options for the column type.
+	 * @param ColumnTypeInterface            $columnType the column type to call the buildData method on, and all its parents.
+	 * @param array                          $options    the options for the column type.
+	 * @param ColumnTypeExtensionInterface[] $extensions the extensions to be applied
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException
 	 */
-	protected function buildData(ColumnTypeInterface $columnType, array $options = []): void {
+	protected function buildData(ColumnTypeInterface $columnType, array $options = [], array $extensions = []): void {
 		if($this->dataConfigured) {
 			return;
 		}
@@ -605,7 +604,7 @@ class Column implements ColumnInterface {
 		}
 		$columnType->buildData($this, $options);
 
-		foreach($this->typeExtensions as $extension) {
+		foreach($extensions as $extension) {
 			$extension->buildData($this, $options);
 		}
 

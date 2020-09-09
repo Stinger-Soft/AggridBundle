@@ -50,7 +50,8 @@ class GridCompilerPass implements CompilerPassInterface {
 		string $columnTypeTag = StingerSoftAggridBundle::COLUMN_TYPE_SERVICE_TAG,
 		string $filterTypeTag = StingerSoftAggridBundle::FILTER_TYPE_SERVICE_TAG,
 		string $gridTypeExtensionTag = StingerSoftAggridBundle::GRID_TYPE_EXTENSION_SERVICE_TAG,
-		string $columnTypeExtensionTag = StingerSoftAggridBundle::COLUMN_TYPE_EXTENSION_SERVICE_TAG
+		string $columnTypeExtensionTag = StingerSoftAggridBundle::COLUMN_TYPE_EXTENSION_SERVICE_TAG,
+		string $filterTypeExtensionTag = StingerSoftAggridBundle::FILTER_TYPE_EXTENSION_SERVICE_TAG
 	) {
 		$this->gridExtensionService = $gridExtensionService;
 		$this->gridTypeTag = $gridTypeTag;
@@ -58,6 +59,7 @@ class GridCompilerPass implements CompilerPassInterface {
 		$this->columnTypeTag = $columnTypeTag;
 		$this->columnTypeExtensionTag = $columnTypeExtensionTag;
 		$this->filterTypeTag = $filterTypeTag;
+		$this->filterTypeExtensionTag = $filterTypeExtensionTag;
 	}
 
 	public function process(ContainerBuilder $container): void {
@@ -80,6 +82,7 @@ class GridCompilerPass implements CompilerPassInterface {
 
 		$definition->addArgument($this->processExtensionType($container, $this->gridTypeExtensionTag));
 		$definition->addArgument($this->processExtensionType($container, $this->columnTypeExtensionTag));
+		$definition->addArgument($this->processExtensionType($container, $this->filterTypeExtensionTag));
 	}
 
 	protected function processExtensionType(ContainerBuilder $container, string $tagType): array {

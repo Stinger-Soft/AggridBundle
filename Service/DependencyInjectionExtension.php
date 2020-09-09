@@ -18,6 +18,7 @@ use StingerSoft\AggridBundle\Column\ColumnTypeExtensionInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Components\ComponentTypeInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
+use StingerSoft\AggridBundle\Filter\FilterTypeExtensionInterface;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeExtensionInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
@@ -37,15 +38,25 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 	/** @var array|ColumnTypeExtensionInterface[] */
 	protected $columnTypeExtensions = [];
 
+	/** @var array|FilterTypeExtensionInterface[] */
+	protected $filterTypeExtensions = [];
+
 	/**
-	 * @param ContainerInterface           $typeContainer
-	 * @param GridTypeExtensionInterface[] $gridTypeExtensions
+	 * @param ContainerInterface             $typeContainer
+	 * @param GridTypeExtensionInterface[]   $gridTypeExtensions
 	 * @param ColumnTypeExtensionInterface[] $columnTypeExtensions
+	 * @param FilterTypeExtensionInterface[] $filterTypeExtensions
 	 */
-	public function __construct(ContainerInterface $typeContainer, array $gridTypeExtensions, array $columnTypeExtensions) {
+	public function __construct(
+		ContainerInterface $typeContainer,
+		array $gridTypeExtensions,
+		array $columnTypeExtensions,
+		array $filterTypeExtensions
+	) {
 		$this->typeContainer = $typeContainer;
 		$this->gridTypeExtensions = $gridTypeExtensions;
 		$this->columnTypeExtensions = $columnTypeExtensions;
+		$this->filterTypeExtensions = $filterTypeExtensions;
 	}
 
 	public function resolveGridType(string $type): GridTypeInterface {
@@ -74,6 +85,13 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 	public function resolveColumnTypeExtensions(string $type): array {
 		if(array_key_exists($type, $this->columnTypeExtensions)) {
 			return $this->columnTypeExtensions[$type];
+		}
+		return [];
+	}
+
+	public function resolveFilterTypeExtensions(string $type): array {
+		if(array_key_exists($type, $this->filterTypeExtensions)) {
+			return $this->filterTypeExtensions[$type];
 		}
 		return [];
 	}

@@ -19,6 +19,7 @@ use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\AggridBundle\View\FilterView;
+use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -84,6 +85,9 @@ class Filter implements FilterInterface {
 	 */
 	protected $dependencyInjectionExtension;
 
+	/** @var FilterTypeExtensionInterface[] */
+	protected $typeExtensions = [];
+
 	/**
 	 * Filter constructor.
 	 *
@@ -118,6 +122,12 @@ class Filter implements FilterInterface {
 		$this->columnOptions = $columnOptions;
 		$this->gridOptions = $gridOptions;
 		$this->filterType = $filterType;
+		$this->typeExtensions = $this->dependencyInjectionExtension->resolveFilterTypeExtensions(get_class($filterType));
+		foreach($this->typeExtensions as $extension) {
+			if(!$extension instanceof FilterTypeExtensionInterface) {
+				throw new UnexpectedTypeException($extension, FilterTypeExtensionInterface::class);
+			}
+		}
 		$this->filterOptions = $this->setupFilterOptionsResolver($filterType, $filterTypeOptions);
 		$this->parent = $parent;
 		$this->dataSource = $dataSource;
@@ -225,12 +235,11 @@ class Filter implements FilterInterface {
 		}
 
 		$view = new FilterView($parent);
-		$this->buildView($view, $this->filterType, $this->filterOptions);
+		$this->buildView($view, $this->filterType, $this->filterOptions, $this->typeExtensions);
 
 		if($view->vars['translation_domain'] === null) {
 			$view->vars['translation_domain'] = $this->columnOptions['translation_domain'];
 		}
-
 		return $view;
 	}
 
@@ -259,17 +268,18 @@ class Filter implements FilterInterface {
 	/**
 	 * Updates the given view.
 	 *
-	 * @param FilterView          $filterView
-	 *            the view to be updated
-	 * @param FilterTypeInterface $filterType
-	 *            the filter type containing the information that may be relevant for the view
-	 * @param array               $filterOptions
-	 *            the options defined for the filter type, containing information
-	 *            such as the filter_server_delegate etc.
+	 * @param FilterView                     $filterView
+	 *                                                   the view to be updated
+	 * @param FilterTypeInterface            $filterType
+	 *                                                   the filter type containing the information that may be relevant for the view
+	 * @param array                          $filterOptions
+	 *                                                   the options defined for the filter type, containing information
+	 *                                                   such as the filter_server_delegate etc.
+	 * @param FilterTypeExtensionInterface[] $extensions the extensions to be applied to the view
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException
 	 */
-	protected function buildView(FilterView $filterView, FilterTypeInterface $filterType, array $filterOptions = []): void {
+	protected function buildView(FilterView $filterView, FilterTypeInterface $filterType, array $filterOptions = [], array $extensions = []): void {
 		if($filterType->getParent()) {
 			$parentType = $this->dependencyInjectionExtension->resolveFilterType($filterType->getParent());
 			$this->buildView($filterView, $parentType, $filterOptions);
@@ -286,6 +296,11 @@ class Filter implements FilterInterface {
 			}
 		}
 		$filterType->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, current($rootAliases));
+
+		foreach($extensions as $extension) {
+			$extension->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, current($rootAliases));
+		}
+
 	}
 
 	/**
@@ -305,6 +320,9 @@ class Filter implements FilterInterface {
 	protected function setupFilterOptionsResolver(FilterTypeInterface $filterType, array $options = []): array {
 		$resolver = new OptionsResolver();
 		$this->resolveOptions($filterType, $resolver);
+		foreach($this->typeExtensions as $extension) {
+			$extension->configureOptions($resolver, $this->gridOptions);
+		}
 		return $resolver->resolve($options);
 	}
 

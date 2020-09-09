@@ -31,5 +31,4 @@ abstract class AbstractGridTypeExtension implements GridTypeExtensionInterface {
 
 	}
 
-	abstract public function getExtendedTypes(): iterable;
 }

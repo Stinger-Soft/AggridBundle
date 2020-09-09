@@ -21,6 +21,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Interface GridTypeExtensionInterface
  *
  * @package StingerSoft\AggridBundle\Grid
+ *
+ * @method static iterable getExtendedTypes() Gets the extended types
  */
 interface GridTypeExtensionInterface {
 
@@ -29,7 +31,5 @@ interface GridTypeExtensionInterface {
 	public function buildView(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void;
 
 	public function configureOptions(OptionsResolver $resolver): void;
-
-	public function getExtendedTypes(): iterable;
 
 }

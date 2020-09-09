@@ -17,6 +17,7 @@ use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Components\ComponentTypeInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
+use StingerSoft\AggridBundle\Grid\GridTypeExtensionInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 
 interface DependencyInjectionExtensionInterface {
@@ -28,6 +29,12 @@ interface DependencyInjectionExtensionInterface {
 	 * @throws ReflectionException
 	 */
 	public function resolveGridType(string $type): GridTypeInterface;
+
+	/**
+	 * @param string $type
+	 * @return GridTypeExtensionInterface[]
+	 */
+	public function resolveGridTypeExtensions(string $type): array;
 
 	/**
 	 * @param string $type
@@ -53,7 +60,16 @@ interface DependencyInjectionExtensionInterface {
 	 */
 	public function resolveFilterType(string $type): FilterTypeInterface;
 
+	/**
+	 * @param string $key
+	 * @param mixed  $value
+	 */
 	public function setParameter(string $key, $value): void;
 
+	/**
+	 * @param string $key
+	 * @param null   $default
+	 * @return mixed|null
+	 */
 	public function getParameter(string $key, $default = null);
 }

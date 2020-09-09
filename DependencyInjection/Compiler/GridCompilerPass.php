@@ -13,13 +13,18 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\DependencyInjection\Compiler;
 
+use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\StingerSoftAggridBundle;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Compiler\PriorityTaggedServiceTrait;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Reference;
 
 class GridCompilerPass implements CompilerPassInterface {
+
+	use PriorityTaggedServiceTrait;
 
 	/** @var string */
 	protected $gridExtensionService;
@@ -33,14 +38,19 @@ class GridCompilerPass implements CompilerPassInterface {
 	/** @var string */
 	protected $filterTypeTag;
 
+	/** @var string */
+	protected $gridTypeExtensionTag;
+
 	public function __construct(
-		string $gridExtensionService = 'stingersoft_aggrid.extension',
-		string $gridTypeTag = 'stingersoft_aggrid.grid',
-		string $columnTypeTag = 'stingersoft_aggrid.column',
-		string $filterTypeTag = StingerSoftAggridBundle::FILTER_TYPE_SERVICE_TAG
+		string $gridExtensionService = DependencyInjectionExtensionInterface::class,
+		string $gridTypeTag = StingerSoftAggridBundle::GRID_TYPE_SERVICE_TAG,
+		string $columnTypeTag = StingerSoftAggridBundle::COLUMN_TYPE_SERVICE_TAG,
+		string $filterTypeTag = StingerSoftAggridBundle::FILTER_TYPE_SERVICE_TAG,
+		string $gridTypeExtensionTag = StingerSoftAggridBundle::GRID_TYPE_EXTENSION_SERVICE_TAG
 	) {
 		$this->gridExtensionService = $gridExtensionService;
 		$this->gridTypeTag = $gridTypeTag;
+		$this->gridTypeExtensionTag = $gridTypeExtensionTag;
 		$this->columnTypeTag = $columnTypeTag;
 		$this->filterTypeTag = $filterTypeTag;
 	}
@@ -64,12 +74,37 @@ class GridCompilerPass implements CompilerPassInterface {
 
 		$definition->addArgument(ServiceLocatorTagPass::register($container, $servicesMap));
 
+		$gridTypesExtensionsMap = $this->processExtensionType($container, $this->gridTypeExtensionTag);
+		$definition->addArgument($gridTypesExtensionsMap);
+	}
+
+	protected function processExtensionType(ContainerBuilder $container, string $tagType): array {
+		$typeExtensionsClasses = [];
+		foreach($this->findAndSortTaggedServices($tagType, $container) as $reference) {
+			$serviceId = (string) $reference;
+			$serviceDefinition = $container->getDefinition($serviceId);
+			$parameterBag = $container->getParameterBag();
+			if($parameterBag === null) {
+				return [];
+			}
+			$typeExtensionClass = $parameterBag->resolveValue($serviceDefinition->getClass());
+			if(!method_exists($typeExtensionClass, 'getExtendedTypes')) {
+				new InvalidArgumentException(sprintf('"%s" tagged services have to implement the static getExtendedTypes() method. Class "%s" for service "%s" does not implement it.', $tagType, $typeExtensionClass, $serviceId));
+			}
+			$extendsTypes = false;
+			foreach($typeExtensionClass::getExtendedTypes() as $extendedType) {
+				$typeExtensionsClasses[$extendedType][] = new Reference($serviceId);
+				$extendsTypes = true;
+			}
+			if(!$extendsTypes) {
+				throw new InvalidArgumentException(sprintf('The getExtendedTypes() method for service "%s" does not return any extended types.', $serviceId));
+			}
+		}
+		return $typeExtensionsClasses;
 	}
 
 	private function processTypes(ContainerBuilder $container, string $tagType, array &$servicesMap): array {
-		// Builds an array with fully-qualified type class names as keys and service IDs as values
 		foreach($container->findTaggedServiceIds($tagType, true) as $serviceId => $tag) {
-			// Add form type service to the service locator
 			$serviceDefinition = $container->getDefinition($serviceId);
 			$servicesMap[$serviceDefinition->getClass()] = new Reference($serviceId);
 		}

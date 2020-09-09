@@ -31,6 +31,8 @@ use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\Service\GridOrderer;
 use StingerSoft\AggridBundle\View\GridView;
+use Symfony\Component\Form\Exception\UnexpectedTypeException;
+use Symfony\Component\Form\FormTypeExtensionInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -163,9 +165,14 @@ class Grid implements GridInterface {
 		$this->options = $options;
 
 		$gridType = $this->dependencyInjectionExtension->resolveGridType($gridTypeClass);
+		$this->typeExtensions = $this->dependencyInjectionExtension->resolveGridTypeExtensions($gridTypeClass);
+		foreach ($this->typeExtensions as $extension) {
+			if (!$extension instanceof GridTypeExtensionInterface) {
+				throw new UnexpectedTypeException($extension, GridTypeExtensionInterface::class);
+			}
+		}
 		$this->options = $this->setupOptionsResolver($gridType, $options);
 		$this->gridType = $gridType;
-		$this->typeExtensions = [];
 		$this->orderer = new GridOrderer();
 		$this->rootAlias = '';
 		if($this->queryBuilder) {

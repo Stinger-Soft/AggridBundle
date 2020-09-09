@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Helper;
 
 use ArrayIterator;
-use InvalidArgumentException;
 use IteratorAggregate;
 use OutOfBoundsException;
 use ReflectionException;
@@ -73,7 +72,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function add($column, ?string $type = null, array $options = []): GridBuilderInterface {
+	public function add($column, string $type, array $options = []): GridBuilderInterface {
 		$this->addColumn($column, $type, $options);
 		return $this;
 	}
@@ -81,7 +80,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addColumn($column, ?string $type = null, array $options = []): ColumnInterface {
+	public function addColumn($column, string $type, array $options = []): ColumnInterface {
 		if(!$column instanceof ColumnInterface) {
 			$column = $this->createColumn($column, $type, $options);
 			if($column->getColumnType() instanceof ColumnGroupType) {
@@ -95,7 +94,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addGroup($column, ?string $type = null, array $options = []): GridBuilderInterface {
+	public function addGroup($column, string $type, array $options = []): GridBuilderInterface {
 		$this->addGroupColumn($column, $type, $options);
 		return $this;
 	}
@@ -103,7 +102,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addGroupColumn($column, ?string $type = null, array $options = []): ColumnInterface {
+	public function addGroupColumn($column, string $type, array $options = []): ColumnInterface {
 		if(!$column instanceof ColumnInterface) {
 			$column = $this->createColumn($column, $type, $options);
 		}
@@ -141,13 +140,14 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Adds a column to the grid (implements the \ArrayAccess interface).
 	 *
-	 * @param mixed $path   Ignored. The path of the column is used
-	 * @param mixed $column The column to be added
+	 * @param mixed                 $path   Ignored. The path of the column is used
+	 * @param mixed|ColumnInterface $column The column to be added
 	 * @throws InvalidArgumentTypeException
-	 * @see self::add()
+	 * @see          self::add()
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
 	public function offsetSet($path, $column): void {
-		$this->add($column);
+		$this->add($path, get_class($column->getColumnType()));
 	}
 
 	/**
@@ -255,12 +255,12 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 
 	/**
 	 * @param ColumnInterface|string $column
-	 * @param string|null            $type
+	 * @param string                 $type
 	 * @param array                  $options
 	 * @return ColumnInterface
 	 * @throws InvalidArgumentTypeException
 	 */
-	protected function createColumn($column, ?string $type = null, array $options = []): ColumnInterface {
+	protected function createColumn($column, string $type, array $options = []): ColumnInterface {
 		$typeInstance = null;
 		try {
 			$typeInstance = $this->getColumnTypeInstance($type);
@@ -292,16 +292,13 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Creates an instance of the given column type class.
 	 *
-	 * @param string|null $class
+	 * @param string $class
 	 *            Classname of the column type
 	 * @return ColumnTypeInterface
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException
 	 */
-	private function getColumnTypeInstance(?string $class): ColumnTypeInterface {
-		if($class === null) {
-			throw new InvalidArgumentException('Parameter class may not be null!');
-		}
+	protected function getColumnTypeInstance(string $class): ColumnTypeInterface {
 		return $this->dependencyInjectionExtension->resolveColumnType($class);
 	}
 }

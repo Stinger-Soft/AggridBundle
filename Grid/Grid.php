@@ -74,7 +74,7 @@ class Grid implements GridInterface {
 	protected $components;
 
 	/** @var GridTypeExtensionInterface[] */
-	protected $typeExtensions;
+	protected $typeExtensions = [];
 
 	/** @var GridBuilderInterface */
 	protected $builder;

@@ -31,56 +31,56 @@ interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 	 *
 	 * @param ColumnInterface|string $column
 	 *            Property path to bind to this column or ColumnView instance
-	 * @param string|null            $type
+	 * @param string                 $type
 	 *            The type (i.e. class name) of this column
 	 * @param array                  $options
 	 *            Options to pass the column type
 	 * @return $this The grid builder, allowing for chaining
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function add($column, ?string $type = null, array $options = []): self;
+	public function add($column, string $type, array $options = []): self;
 
 	/**
 	 * Adds a column to the grid
 	 *
 	 * @param ColumnInterface|string $column
 	 *            Property path to bind to this column or ColumnView instance
-	 * @param string|null            $type
+	 * @param string                 $type
 	 *            The type (i.e. class name) of this column
 	 * @param array                  $options
 	 *            Options to pass the column type
 	 * @return ColumnInterface
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function addColumn($column, ?string $type = null, array $options = []): ColumnInterface;
+	public function addColumn($column, string $type, array $options = []): ColumnInterface;
 
 	/**
 	 * Adds a column to the grid
 	 *
 	 * @param ColumnInterface|string $column
 	 *            Property path to bind to this column or ColumnView instance
-	 * @param string|null            $type
+	 * @param string                 $type
 	 *            The type (i.e. class name) of this column
 	 * @param array                  $options
 	 *            Options to pass the column type
 	 * @return $this The grid builder, allowing for chaining
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function addGroup($column, ?string $type = null, array $options = []): self;
+	public function addGroup($column, string $type, array $options = []): self;
 
 	/**
 	 * Adds a column to the grid
 	 *
 	 * @param ColumnInterface|string $column
 	 *            Property path to bind to this column or ColumnView instance
-	 * @param string|null            $type
+	 * @param string                 $type
 	 *            The type (i.e. class name) of this column
 	 * @param array                  $options
 	 *            Options to pass the column type
 	 * @return ColumnInterface
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function addGroupColumn($column, ?string $type = null, array $options = []): ColumnInterface;
+	public function addGroupColumn($column, string $type, array $options = []): ColumnInterface;
 
 	/**
 	 * Returns the column with the given path.

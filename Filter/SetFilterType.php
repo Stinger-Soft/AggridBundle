@@ -1,8 +1,20 @@
 <?php
+declare(strict_types=1);
+
+/*
+ * This file is part of the Stinger Soft AgGrid package.
+ *
+ * (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
+ * (c) Florian Meyer <florian.meyer@stinger-soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace StingerSoft\AggridBundle\Filter;
 
 use Doctrine\ORM\QueryBuilder;
+use InvalidArgumentException;
 use StingerSoft\AggridBundle\Grid\GridType;
 use StingerSoft\AggridBundle\View\FilterView;
 use Symfony\Component\OptionsResolver\Options;
@@ -35,10 +47,12 @@ class SetFilterType extends AbstractFilterType {
 		$resolver->setDefault('null_value', null);
 		$resolver->setNormalizer('null_value', static function (Options $options, $valueToNormalize) {
 			if($valueToNormalize === null && $options['allow_null_value'] === true) {
-				throw new \InvalidArgumentException('When setting "allow_null_value" to true, you must provide a non-null value for the "null_value" option!');
+				throw new InvalidArgumentException('When setting "allow_null_value" to true, you must provide a non-null value for the "null_value" option!');
 			}
 			return $valueToNormalize;
 		});
+		$resolver->setDefault('strict_null_check', false);
+		$resolver->setAllowedTypes('strict_null_check', 'bool');
 	}
 
 	protected function createExpression(string $comparisonType, string $parameterBindingName, string $queryPath, QueryBuilder $queryBuilder, string $rootAlias, array $filterTypeOptions, $value, $toValue) {
@@ -46,8 +60,11 @@ class SetFilterType extends AbstractFilterType {
 			$hasNullValue = false;
 			$nonNullValues = [];
 			$nullValue = $filterTypeOptions['null_value'];
+			$strictNullCheck = $filterTypeOptions['strict_null_check'];
 			foreach($value as $entry) {
-				if($entry == $nullValue) {
+				/** @noinspection TypeUnsafeComparisonInspection */
+				$isNull = $strictNullCheck ? $entry === $nullValue : $entry == $nullValue;
+				if($isNull) {
 					$hasNullValue = true;
 				} else {
 					$nonNullValues[] = $entry;
@@ -101,7 +118,7 @@ class SetFilterType extends AbstractFilterType {
 		}
 		$keyValueMapping = $options['keyValueMapping'];
 		if(is_callable($keyValueMapping)) {
-			$keyValueMapping = call_user_func($keyValueMapping, $filter, $rawData, $options, $dataSource, $queryPath, $rootAlias);
+			$keyValueMapping = $keyValueMapping($filter, $rawData, $options, $dataSource, $queryPath, $rootAlias);
 		}
 
 		$cellRendererParams['keyValueMapping'] = $keyValueMapping;

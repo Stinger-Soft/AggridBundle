@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,9 +13,11 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Exception;
 
+use LogicException;
+
 /**
  * Thrown when an operation is called that is not acceptable before having handled a request for a table.
  */
-class NotYetHandledException extends \LogicException {
+class NotYetHandledException extends LogicException {
 
 }

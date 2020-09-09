@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -37,12 +38,12 @@ class StringColumnType extends AbstractColumnType {
 	 *
 	 * @see AbstractColumnType::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()) : void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setDefault('nl2br', false);
 		$resolver->setAllowedTypes('nl2br', 'boolean');
 
 		$resolver->setDefault('value_translation_domain', false);
-		$resolver->setAllowedTypes('value_translation_domain', array('string', 'boolean', 'null'));
+		$resolver->setAllowedTypes('value_translation_domain', ['string', 'boolean', 'null']);
 	}
 
 	/**

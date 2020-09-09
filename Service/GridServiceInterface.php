@@ -20,10 +20,10 @@ interface GridServiceInterface {
 	/**
 	 * Creates a new grid instance for the given type and query builder.
 	 *
-	 * @param string $type the type of grid to be created
+	 * @param string             $type       the type of grid to be created
 	 * @param QueryBuilder|array $dataSource the data source to be used for retrieving grid rows and column values
-	 * @param array $options the options for the grid type
+	 * @param array              $options    the options for the grid type
 	 * @return Grid the grid instance
 	 */
-	public function createGrid($type, $dataSource, array $options = array()): Grid;
+	public function createGrid(string $type, $dataSource, array $options = []): Grid;
 }

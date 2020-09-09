@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -18,13 +19,15 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AbstractGridType implements GridTypeInterface {
 
+	/** @var GridTypeExtensionInterface[] */
+	protected $typeExtensions = [];
+
 	/**
 	 *
 	 * {@inheritdoc}
 	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function buildGrid(GridBuilderInterface $builder, array $gridOptions): void {
-		// TODO: Implement buildGrid() method.
 	}
 
 	/**
@@ -41,7 +44,7 @@ class AbstractGridType implements GridTypeInterface {
 	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function getId(array $gridOptions): string {
-		return str_replace('\\','_', static::class);
+		return str_replace('\\', '_', static::class);
 	}
 
 	/**
@@ -61,4 +64,10 @@ class AbstractGridType implements GridTypeInterface {
 		return GridType::class;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function getTypeExtensions(): array {
+		return $this->typeExtensions;
+	}
 }

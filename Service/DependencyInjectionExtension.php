@@ -13,9 +13,10 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Service;
 
 use Psr\Container\ContainerInterface;
+use ReflectionException;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Components\ComponentTypeInterface;
-use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentTypeInterface;
+use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 use StingerSoft\AggridBundle\Helper\InstanceHelperTrait;
@@ -63,8 +64,8 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 	 * @param string $type
 	 * @param string $typeInterfaceClassName
 	 * @return mixed|object
-	 * @throws \ReflectionException
-	 * @throws \StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 * @throws InvalidArgumentTypeException
 	 */
 	protected function resolveType(string $type, string $typeInterfaceClassName) {
 		if($this->typeContainer->has($type)) {

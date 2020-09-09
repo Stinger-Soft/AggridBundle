@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -30,7 +31,7 @@ abstract class AbstractColumnType implements ColumnTypeInterface {
 
 	use ColumnTrait;
 
-	public static function getBooleanValueDependingOnClientOrServer($optionValue, string $dataMode) : bool {
+	public static function getBooleanValueDependingOnClientOrServer($optionValue, string $dataMode): bool {
 		if($optionValue === true) {
 			return true;
 		}
@@ -44,7 +45,7 @@ abstract class AbstractColumnType implements ColumnTypeInterface {
 	 * {@inheritdoc}
 	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $gridOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 	}
 
 	/**

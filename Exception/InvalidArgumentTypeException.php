@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,9 +13,11 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Exception;
 
+use Exception;
+
 /**
  *
  * This exception can be thrown if an invalid argument type is passed to a method
  */
-class InvalidArgumentTypeException extends \Exception {
+class InvalidArgumentTypeException extends Exception {
 }

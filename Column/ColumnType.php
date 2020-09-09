@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -54,7 +55,7 @@ class ColumnType extends AbstractColumnType {
 	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
 		$view->path = $column->getPath();
 		$view->template = $options['js_column_template'];
-		$this->buildAggridView($view, $column, $options);
+		$this->buildAgGridView($view, $column, $options);
 		$this->buildStingerView($view, $column, $options);
 	}
 
@@ -348,15 +349,12 @@ class ColumnType extends AbstractColumnType {
 		});
 
 		$resolver->setDefault('menuTabs', static function (Options $options, $previousValue) use ($gridOptions) {
-			if($previousValue === null) {
-				return $gridOptions['menuTabs'];
-			}
-			return $previousValue;
+			return $previousValue ?? $gridOptions['menuTabs'];
 		});
 		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);
 		$resolver->setNormalizer('menuTabs', static function (Options $options, $value) {
 			if($value === null) {
-				return $value;
+				return null;
 			}
 			if(is_array($value)) {
 				foreach($value as $item) {
@@ -439,6 +437,7 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('toolPanelClass', ['null', 'string', 'array']);
 	}
 
+	/** @noinspection PhpUnusedParameterInspection */
 	protected function buildStingerView(ColumnView $view, ColumnInterface $column, array $options): void {
 		$view->vars['label'] = $options['label'];
 		$view->vars['translation_domain'] = $options['translation_domain'];
@@ -452,7 +451,7 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['identityValueGetter'] = $options['identityValueGetter'];
 	}
 
-	protected function buildAggridView(ColumnView $view, ColumnInterface $column, array $options): void {
+	protected function buildAgGridView(ColumnView $view, ColumnInterface $column, array $options): void {
 		$dataMode = $column->getGridOptions()['dataMode'];
 		$view->vars['searchable'] = AbstractColumnType::getBooleanValueDependingOnClientOrServer($options['searchable'], $dataMode);
 		$view->vars['filterable'] = AbstractColumnType::getBooleanValueDependingOnClientOrServer($options['filterable'], $dataMode);

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -18,7 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Renders the data value of a cell using a formatted string.
  *
- * The parameters and string format can be defined via the options according to the PHP printf / sprintf / vsprintf syntax.
+ * The parameters and string format can be defined via the options according to the PHP <code>printf</code> / <code>sprintf</code> / <code>vsprintf</code> syntax.
  */
 class FormattedStringColumnType extends AbstractColumnType {
 

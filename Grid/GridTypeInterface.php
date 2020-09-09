@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -18,6 +19,7 @@ use StingerSoft\AggridBundle\View\GridView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 interface GridTypeInterface {
+
 	/**
 	 * Builds the grid
 	 *
@@ -25,7 +27,7 @@ interface GridTypeInterface {
 	 * top most type.
 	 *
 	 * @param GridBuilderInterface $builder
-	 * @param array $gridOptions
+	 * @param array                $gridOptions
 	 */
 	public function buildGrid(GridBuilderInterface $builder, array $gridOptions): void;
 
@@ -35,10 +37,10 @@ interface GridTypeInterface {
 	 * This method is called for each type in the hierarchy starting from the
 	 * top most type. It allows adding more variables to the given view which may be used during rendering of the grid.
 	 *
-	 * @param GridView $view the grid view to add any additional information to
-	 * @param GridInterface $grid the grid instance the view belongs to
-	 * @param array $gridOptions the options of the grid, previously configured via the #configureOptions method
-	 * @param Column[] $columns the columns of the grid
+	 * @param GridView      $view        the grid view to add any additional information to
+	 * @param GridInterface $grid        the grid instance the view belongs to
+	 * @param array         $gridOptions the options of the grid, previously configured via the #configureOptions method
+	 * @param Column[]      $columns     the columns of the grid
 	 * @return void
 	 */
 	public function buildView(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void;
@@ -67,4 +69,11 @@ interface GridTypeInterface {
 	 * @return string|null The name of the parent type if any, null otherwise
 	 */
 	public function getParent(): ?string;
+
+	/**
+	 * Returns the extensions of the grid type.
+	 *
+	 * @return GridTypeExtensionInterface[]
+	 */
+	public function getTypeExtensions(): array;
 }

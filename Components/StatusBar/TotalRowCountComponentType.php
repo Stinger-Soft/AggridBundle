@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -14,7 +16,7 @@ namespace StingerSoft\AggridBundle\Components\StatusBar;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TotalRowCountComponentType extends AbstractStatusBarComponentType {
-	
+
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('componentAlias', 'agTotalRowCountComponent');
 		$resolver->setDefault('builtIn', true);

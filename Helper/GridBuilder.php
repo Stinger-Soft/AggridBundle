@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Helper;
 
+use ArrayIterator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use OutOfBoundsException;
@@ -118,7 +120,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Returns whether a column with the given path exists (implements the \ArrayAccess interface).
 	 *
-	 * @param string $path The path of the column
+	 * @param mixed $path The path of the column
 	 * @return bool
 	 */
 	public function offsetExists($path): bool {
@@ -128,7 +130,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Returns the column with the given path (implements the \ArrayAccess interface).
 	 *
-	 * @param string $path The path of the column
+	 * @param mixed $path The path of the column
 	 * @return ColumnInterface The column
 	 * @throws OutOfBoundsException If the named column does not exist.
 	 */
@@ -139,8 +141,8 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Adds a column to the grid (implements the \ArrayAccess interface).
 	 *
-	 * @param string          $path   Ignored. The path of the column is used
-	 * @param ColumnInterface $column The column to be added
+	 * @param mixed $path   Ignored. The path of the column is used
+	 * @param mixed $column The column to be added
 	 * @throws InvalidArgumentTypeException
 	 * @see self::add()
 	 */
@@ -151,7 +153,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Removes the column with the given path from the grid (implements the \ArrayAccess interface).
 	 *
-	 * @param string $path The path of the column to remove
+	 * @param mixed $path The path of the column to remove
 	 */
 	public function offsetUnset($path): void {
 		$this->remove($path);
@@ -163,7 +165,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	 * @return Traversable|Column[]
 	 */
 	public function getIterator() {
-		return $this->columns;
+		return new ArrayIterator($this->columns);
 	}
 
 	/**
@@ -274,6 +276,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	 * @param array  $options
 	 * @return ComponentInterface
 	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
 	protected function createComponent(string $id, string $type, array $options = []): ComponentInterface {
 		$typeInstance = $this->dependencyInjectionExtension->resolveComponentType($type);
@@ -289,14 +292,15 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Creates an instance of the given column type class.
 	 *
-	 * @param string $class
+	 * @param string|null $class
 	 *            Classname of the column type
 	 * @return ColumnTypeInterface
-	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
-	private function getColumnTypeInstance($class): ColumnTypeInterface {
+	private function getColumnTypeInstance(?string $class): ColumnTypeInterface {
 		if($class === null) {
-			throw new InvalidArgumentException('Paramater class may not be null!');
+			throw new InvalidArgumentException('Parameter class may not be null!');
 		}
 		return $this->dependencyInjectionExtension->resolveColumnType($class);
 	}

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Filter;
 
+use Closure;
 use StingerSoft\AggridBundle\Grid\GridType;
 use StingerSoft\AggridBundle\View\FilterView;
 use Symfony\Component\OptionsResolver\Options;
@@ -68,7 +70,7 @@ final class FilterType extends AbstractFilterType {
 		]);
 		$resolver->setDefined('newRowsAction');
 		$resolver->setAllowedValues('newRowsAction', [null, self::NEW_ROWS_ACTION_DEFAULT, self::NEW_ROWS_ACTION_KEEP]);
-		$resolver->setDefault('newRowsAction', static function(Options $options, $previousValue) use ($gridOptions) {
+		$resolver->setDefault('newRowsAction', static function (Options $options, $previousValue) use ($gridOptions) {
 			if($previousValue === null) {
 				$previousValue = $gridOptions['filterNewRowsAction'];
 			}
@@ -91,10 +93,10 @@ final class FilterType extends AbstractFilterType {
 		$resolver->setAllowedTypes('validate_empty', ['bool']);
 
 		$resolver->setDefault('validation_delegate', null);
-		$resolver->setAllowedTypes('validation_delegate', ['null', 'callable', \Closure::class]);
+		$resolver->setAllowedTypes('validation_delegate', ['null', 'callable', Closure::class]);
 
 		$resolver->setDefault('server_delegate', null);
-		$resolver->setAllowedTypes('server_delegate', ['null', 'callable', \Closure::class]);
+		$resolver->setAllowedTypes('server_delegate', ['null', 'callable', Closure::class]);
 	}
 
 	public function getParent(): ?string {

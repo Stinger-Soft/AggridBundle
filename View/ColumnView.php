@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -27,12 +28,12 @@ class ColumnView extends AbstractBaseView {
 	/**
 	 * @var FilterView|null the view for the filter of the column (if any).
 	 */
-	public $filter = null;
+	public $filter;
 
 	/**
 	 * @var null|ColumnView the parent of this view (if any).
 	 */
-	public $parent = null;
+	public $parent;
 
 	/**
 	 * ColumnView constructor.

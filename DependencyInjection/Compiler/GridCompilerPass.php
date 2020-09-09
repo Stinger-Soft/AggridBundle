@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -20,12 +21,24 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class GridCompilerPass implements CompilerPassInterface {
 
+	/** @var string */
 	protected $gridExtensionService;
+
+	/** @var string */
 	protected $gridTypeTag;
+
+	/** @var string */
 	protected $columnTypeTag;
+
+	/** @var string */
 	protected $filterTypeTag;
 
-	public function __construct(string $gridExtensionService = 'stingersoft_aggrid.extension', string $gridTypeTag = 'stingersoft_aggrid.grid', string $columnTypeTag = 'stingersoft_aggrid.column', string $filterTypeTag = StingerSoftAggridBundle::FILTER_TYPE_SERVICE_TAG) {
+	public function __construct(
+		string $gridExtensionService = 'stingersoft_aggrid.extension',
+		string $gridTypeTag = 'stingersoft_aggrid.grid',
+		string $columnTypeTag = 'stingersoft_aggrid.column',
+		string $filterTypeTag = StingerSoftAggridBundle::FILTER_TYPE_SERVICE_TAG
+	) {
 		$this->gridExtensionService = $gridExtensionService;
 		$this->gridTypeTag = $gridTypeTag;
 		$this->columnTypeTag = $columnTypeTag;
@@ -44,7 +57,7 @@ class GridCompilerPass implements CompilerPassInterface {
 
 		$definition = $container->getDefinition($this->gridExtensionService);
 
-		$servicesMap = array();
+		$servicesMap = [];
 		$this->processTypes($container, $this->gridTypeTag, $servicesMap);
 		$this->processTypes($container, $this->columnTypeTag, $servicesMap);
 		$this->processTypes($container, $this->filterTypeTag, $servicesMap);
@@ -53,7 +66,7 @@ class GridCompilerPass implements CompilerPassInterface {
 
 	}
 
-	private function processTypes(ContainerBuilder $container, string $tagType, array &$servicesMap) {
+	private function processTypes(ContainerBuilder $container, string $tagType, array &$servicesMap): array {
 		// Builds an array with fully-qualified type class names as keys and service IDs as values
 		foreach($container->findTaggedServiceIds($tagType, true) as $serviceId => $tag) {
 			// Add form type service to the service locator

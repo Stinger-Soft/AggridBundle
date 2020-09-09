@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -21,7 +22,7 @@ class FilterView extends AbstractBaseView {
 
 	/**
 	 * @var string the path to the javascript twig template file to be used when rendering this filter upon
-	 * initialization of the yacdf
+	 * initialization of the grid
 	 */
 	public $jsTemplate = '';
 

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,7 +13,6 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
-use StingerSoft\AggridBundle\Filter\SetFilterType;
 use StingerSoft\AggridBundle\Transformer\TwigDataTransformer;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -44,7 +44,7 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('searchable', AbstractColumnType::CLIENT_SIDE_ONLY);
 		$resolver->setDefault('cellRenderer', 'RawHtmlRenderer');
 
-		$resolver->setNormalizer('filter_options', static function(Options $options, $value) {
+		$resolver->setNormalizer('filter_options', static function (Options $options, $value) {
 			if($value === null) {
 				$value = [];
 			}
@@ -54,7 +54,7 @@ class TemplatedColumnType extends AbstractColumnType {
 			return $value;
 		});
 
-		$resolver->setDefault('exportValueFormatter', function(Options $options, $previousValue) {
+		$resolver->setDefault('exportValueFormatter', function (Options $options, $previousValue) {
 			if($previousValue !== null) {
 				return $previousValue;
 			}
@@ -64,19 +64,8 @@ class TemplatedColumnType extends AbstractColumnType {
 			return 'StripHtmlDisplayValueFormatter';
 		});
 
-		$that = $this;
-		$resolver->setDefault('value_delegate', function($item, $path, $options) use ($that, $gridOptions) {
+		$resolver->setDefault('value_delegate', function ($item, $path, $options) {
 			return $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
-//			$originalContext = [
-//				'item'         => $item,
-//				'path'         => $path,
-//				'value'        => $value,
-//				'options'      => $options,
-//				'tableOptions' => $tableOptions,
-//			];
-//			$additionalContext = $options['additionalContext'];
-//			$context = array_merge($additionalContext, $originalContext);
-//			return trim($that->renderView($options['template'], $context));
 		});
 	}
 

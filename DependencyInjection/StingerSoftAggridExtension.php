@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\DependencyInjection;
 
+use Exception;
 use StingerSoft\AggridBundle\StingerSoftAggridBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,10 +23,8 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 class StingerSoftAggridExtension extends Extension {
 
 	/**
-	 *
 	 * {@inheritDoc}
-	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function load(array $configs, ContainerBuilder $container): void {
 		$configuration = new Configuration();

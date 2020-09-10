@@ -11,15 +11,19 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace StingerSoft\AggridBundle\Components\StatusBar;
+namespace StingerSoft\AggridBundle\Column;
 
+use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TotalRowCountComponentType extends AbstractStatusBarComponentType {
+abstract class AbstractColumnTypeExtension implements ColumnTypeExtensionInterface {
 
 	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
-		$resolver->setDefault('componentAlias', 'agTotalRowCountComponent');
-		$resolver->setDefault('builtIn', true);
 	}
 
+	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
+	}
+
+	public function buildData(ColumnInterface $column, array $options) {
+	}
 }

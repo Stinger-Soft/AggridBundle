@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,8 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use Locale;
+use NumberFormatter;
 use StingerSoft\AggridBundle\Filter\NumberFilterType;
 use StingerSoft\AggridBundle\Transformer\NumberFormatterDataTransformer;
 use StingerSoft\AggridBundle\View\ColumnView;
@@ -38,7 +41,7 @@ class NumberFormatterColumnType extends AbstractColumnType {
 	/**
 	 * @inheritdoc
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setDefault('filterValueGetter', 'ValueGetter');
 		$resolver->setDefault('filter_type', NumberFilterType::class);
 
@@ -52,46 +55,43 @@ class NumberFormatterColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('number_formatter_text_attributes', ['null', 'array']);
 
 		$resolver->setRequired('number_formatter_style');
-		$resolver->setDefault('number_formatter_style', \NumberFormatter::DEFAULT_STYLE);
+		$resolver->setDefault('number_formatter_style', NumberFormatter::DEFAULT_STYLE);
 		$resolver->setAllowedValues('number_formatter_style', [
-			\NumberFormatter::PATTERN_DECIMAL,
-			\NumberFormatter::DECIMAL,
-			\NumberFormatter::CURRENCY,
-			\NumberFormatter::PERCENT,
-			\NumberFormatter::SCIENTIFIC,
-			\NumberFormatter::SPELLOUT,
-			\NumberFormatter::ORDINAL,
-			\NumberFormatter::DURATION,
-			\NumberFormatter::PATTERN_RULEBASED,
-			\NumberFormatter::DEFAULT_STYLE,
-			\NumberFormatter::IGNORE
+			NumberFormatter::PATTERN_DECIMAL,
+			NumberFormatter::DECIMAL,
+			NumberFormatter::CURRENCY,
+			NumberFormatter::PERCENT,
+			NumberFormatter::SCIENTIFIC,
+			NumberFormatter::SPELLOUT,
+			NumberFormatter::ORDINAL,
+			NumberFormatter::DURATION,
+			NumberFormatter::PATTERN_RULEBASED,
+			NumberFormatter::DEFAULT_STYLE,
+			NumberFormatter::IGNORE,
 		]);
 
 		$resolver->setDefault('number_formatter_pattern', null);
-		$resolver->setAllowedTypes('number_formatter_pattern', array('string', 'null'));
-		$resolver->setNormalizer('number_formatter_pattern', static function(Options $options, $valueToNormalize) {
+		$resolver->setAllowedTypes('number_formatter_pattern', ['string', 'null']);
+		$resolver->setNormalizer('number_formatter_pattern', static function (Options $options, $valueToNormalize) {
 			if($valueToNormalize === null) {
-				if($options['number_formatter_style'] === \NumberFormatter::PATTERN_DECIMAL || $options['number_formatter_style'] === \NumberFormatter::PATTERN_RULEBASED) {
+				if($options['number_formatter_style'] === NumberFormatter::PATTERN_DECIMAL || $options['number_formatter_style'] === NumberFormatter::PATTERN_RULEBASED) {
 					throw new InvalidOptionsException(sprintf('When using "number_formatter_style" with a value of %d ("%s") or %d ("%s"), you must provide a value for the "number_formatter_pattern" option!',
-						\NumberFormatter::PATTERN_DECIMAL, 'NumberFormatter::PATTERN_DECIMAL', \NumberFormatter::PATTERN_RULEBASED, 'NumberFormatter::PATTERN_RULEBASED'));
+						NumberFormatter::PATTERN_DECIMAL, 'NumberFormatter::PATTERN_DECIMAL', NumberFormatter::PATTERN_RULEBASED, 'NumberFormatter::PATTERN_RULEBASED'));
 				}
 			}
 			return $valueToNormalize;
 		});
 
-		$resolver->setDefault('number_formatter_locale', \Locale::getDefault());
-		$resolver->setAllowedTypes('number_formatter_locale', array('string', 'null'));
+		$resolver->setDefault('number_formatter_locale', Locale::getDefault());
+		$resolver->setAllowedTypes('number_formatter_locale', ['string', 'null']);
 
-		$that = $this;
 		$resolver->setRequired('number_formatter_currency');
-		$resolver->setAllowedTypes('number_formatter_currency', array('string', 'null'));
+		$resolver->setAllowedTypes('number_formatter_currency', ['string', 'null']);
 		$resolver->setDefault('number_formatter_currency', 'EUR');
-		$resolver->setNormalizer('number_formatter_currency', static function(Options $options, $valueToNormalize) use ($that) {
-			if($valueToNormalize === null) {
-				if($options['number_formatter_style'] === \NumberFormatter::CURRENCY) {
-					throw new InvalidOptionsException(sprintf('When using "number_formatter_style" with a value of %d ("%s"), you must provide a value for the "number_formatter_currency" option!',
-						\NumberFormatter::CURRENCY, 'NumberFormatter::CURRENCY'));
-				}
+		$resolver->setNormalizer('number_formatter_currency', static function (Options $options, $valueToNormalize) {
+			if($valueToNormalize === null && $options['number_formatter_style'] === NumberFormatter::CURRENCY) {
+				throw new InvalidOptionsException(sprintf('When using "number_formatter_style" with a value of %d ("%s"), you must provide a value for the "number_formatter_currency" option!',
+					NumberFormatter::CURRENCY, 'NumberFormatter::CURRENCY'));
 			}
 			return $valueToNormalize;
 		});

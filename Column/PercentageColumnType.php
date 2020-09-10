@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use NumberFormatter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -26,8 +28,8 @@ class PercentageColumnType extends AbstractColumnType {
 	 *
 	 * @see AbstractColumnType::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
-		$resolver->setDefault('number_formatter_style', \NumberFormatter::PERCENT);
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
+		$resolver->setDefault('number_formatter_style', NumberFormatter::PERCENT);
 		$resolver->setDefault('filterValueGetter', 'PercentageValueGetter');
 
 		$resolver->setDefault('format_null', true);

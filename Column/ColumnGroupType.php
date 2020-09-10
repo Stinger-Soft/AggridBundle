@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /*
  * This file is part of the PEC Platform StreetScooterApp.
  *
@@ -10,7 +12,6 @@
 
 namespace StingerSoft\AggridBundle\Column;
 
-use function PHPSTORM_META\type;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Helper\GridBuilder;
 use StingerSoft\AggridBundle\View\ColumnView;

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use NumberFormatter;
 use StingerSoft\AggridBundle\Transformer\CurrencyFormatterDataTransformer;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -33,11 +35,11 @@ class CurrencyColumnType extends AbstractColumnType {
 	 *
 	 * @see AbstractColumnType::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
-		$resolver->setDefault('number_formatter_style', \NumberFormatter::CURRENCY);
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
+		$resolver->setDefault('number_formatter_style', NumberFormatter::CURRENCY);
 
 		$resolver->setDefault('currency', 'EUR');
-		$resolver->setAllowedTypes('currency', array('string', 'callable'));
+		$resolver->setAllowedTypes('currency', ['string', 'callable']);
 	}
 
 	/**

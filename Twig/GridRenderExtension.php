@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -23,19 +24,13 @@ use Twig\TwigFunction;
 
 class GridRenderExtension extends AbstractExtension {
 
-	/**
-	 * @var Environment
-	 */
+	/** @var Environment */
 	protected $environment;
 
-	/**
-	 * @var string
-	 */
+	/**  @var string */
 	protected $twigHtmlTemplate;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $twigJsTemplate;
 
 	/**
@@ -43,16 +38,14 @@ class GridRenderExtension extends AbstractExtension {
 	 * @param string      $twigHtmlTemplate
 	 * @param string      $twigJsTemplate
 	 */
-	public function __construct(Environment $environment, $twigHtmlTemplate, $twigJsTemplate) {
+	public function __construct(Environment $environment, string $twigHtmlTemplate, string $twigJsTemplate) {
 		$this->environment = $environment;
 		$this->twigHtmlTemplate = $twigHtmlTemplate;
 		$this->twigJsTemplate = $twigJsTemplate;
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 *
 	 */
 	public function getFunctions(): array {
 		return [
@@ -67,7 +60,10 @@ class GridRenderExtension extends AbstractExtension {
 		];
 	}
 
-	public function getFilters() {
+	/**
+	 * {@inheritdoc}
+	 */
+	public function getFilters(): array {
 		return [
 			new TwigFilter('aggrid_array_is_associative', [
 				self::class,
@@ -98,18 +94,17 @@ class GridRenderExtension extends AbstractExtension {
 	}
 
 	/**
-	 * Renders a grid with the specified renderer.
+	 * Renders a grid.
 	 *
 	 * @param GridView $grid
 	 * @param array    $options
-	 * @param string   $renderer
 	 *
 	 * @return string
 	 * @throws LoaderError
 	 * @throws RuntimeError
 	 * @throws SyntaxError
 	 */
-	public function render(GridView $grid, array $options = [], $renderer = null): string {
+	public function render(GridView $grid, array $options = []): string {
 		$options = array_merge([
 			'html_template' => $this->twigHtmlTemplate,
 			'js_template'   => $this->twigJsTemplate,

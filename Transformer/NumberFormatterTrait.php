@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,13 +13,15 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Transformer;
 
+use NumberFormatter;
+
 trait NumberFormatterTrait {
 
-	protected function getNumberFormatter($options) : \NumberFormatter {
+	protected function getNumberFormatter($options): NumberFormatter {
 		if($options['number_formatter_pattern'] === null) {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
+			$formatter = new NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
 		} else {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
+			$formatter = new NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
 		}
 		if(isset($options['number_formatter_attributes']) && is_array($options['number_formatter_attributes'])) {
 			foreach($options['number_formatter_attributes'] as $attributeName => $attributeValue) {

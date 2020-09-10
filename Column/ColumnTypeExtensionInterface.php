@@ -13,15 +13,17 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class DataProviderColumnType extends AbstractColumnType {
+/**
+ * @method static iterable getExtendedTypes() Gets the extended types
+ */
+interface ColumnTypeExtensionInterface {
 
-	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
-		$resolver->setDefault('renderable', false);
-		$resolver->setDefault('filterable', false);
-		$resolver->setDefault('searchable', false);
-		$resolver->setDefault('orderable', false);
-	}
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void;
 
+	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void;
+
+	public function buildData(ColumnInterface $column, array $options);
 }

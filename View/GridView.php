@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,9 +13,11 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\View;
 
+use ReflectionException;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Components\ComponentInterface;
+use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Grid\GridInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 
@@ -84,6 +87,8 @@ class GridView extends AbstractBaseView {
 	 *                                                           views
 	 * @param ComponentInterface[] $components                   the status bar components belonging to the grid,
 	 *                                                           required for generating the status bar component views
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
 	public function __construct(GridInterface $gridInterface, GridTypeInterface $gridType, array $gridOptions, array $columns, array $components) {
 		$this->gridOptions = $gridOptions;
@@ -153,12 +158,16 @@ class GridView extends AbstractBaseView {
 		return $this;
 	}
 
+	/**
+	 * @throws ReflectionException
+	 * @throws InvalidArgumentTypeException
+	 */
 	protected function configureColumnViews(): void {
 		$this->columnViews = [];
 		$rootViews = [];
 		foreach($this->columns as $column) {
 			$options = $column->getColumnOptions();
-			if($column->getParent() === null && !isset($rootViews[$column->getPath()]) && $options['renderable']) {
+			if($options['renderable'] && $column->getParent() === null && !isset($rootViews[$column->getPath()])) {
 				$view = $column->createView();
 				$rootViews[$column->getPath()] = $view;
 				$this->addChildViews($view, $column);
@@ -167,6 +176,12 @@ class GridView extends AbstractBaseView {
 		$this->columnViews = $rootViews;
 	}
 
+	/**
+	 * @param ColumnView      $parentView
+	 * @param ColumnInterface $column
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 */
 	protected function addChildViews(ColumnView $parentView, ColumnInterface $column): void {
 		if(count($column->getChildren())) {
 			$childViews = [];
@@ -179,6 +194,10 @@ class GridView extends AbstractBaseView {
 		}
 	}
 
+	/**
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 */
 	protected function configureComponentViews(): void {
 		$this->componentViews = [];
 		$rootViews = [
@@ -201,6 +220,12 @@ class GridView extends AbstractBaseView {
 		$this->componentViews = $rootViews;
 	}
 
+	/**
+	 * @param ComponentView      $parentView
+	 * @param ComponentInterface $statusBarComponent
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 */
 	protected function addComponentChildViews(ComponentView $parentView, ComponentInterface $statusBarComponent): void {
 		if(count($statusBarComponent->getChildren())) {
 			$childViews = [

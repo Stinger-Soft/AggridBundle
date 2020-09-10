@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -29,7 +30,7 @@ trait TemplatingTrait {
 	 * Returns a rendered view.
 	 *
 	 * @param string $view
-	 *            The name of the view to be rendered, must be in a valid format handable by twig.
+	 *            The name of the view to be rendered, must be in a valid format handleable by twig.
 	 * @param array  $parameters
 	 *            An array of parameters to be passed to the view
 	 * @return string The rendered view
@@ -37,7 +38,7 @@ trait TemplatingTrait {
 	 * @throws RuntimeError
 	 * @throws SyntaxError
 	 */
-	public function renderView($view, array $parameters = []): string {
+	public function renderView(string $view, array $parameters = []): string {
 		if(!$this->twig) {
 			throw new LogicException('You can not use the "renderView" method if the Templating Component or the Twig Bundle are not available.');
 		}

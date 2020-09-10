@@ -13,11 +13,15 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Filter;
 
+use StingerSoft\AggridBundle\View\FilterView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TextFilterType extends AbstractFilterType {
+abstract class AbstractFilterTypeExtension implements FilterTypeExtensionInterface {
 
-	public function configureOptions(OptionsResolver $resolver, array $columnOptions = [], array $tableOptions = []): void {
-		$resolver->setDefault('filter_type', 'agTextColumnFilter');
+	public function configureOptions(OptionsResolver $resolver, array $columnOptions = [], array $gridOptions = []): void {
+
+	}
+
+	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void {
 	}
 }

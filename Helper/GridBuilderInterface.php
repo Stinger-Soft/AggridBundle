@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -15,6 +16,7 @@ namespace StingerSoft\AggridBundle\Helper;
 use ArrayAccess;
 use Countable;
 use OutOfBoundsException;
+use ReflectionException;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Components\ComponentInterface;
@@ -36,7 +38,7 @@ interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 	 * @return $this The grid builder, allowing for chaining
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function add($column, ?string $type = null, array $options = []): self;
+	public function add($column, string $type, array $options = []): self;
 
 	/**
 	 * Adds a column to the grid
@@ -50,7 +52,7 @@ interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 	 * @return ColumnInterface
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function addColumn($column, ?string $type = null, array $options = []): ColumnInterface;
+	public function addColumn($column, string $type, array $options = []): ColumnInterface;
 
 	/**
 	 * Adds a column to the grid
@@ -64,7 +66,7 @@ interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 	 * @return $this The grid builder, allowing for chaining
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function addGroup($column, ?string $type = null, array $options = []): self;
+	public function addGroup($column, string $type, array $options = []): self;
 
 	/**
 	 * Adds a column to the grid
@@ -78,7 +80,7 @@ interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 	 * @return ColumnInterface
 	 * @throws InvalidArgumentTypeException
 	 */
-	public function addGroupColumn($column, ?string $type = null, array $options = []): ColumnInterface;
+	public function addGroupColumn($column, string $type, array $options = []): ColumnInterface;
 
 	/**
 	 * Returns the column with the given path.
@@ -120,6 +122,7 @@ interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 	 * @param array       $options Options to pass the status bar component type
 	 * @return $this the grid builder, allowing for chaining
 	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
 	public function addComponent(string $id, ?string $type = null, array $options = []): self;
 

@@ -19,19 +19,19 @@ use StingerSoft\AggridBundle\Grid\GridInterface;
 class GridOrderer implements GridOrdererInterface {
 
 	/** @var array */
-	private $weights;
+	protected $weights;
 
 	/** @var array */
-	private $differed;
+	protected $differed;
 
 	/** @var integer */
-	private $firstWeight;
+	protected $firstWeight;
 
 	/** @var integer */
-	private $currentWeight;
+	protected $currentWeight;
 
 	/** @var integer */
-	private $lastWeight;
+	protected $lastWeight;
 
 	/**
 	 * {@inheritdoc}
@@ -62,17 +62,17 @@ class GridOrderer implements GridOrdererInterface {
 	 *
 	 * @param ColumnInterface $column The column.
 	 */
-	private function processEmptyPosition(ColumnInterface $column): void {
+	protected function processEmptyPosition(ColumnInterface $column): void {
 		$this->processWeight($column, $this->currentWeight);
 	}
 
 	/**
 	 * Processes a string position.
 	 *
-	 * @param ColumnInterface $column The column.
-	 * @param string $position The position.
+	 * @param ColumnInterface $column   The column.
+	 * @param string          $position The position.
 	 */
-	private function processStringPosition(ColumnInterface $column, string $position): void {
+	protected function processStringPosition(ColumnInterface $column, string $position): void {
 		if($position === 'first') {
 			$this->processFirst($column);
 		} else {
@@ -83,10 +83,10 @@ class GridOrderer implements GridOrdererInterface {
 	/**
 	 * Processes an array position.
 	 *
-	 * @param ColumnInterface $column The column.
-	 * @param array $position The position.
+	 * @param ColumnInterface $column   The column.
+	 * @param array           $position The position.
 	 */
-	private function processArrayPosition(ColumnInterface $column, array $position): void {
+	protected function processArrayPosition(ColumnInterface $column, array $position): void {
 		if(isset($position['before'])) {
 			$this->processBefore($column, $position['before']);
 		}
@@ -101,7 +101,7 @@ class GridOrderer implements GridOrdererInterface {
 	 *
 	 * @param ColumnInterface $column The column.
 	 */
-	private function processFirst(ColumnInterface $column): void {
+	protected function processFirst(ColumnInterface $column): void {
 		$this->processWeight($column, $this->firstWeight++);
 	}
 
@@ -110,7 +110,7 @@ class GridOrderer implements GridOrdererInterface {
 	 *
 	 * @param ColumnInterface $column The column.
 	 */
-	private function processLast(ColumnInterface $column): void {
+	protected function processLast(ColumnInterface $column): void {
 		$this->processWeight($column, $this->lastWeight + 1);
 	}
 
@@ -118,9 +118,9 @@ class GridOrderer implements GridOrdererInterface {
 	 * Processes a before position.
 	 *
 	 * @param ColumnInterface $column The column.
-	 * @param string $before The before column name.
+	 * @param string          $before The before column name.
 	 */
-	private function processBefore(ColumnInterface $column, string $before): void {
+	protected function processBefore(ColumnInterface $column, string $before): void {
 		if(!isset($this->weights[$before])) {
 			$this->processDiffered($column, $before, 'before');
 		} else {
@@ -132,9 +132,9 @@ class GridOrderer implements GridOrdererInterface {
 	 * Processes an after position.
 	 *
 	 * @param ColumnInterface $column The column.
-	 * @param string $after The after column name.
+	 * @param string          $after  The after column name.
 	 */
-	private function processAfter(ColumnInterface $column, string $after): void {
+	protected function processAfter(ColumnInterface $column, string $after): void {
 		if(!isset($this->weights[$after])) {
 			$this->processDiffered($column, $after, 'after');
 		} else {
@@ -146,14 +146,15 @@ class GridOrderer implements GridOrdererInterface {
 	 * Processes a weight.
 	 *
 	 * @param ColumnInterface $column The column.
-	 * @param integer $weight The weight.
+	 * @param integer         $weight The weight.
 	 */
-	private function processWeight(ColumnInterface $column, int $weight): void {
+	protected function processWeight(ColumnInterface $column, int $weight): void {
 		foreach($this->weights as &$weightRef) {
 			if($weightRef >= $weight) {
 				$weightRef++;
 			}
 		}
+		unset($weightRef);
 
 		if($this->currentWeight >= $weight) {
 			$this->currentWeight++;
@@ -168,13 +169,13 @@ class GridOrderer implements GridOrdererInterface {
 	/**
 	 * Finishes the weight processing.
 	 *
-	 * @param ColumnInterface $column The column.
-	 * @param integer $weight The weight.
-	 * @param string $position The position (null|before|after).
+	 * @param ColumnInterface $column   The column.
+	 * @param integer         $weight   The weight.
+	 * @param string|null     $position The position (null|"before"|"after").
 	 *
 	 * @return integer The new weight.
 	 */
-	private function finishWeight(ColumnInterface $column, int $weight, string $position = null): int {
+	protected function finishWeight(ColumnInterface $column, int $weight, string $position = null): int {
 		if($position === null) {
 			foreach(array_keys($this->differed) as $positionItem) {
 				$weight = $this->finishWeight($column, $weight, $positionItem);
@@ -199,13 +200,13 @@ class GridOrderer implements GridOrdererInterface {
 	/**
 	 * Processes differed.
 	 *
-	 * @param ColumnInterface $column The column.
-	 * @param string $differed The differed form name.
-	 * @param string $position The position (before|after).
+	 * @param ColumnInterface $column   The column.
+	 * @param string          $differed The differed form name.
+	 * @param string          $position The position (before|after).
 	 *
 	 * @throws OrderedConfigurationException If the differed form does not exist.
 	 */
-	private function processDiffered(ColumnInterface $column, string $differed, string $position): void {
+	protected function processDiffered(ColumnInterface $column, string $differed, string $position): void {
 //		if(!$column->getParent()->has($differed)) {
 //			throw OrderedConfigurationException::createInvalidDiffered($column->getName(), $position, $differed);
 //		}
@@ -221,13 +222,13 @@ class GridOrderer implements GridOrdererInterface {
 	/**
 	 * Detects circular before/after differed.
 	 *
-	 * @param string $name The column name.
+	 * @param string $name     The column name.
 	 * @param string $position The position (before|after)
-	 * @param array $stack The circular stack.
+	 * @param array  $stack    The circular stack.
 	 *
 	 * @throws OrderedConfigurationException If there is a circular before/after differed.
 	 */
-	private function detectCircularDiffered(string $name, string $position, array $stack = array()): void {
+	protected function detectCircularDiffered(string $name, string $position, array $stack = []): void {
 		if(!isset($this->differed[$position][$name])) {
 			return;
 		}
@@ -249,20 +250,20 @@ class GridOrderer implements GridOrdererInterface {
 	/**
 	 * Detects symmetric before/after differed.
 	 *
-	 * @param string $name The form name.
+	 * @param string $name     The form name.
 	 * @param string $differed The differed form name.
 	 * @param string $position The position (before|after).
 	 *
-	 * @throws OrderedConfigurationException If there is a symetric before/after differed.
+	 * @throws OrderedConfigurationException If there is a symmetric before/after differed.
 	 */
-	private function detectedSymmetricDiffered(string $name, string $differed, string $position): void {
+	protected function detectedSymmetricDiffered(string $name, string $differed, string $position): void {
 		$reversePosition = ($position === 'before') ? 'after' : 'before';
 
 		if(isset($this->differed[$reversePosition][$name])) {
 			foreach($this->differed[$reversePosition][$name] as $diff) {
 				/** @var ColumnInterface $diff */
 				if($diff->getPath() === $differed) {
-					throw OrderedConfigurationException::createSymetricDiffered($name, $differed);
+					throw OrderedConfigurationException::createSymmetricDiffered($name, $differed);
 				}
 			}
 		}
@@ -271,12 +272,12 @@ class GridOrderer implements GridOrdererInterface {
 	/**
 	 * Resets the orderer.
 	 */
-	private function reset(): void {
-		$this->weights = array();
-		$this->differed = array(
-			'before' => array(),
-			'after'  => array(),
-		);
+	protected function reset(): void {
+		$this->weights = [];
+		$this->differed = [
+			'before' => [],
+			'after'  => [],
+		];
 
 		$this->firstWeight = 0;
 		$this->currentWeight = 0;

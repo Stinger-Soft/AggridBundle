@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -32,6 +33,7 @@ class GridType extends AbstractGridType {
 	public const COLUMN_AUTO_SIZE_TO_FIT = 'sizeToFit';
 	public const COLUMN_AUTO_SIZE_ALL = 'all';
 
+	/** @var string|null */
 	protected $licenseKey;
 
 	public function __construct(ParameterBagInterface $parameterBag) {
@@ -41,18 +43,14 @@ class GridType extends AbstractGridType {
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function getParent(): ?string {
 		return null;
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function buildView(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void {
 		$this->configureDefaultViewValues($view, $gridOptions, $columns);
@@ -62,13 +60,13 @@ class GridType extends AbstractGridType {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::configureOptions()
 	 */
 	public function configureOptions(OptionsResolver $resolver): void {
 		$this->configureStingerOptions($resolver);
 		$this->configureAggridOptions($resolver);
 	}
 
+	/** @noinspection PhpUnusedParameterInspection */
 	protected function configureDefaultViewValues(GridView $view, array $gridOptions, array $columns): void {
 		$view->vars['id'] = $gridOptions['attr']['id'] = $view->getGridId();
 		$view->vars['aggrid_id'] = str_replace('-', '_', $view->vars['id']);
@@ -198,7 +196,7 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('queryHints', null);
 		$resolver->setAllowedTypes('queryHints', [
 			'null',
-			'array'
+			'array',
 		]);
 
 		$resolver->setDefault('persistState', false);
@@ -245,11 +243,13 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedValues('filterNewRowsAction', [
 			null,
 			FilterType::NEW_ROWS_ACTION_DEFAULT,
-			FilterType::NEW_ROWS_ACTION_KEEP
+			FilterType::NEW_ROWS_ACTION_KEEP,
 		]);
 
 		$resolver->setDefault('autoResizeColumns', false);
-		$resolver->setAllowedValues('autoResizeColumns', [false, self::COLUMN_AUTO_SIZE_ALL, self::COLUMN_AUTO_SIZE_TO_FIT]);
+		$resolver->setAllowedValues('autoResizeColumns', [
+			false, self::COLUMN_AUTO_SIZE_ALL, self::COLUMN_AUTO_SIZE_TO_FIT,
+		]);
 
 		$resolver->setDefault('autoResizeManuallyResizedColumns', false);
 		$resolver->setAllowedTypes('autoResizeManuallyResizedColumns', 'bool');
@@ -297,10 +297,7 @@ class GridType extends AbstractGridType {
 		]);
 
 		$resolver->setDefault('enterpriseLicense', function (Options $options, $previousValue) {
-			if($previousValue === null) {
-				return $this->licenseKey;
-			}
-			return $previousValue;
+			return $previousValue ?? $this->licenseKey;
 		});
 		$resolver->setAllowedTypes('enterpriseLicense', [
 			'string',
@@ -322,7 +319,7 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('autoHeight', false);
 		$resolver->setAllowedTypes('autoHeight', 'bool');
 
-		$addSideBarOptions = static function(OptionsResolver $sidebarResolver) {
+		$addSideBarOptions = static function (OptionsResolver $sidebarResolver) {
 			$sidebarResolver->setDefault('defaultToolPanel', null);
 			$sidebarResolver->setAllowedTypes('defaultToolPanel', ['null', 'string']);
 
@@ -433,12 +430,12 @@ class GridType extends AbstractGridType {
 
 		//Possible icons: https://www.ag-grid.com/javascript-grid-icons/
 		$resolver->setDefault('icons', [
-			'sortAscending'  => '<i class="fas fa-sort-amount-up"></i>',
+			'sortAscending' => '<i class="fas fa-sort-amount-up"></i>',
 			'sortDescending' => '<i class="fas fa-sort-amount-down"></i>',
-			'menu'           => '<i class="far fa-bars" style="width: 12px;"></i>',
-			'menuPin'        => '<i class="far fa-thumbtack"></i>',
-			'filter'         => '<i class="far fa-filter"></i>',
-			'columns'        => '<i class="far fa-columns"></i>',
+			'menu' => '<i class="far fa-bars" style="width: 12px;"></i>',
+			'menuPin' => '<i class="far fa-thumbtack"></i>',
+			'filter' => '<i class="far fa-filter"></i>',
+			'columns' => '<i class="far fa-columns"></i>',
 			'columnMoveMove' => '<i class="far fa-arrows-alt"></i>',
 			'dropNotAllowed' => '<i class="far fa-ban"></i>',
 			//			'checkboxChecked'       => '<i class="far fa-check-square" style="font-size: 1.3em;"></i>',

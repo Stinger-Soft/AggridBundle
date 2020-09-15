@@ -285,6 +285,7 @@ class Filter implements FilterInterface {
 			$this->buildView($filterView, $parentType, $filterOptions);
 		}
 		$rootAliases = $this->queryBuilder ? $this->queryBuilder->getRootAliases() : [];
+		$mainRootAlias = count($rootAliases) > 0 ? current($rootAliases) : '';
 		if($this->columnOptions['filter_query_path'] !== null) {
 			$path = $this->columnOptions['filter_query_path'];
 		} else if($this->columnOptions['query_path'] !== null) {
@@ -292,13 +293,13 @@ class Filter implements FilterInterface {
 		} else {
 			$path = $this->columnOptions['path'];
 			if($this->queryBuilder && false === strpos($path, '.')) {
-				$path = current($rootAliases) . '.' . $path;
+				$path = $mainRootAlias !== '' ? $mainRootAlias . '.' . $path : $path;
 			}
 		}
-		$filterType->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, current($rootAliases));
+		$filterType->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, $mainRootAlias);
 
 		foreach($extensions as $extension) {
-			$extension->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, current($rootAliases));
+			$extension->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, $mainRootAlias);
 		}
 
 	}

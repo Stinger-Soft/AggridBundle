@@ -133,14 +133,14 @@ class Grid implements GridInterface {
 	/**
 	 * Constructs a new grid.
 	 *
-	 * @param string                                $gridTypeClass FQCN of the grid type to be used
-	 * @param QueryBuilder|array                    $dataSource
+	 * @param string $gridTypeClass FQCN of the grid type to be used
+	 * @param QueryBuilder|array $dataSource
 	 *                                                             data source the grid will use for retrieving entries,
 	 *                                                             applying filters, searches and ordering (if a query builder is given)
 	 * @param DependencyInjectionExtensionInterface $dependencyInjectionExtension
-	 * @param PaginatorInterface                    $paginator
-	 * @param Environment|null                      $twig
-	 * @param array                                 $options
+	 * @param PaginatorInterface $paginator
+	 * @param Environment|null $twig
+	 * @param array $options
 	 *                                                             an array of options to be passed to the grid type
 	 * @throws ReflectionException
 	 * @throws InvalidArgumentTypeException
@@ -218,7 +218,7 @@ class Grid implements GridInterface {
 
 		//Group request. So we just return the last requested column
 		if($groupSize > 0 && $groupSize > $pathSize) {
-			$groupKeys = array_map(static function ($item) {
+			$groupKeys = array_map(static function($item) {
 				return $item['id'];
 			}, $this->requestGroupCols);
 			$dataColumns = [];
@@ -373,7 +373,14 @@ class Grid implements GridInterface {
 			}
 		}
 		return [
-			$offset, $count, $order, $search, $filter, $groupCols, $groupColsKey, $ids,
+			$offset,
+			$count,
+			$order,
+			$search,
+			$filter,
+			$groupCols,
+			$groupColsKey,
+			$ids,
 		];
 	}
 
@@ -520,7 +527,14 @@ class Grid implements GridInterface {
 	public function getQueryBuilderMatchingRequest(Request $request): QueryBuilder {
 		$this->queryBuilder = clone $this->originalQueryBuilder;
 		[
-			$offset, $count, $order, $search, $filter, $groupColumns, $groupColumnKeys, $ids,
+			$offset,
+			$count,
+			$order,
+			$search,
+			$filter,
+			$groupColumns,
+			$groupColumnKeys,
+			$ids,
 		] = $this->parseRequest($request);
 		return $this->applyQueryBuilderExpressions($order, $search, $filter, $groupColumns, $groupColumnKeys, $ids);
 	}
@@ -529,7 +543,14 @@ class Grid implements GridInterface {
 	public function getQueryBuilderMatchingIds(array $ids): QueryBuilder {
 		$this->queryBuilder = clone $this->originalQueryBuilder;
 		[
-			$offset, $count, $order, $search, $filter, $groupColumns, $groupColumnKeys, $ignorableIds,
+			$offset,
+			$count,
+			$order,
+			$search,
+			$filter,
+			$groupColumns,
+			$groupColumnKeys,
+			$ignorableIds,
 		] = $this->parseRequest(null);
 		return $this->applyQueryBuilderExpressions($order, $search, $filter, $groupColumns, $groupColumnKeys, $ids);
 	}
@@ -557,7 +578,7 @@ class Grid implements GridInterface {
 	}
 
 	/**
-	 * @param mixed    $item
+	 * @param mixed $item
 	 * @param Column[] $columns
 	 * @return array
 	 * @throws InvalidArgumentTypeException
@@ -697,11 +718,11 @@ class Grid implements GridInterface {
 	 * Sets a value in a nested array based on path
 	 * See http://stackoverflow.com/a/9628276/419887
 	 *
-	 * @param array  $array
+	 * @param array $array
 	 *            The array to modify
 	 * @param string $path
 	 *            The path in the array
-	 * @param mixed  $value
+	 * @param mixed $value
 	 *            The value to set
 	 * @param string $delimiter
 	 *            The separator for the path
@@ -724,7 +745,7 @@ class Grid implements GridInterface {
 	/**
 	 * Merges the grid columns of each type in the hierarchy starting from the top most type.
 	 *
-	 * @param GridTypeInterface    $gridType
+	 * @param GridTypeInterface $gridType
 	 *            the grid type to build the columns from
 	 * @param GridBuilderInterface $builder
 	 *            the grid builder
@@ -751,7 +772,7 @@ class Grid implements GridInterface {
 	 * @param GridTypeInterface $gridType
 	 *            the type to resolve the options for, also used for determining any parents
 	 *            whose options are to be resolved as well
-	 * @param array             $options
+	 * @param array $options
 	 *            the initial options to also be resolved (if any).
 	 * @return array the resolved options for the given grid type.
 	 * @throws InvalidArgumentTypeException
@@ -768,8 +789,8 @@ class Grid implements GridInterface {
 	}
 
 	/**
-	 * @param GridView                     $view
-	 * @param GridTypeInterface            $gridType
+	 * @param GridView $view
+	 * @param GridTypeInterface $gridType
 	 * @param GridTypeExtensionInterface[] $extensions the extensions to be applied
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException
@@ -861,7 +882,7 @@ class Grid implements GridInterface {
 	 *      for ordering
 	 */
 	protected function applyOrderBy(array $orderByEntries): void {
-		$orderByEntries = array_filter($orderByEntries, static function ($entry) {
+		$orderByEntries = array_filter($orderByEntries, static function($entry) {
 			// we only want to have entry containing a column AND a direction
 			return isset($entry['colId'], $entry['sort']) && $entry['sort'] !== '';
 		});
@@ -997,7 +1018,6 @@ class Grid implements GridInterface {
 		$searchQuery = [];
 		$searchableColumns = $this->getSearchableColumnPaths();
 		$bindingCounter = 0;
-		$this->searchExpressions = [];
 		foreach($searchableColumns as $columnId) {
 			$column = $this->columns[$columnId];
 			$searchParameterBinding = ':search_' . $bindingCounter;
@@ -1005,26 +1025,37 @@ class Grid implements GridInterface {
 			if(false === strpos($queryPath, '.')) {
 				$queryPath = $this->rootAlias . '.' . $queryPath;
 			}
+			$options = $column->getColumnOptions();
+			if(isset($options['tokenize_search_term']) && $options['tokenize_search_term'] === true) {
+				$searchTerms = explode(' ', $searchTerm);
+			} else {
+				$searchTerms = [$searchTerm];
+			}
 			$delegate = $column->getServerSideSearchDelegate();
 			if($delegate && is_callable($delegate)) {
-				$searchExpression = $delegate($this->queryBuilder, $searchParameterBinding, $searchTerm, $column, $queryPath);
-				if($searchExpression !== null) {
-					if(is_array($searchExpression)) {
-						foreach($searchExpression as $expression) {
-							$searchQuery[] = $expression;
-							$this->searchExpressions[] = $expression;
+				$searchTermAnds = [];
+				foreach($searchTerms as $index => $term) {
+					$searchExpression = $delegate($this->queryBuilder, $searchParameterBinding . '_' . $index, $term, $column, $queryPath);
+					if($searchExpression !== null) {
+						if(is_array($searchExpression)) {
+							foreach($searchExpression as $expression) {
+								$searchQuery[] = $expression;
+							}
+						} else {
+							$searchQuery[] = $searchExpression;
 						}
-					} else {
-						$searchQuery[] = $searchExpression;
-						$this->searchExpressions[] = $searchExpression;
+						$bindingCounter++;
+						$searchTermAnds[] = $searchExpression;
 					}
-					$bindingCounter++;
 				}
+				$searchQuery[] = $this->queryBuilder->expr()->andX(...$searchTermAnds);
 			} else {
-				$expression = $this->queryBuilder->expr()->like($queryPath, $searchParameterBinding);
-				$this->queryBuilder->setParameter($searchParameterBinding, '%' . $searchTerm . '%');
-				$searchQuery[] = $expression;
-				$this->searchExpressions[] = $expression;
+				$searchTermAnds = [];
+				foreach($searchTerms as $index => $term) {
+					$searchTermAnds[] = $this->queryBuilder->expr()->like($queryPath, $searchParameterBinding . '_' . $index);
+					$this->queryBuilder->setParameter($searchParameterBinding . '_' . $index, '%' . $term . '%');
+				}
+				$searchQuery[] = $this->queryBuilder->expr()->andX(...$searchTermAnds);
 				$bindingCounter++;
 			}
 		}
@@ -1055,7 +1086,7 @@ class Grid implements GridInterface {
 	 *
 	 * @param GridTypeInterface $gridType
 	 *            the grid type to resolve the options from
-	 * @param OptionsResolver   $resolver
+	 * @param OptionsResolver $resolver
 	 *            the resolver used for checking option values and defaults etc.
 	 * @throws InvalidArgumentTypeException
 	 * @throws ReflectionException

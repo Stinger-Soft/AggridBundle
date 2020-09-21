@@ -197,6 +197,9 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('search_server_delegate', null);
 		$resolver->setAllowedTypes('search_server_delegate', ['null', 'callable', Closure::class]);
 
+		$resolver->setDefault('tokenize_search_term', false);
+		$resolver->setAllowedTypes('tokenize_search_term', 'bool');
+
 		$resolver->setDefault('position', null);
 		$resolver->setAllowedTypes('position', [
 			'null',

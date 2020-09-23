@@ -198,7 +198,16 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('search_server_delegate', ['null', 'callable', Closure::class]);
 
 		$resolver->setDefault('tokenize_search_term', false);
-		$resolver->setAllowedTypes('tokenize_search_term', 'bool');
+		$resolver->setAllowedTypes('tokenize_search_term', ['bool', 'string']);
+		$resolver->setNormalizer('tokenize_search_term',  static function (Options $options, $value) {
+			if($value === '') {
+				throw new InvalidOptionsException('An empty string cannot be used as a token!');
+			}
+			return $value;
+		});
+
+		$resolver->setDefault('tokenize_search_conjunction', ColumnTypeInterface::SEARCH_OPERATOR_AND);
+		$resolver->setAllowedValues('tokenize_search_conjunction', [ColumnTypeInterface::SEARCH_OPERATOR_AND, ColumnTypeInterface::SEARCH_OPERATOR_OR]);
 
 		$resolver->setDefault('position', null);
 		$resolver->setAllowedTypes('position', [

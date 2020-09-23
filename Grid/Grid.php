@@ -23,6 +23,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use ReflectionException;
 use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
+use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Components\ComponentInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
@@ -1015,6 +1016,7 @@ class Grid implements GridInterface {
 		if(empty($searchTerm)) {
 			return;
 		}
+		$this->searchExpressions = [];
 		$searchQuery = [];
 		$searchableColumns = $this->getSearchableColumnPaths();
 		$bindingCounter = 0;
@@ -1026,12 +1028,18 @@ class Grid implements GridInterface {
 				$queryPath = $this->rootAlias . '.' . $queryPath;
 			}
 			$options = $column->getColumnOptions();
-			if(isset($options['tokenize_search_term']) && $options['tokenize_search_term'] === true) {
-				$searchTerms = explode(' ', $searchTerm);
+			$conjunction = $options['tokenize_search_conjunction'] ?? ColumnTypeInterface::SEARCH_OPERATOR_AND;
+			$token = null;
+			if(isset($options['tokenize_search_term'])) {
+				$token = $options['tokenize_search_term'] === true ? ' ' : $options['tokenize_search_term'];
+			}
+			if($token !== null) {
+				$searchTerms = explode($token, $searchTerm);
 			} else {
 				$searchTerms = [$searchTerm];
 			}
 			$delegate = $column->getServerSideSearchDelegate();
+
 			if($delegate && is_callable($delegate)) {
 				$searchTermAnds = [];
 				foreach($searchTerms as $index => $term) {
@@ -1048,17 +1056,26 @@ class Grid implements GridInterface {
 						$searchTermAnds[] = $searchExpression;
 					}
 				}
-				$searchQuery[] = $this->queryBuilder->expr()->andX(...$searchTermAnds);
+				if($conjunction === ColumnTypeInterface::SEARCH_OPERATOR_AND) {
+					$searchQuery[] = $this->queryBuilder->expr()->andX(...$searchTermAnds);
+				} else {
+					$searchQuery[] = $this->queryBuilder->expr()->orX(...$searchTermAnds);
+				}
 			} else {
 				$searchTermAnds = [];
 				foreach($searchTerms as $index => $term) {
 					$searchTermAnds[] = $this->queryBuilder->expr()->like($queryPath, $searchParameterBinding . '_' . $index);
 					$this->queryBuilder->setParameter($searchParameterBinding . '_' . $index, '%' . $term . '%');
 				}
-				$searchQuery[] = $this->queryBuilder->expr()->andX(...$searchTermAnds);
+				if($conjunction === ColumnTypeInterface::SEARCH_OPERATOR_AND) {
+					$searchQuery[] = $this->queryBuilder->expr()->andX(...$searchTermAnds);
+				} else {
+					$searchQuery[] = $this->queryBuilder->expr()->orX(...$searchTermAnds);
+				}
 				$bindingCounter++;
 			}
 		}
+		$this->searchExpressions = $searchQuery;
 		if(count($searchQuery) > 0) {
 			$this->queryBuilder->andWhere($this->queryBuilder->expr()->orX()->addMultiple($searchQuery));
 		}

@@ -29,6 +29,8 @@ abstract class AbstractColumnType implements ColumnTypeInterface {
 	 */
 	public const CLIENT_SIDE_ONLY = 'client';
 
+
+
 	use ColumnTrait;
 
 	public static function getBooleanValueDependingOnClientOrServer($optionValue, string $dataMode): bool {

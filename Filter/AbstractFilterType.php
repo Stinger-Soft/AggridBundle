@@ -69,7 +69,7 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 	}
 
 	public function handleFilterRequest(QueryBuilder $queryBuilder, array $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
-		$filterValue = $filterRequest['filter'] ?? $filterRequest['values'];
+		$filterValue = $filterRequest['filter'] ?? $filterRequest['values'] ?? null;
 		$filterValueTo = $filterRequest['filterTo'] ?? null;
 		$filterType = $filterRequest['type'] ?? null;
 		if(is_array($filterValue)) {

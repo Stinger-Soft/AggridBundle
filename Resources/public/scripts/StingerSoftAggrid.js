@@ -134,7 +134,7 @@
 		if (params.value !== null && typeof params.value === 'object' && params.value.hasOwnProperty('displayValue')) {
 			return params.value.displayValue;
 		}
-		return params.value;
+		return StingerSoftAggrid.getValueFromParams(params);
 	};
 
 	/**

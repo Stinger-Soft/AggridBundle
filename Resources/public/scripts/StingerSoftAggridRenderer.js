@@ -291,6 +291,10 @@ StingerSoftAggrid.Renderer.StateRenderer.prototype.init = function (params) {
             value =  params.value.value;
         }
 
+        if(!this.states.hasOwnProperty(value)) {
+            return;
+        }
+
         var stateConfig = this.states[value];
 
         var icon = stateConfig.icon;
@@ -300,7 +304,7 @@ StingerSoftAggrid.Renderer.StateRenderer.prototype.init = function (params) {
         if (params.display_type !== this.TYPE_LABEL_ONLY) {
             this.eGui.innerHTML = "<i></i>";
             this.icon = this.eGui.querySelector('i');
-            this.icon.className = icon + " font-" + color;
+            this.icon.className = icon + ' ' + color;
         }
         if (params.display_type === this.TYPE_LABEL_ONLY || params.display_type === this.TYPE_ICON_WITH_LABEL) {
             if(params.display_type === this.TYPE_ICON_WITH_LABEL) {

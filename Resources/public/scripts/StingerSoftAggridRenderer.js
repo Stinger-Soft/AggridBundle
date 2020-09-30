@@ -260,3 +260,75 @@
     };
 
 }));
+
+/**
+ * @returns StingerSoftAggrid.Renderer.StateRenderer
+ * @constructor
+ */
+StingerSoftAggrid.Renderer.StateRenderer = function () {
+    //"Constants"
+    this.TYPE_ICON_ONLY = 'icon-only';
+    this.TYPE_ICON_TOOLTIP = 'icon-with-tooltip';
+    this.TYPE_ICON_WITH_LABEL = 'icon-with-label';
+    this.TYPE_LABEL_ONLY = 'label-only';
+
+    this.states = {};
+    this.eGui = document.createElement('span');
+    return this;
+};
+
+/**
+ *
+ * @param params
+ */
+StingerSoftAggrid.Renderer.StateRenderer.prototype.init = function (params) {
+    this.states = params.states;
+
+    if (params.value !== "" && params.value !== undefined && params.value !== null) {
+        StingerSoft.mapValuesToObject(params, this);
+        var value = params.value;
+        if(typeof params.value === 'object' && params.value.hasOwnProperty('value')) {
+            value =  params.value.value;
+        }
+
+        var stateConfig = this.states[value];
+
+        var icon = stateConfig.icon;
+        var label = stateConfig.label;
+        var color = stateConfig.color;
+
+        if (params.display_type !== this.TYPE_LABEL_ONLY) {
+            this.eGui.innerHTML = "<i></i>";
+            this.icon = this.eGui.querySelector('i');
+            this.icon.className = icon + " font-" + color;
+        }
+        if (params.display_type === this.TYPE_LABEL_ONLY || params.display_type === this.TYPE_ICON_WITH_LABEL) {
+            if(params.display_type === this.TYPE_ICON_WITH_LABEL) {
+                label = ' ' + label;
+            }
+            this.textnode = document.createTextNode(label);
+            this.eGui.appendChild(this.textnode);
+        }
+        if (params.display_type === this.TYPE_ICON_TOOLTIP) {
+            this.icon.setAttribute("data-toggle", "tooltip");
+            this.icon.setAttribute("data-container", "body");
+            this.icon.setAttribute("title", label);
+        }
+    }
+};
+
+/**
+ *
+ * @param params
+ */
+StingerSoftAggrid.Renderer.StateRenderer.prototype.refresh = function (params) {
+    this.init(params);
+};
+
+/**
+ *
+ * @returns {HTMLElement | *}
+ */
+StingerSoftAggrid.Renderer.StateRenderer.prototype.getGui = function () {
+    return this.eGui;
+};

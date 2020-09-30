@@ -31,15 +31,15 @@
 	"require": {
 		"php": ">=7.2",
 		"ext-json": "*",
-		"knplabs/knp-components": "~1.3.3|^2.0",
+		"knplabs/knp-components": "~1.3.3||^2.0",
 		"npm-asset/ag-grid-community": ">=21.0",
 		"npm-asset/moment": "~2.24",
 		"stinger-soft/php-commons": "^1.0.0",
-		"symfony/framework-bundle": "^4.3",
-		"symfony/property-access": "^4.3",
-		"symfony/console": "^4.3",
-		"symfony/form": "^4.3",
-		"twig/twig": "^2.0|^3.0"
+		"symfony/framework-bundle": "^4.0||^5.0",
+		"symfony/property-access": "^4.0||^5.0",
+		"symfony/console": "^4.0||^5.0",
+		"symfony/form": "^4.0||^5.0",
+		"twig/twig": "^2.0||^3.0"
 	},
 	"suggest": {
 		"npm-asset/ag-grid-enterprise": "Enterprise edition to support set filter etc."
@@ -52,8 +52,8 @@
 		"php-coveralls/php-coveralls": "~2.1.0",
 		"doctrine/orm": "^2.5",
 		"doctrine/common": "^2.5",
-		"symfony/validator": "^3.4|^4.0",
-		"symfony/phpunit-bridge": "^3.4|^4.0"
+		"symfony/validator": "^3.4||^4.0||^5.0",
+		"symfony/phpunit-bridge": "^3.4||^4.0||^5.0"
 	},
 	"repositories": [
 		{

@@ -1030,7 +1030,7 @@ class Grid implements GridInterface {
 			$options = $column->getColumnOptions();
 			$conjunction = $options['tokenize_search_conjunction'] ?? ColumnTypeInterface::SEARCH_OPERATOR_AND;
 			$token = null;
-			if(isset($options['tokenize_search_term'])) {
+			if(isset($options['tokenize_search_term']) && $options['tokenize_search_term'] !== false) {
 				$token = $options['tokenize_search_term'] === true ? ' ' : $options['tokenize_search_term'];
 			}
 			if($token !== null) {

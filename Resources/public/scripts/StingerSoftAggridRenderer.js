@@ -291,7 +291,7 @@ StingerSoftAggrid.Renderer.StateRenderer.prototype.init = function (params) {
             value =  params.value.value;
         }
 
-        if(params.colDef.hasOwnProperty('pivotValueColumn')) {
+        if(params.colDef.hasOwnProperty('pivotValueColumn') || params.column.hasOwnProperty('aggregationActive') && params.column.aggregationActive === true) {
             this.eGui.innerHTML = value;
             return;
         }

@@ -291,6 +291,11 @@ StingerSoftAggrid.Renderer.StateRenderer.prototype.init = function (params) {
             value =  params.value.value;
         }
 
+        if(params.colDef.hasOwnProperty('pivotValueColumn')) {
+            this.eGui.innerHTML = value;
+            return;
+        }
+
         if(!this.states.hasOwnProperty(value)) {
             return;
         }

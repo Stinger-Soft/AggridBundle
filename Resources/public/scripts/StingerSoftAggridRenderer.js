@@ -157,6 +157,14 @@
             value = value === 'true' ? true : value;
             value = value === 'false' ? false : value;
 
+            if(
+                (params.hasOwnProperty('colDef') && params.colDef.hasOwnProperty('pivotValueColumn')) ||
+                (params.hasOwnProperty('column') && params.column.hasOwnProperty('aggregationActive') && params.column.aggregationActive === true)
+            ) {
+                this.eGui.innerHTML = value;
+                return;
+            }
+
             if (params.display_type !== this.TYPE_LABEL_ONLY) {
                 this.eGui.innerHTML = "<i></i>";
                 this.icon = this.eGui.querySelector('i');
@@ -291,7 +299,10 @@ StingerSoftAggrid.Renderer.StateRenderer.prototype.init = function (params) {
             value =  params.value.value;
         }
 
-        if(params.colDef.hasOwnProperty('pivotValueColumn') || params.column.hasOwnProperty('aggregationActive') && params.column.aggregationActive === true) {
+        if(
+            (params.hasOwnProperty('colDef') && params.colDef.hasOwnProperty('pivotValueColumn')) ||
+            (params.hasOwnProperty('column') && params.column.hasOwnProperty('aggregationActive') && params.column.aggregationActive === true)
+        ) {
             this.eGui.innerHTML = value;
             return;
         }

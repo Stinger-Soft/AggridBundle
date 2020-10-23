@@ -146,6 +146,7 @@ class GridType extends AbstractGridType {
 			$gridOptions['versionHash'] = hash_final($hashing);
 		}
 		$view->vars['versionHash'] = $gridOptions['versionHash'];
+		$view->vars['applyCellrendererOnPivotHeader'] = $gridOptions['applyCellrendererOnPivotHeader'];
 	}
 
 	protected function configureStingerOptions(OptionsResolver $resolver): void {
@@ -447,6 +448,10 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('nativeOptions', false);
 		$resolver->setDefault('getRowNodeId', null);
 		$resolver->setAllowedTypes('getRowNodeId', ['string', 'null']);
+
+
+		$resolver->setDefault('applyCellrendererOnPivotHeader', false);
+		$resolver->setAllowedTypes('applyCellrendererOnPivotHeader', 'bool');
 	}
 
 	protected function validateSideBarOptions(Options $options, $sidebarOption) {

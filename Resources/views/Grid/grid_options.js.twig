@@ -179,4 +179,32 @@
 			}
 		}
 	}
+	{% if grid.vars.applyCellrendererOnPivotHeader %}
+	, processSecondaryColGroupDef: function(colGroupDef) {
+	    var pivotColumns = {{ varAggrid }}.getColumnApi().getPivotColumns();
+	    var level = colGroupDef.pivotKeys.length - 1;
+
+	    var column = pivotColumns[level];
+	    var columnDef = column.colDef;
+	    if(columnDef.hasOwnProperty('cellRenderer')) {
+	        var isConstructor = function(f) {
+	            try {
+	                new f();
+	            } catch (err) {
+	                // verify err is the expected error and then
+	                return false;
+	            }
+	            return true;
+	        }
+
+	        var value = colGroupDef.headerName;
+	        if(isConstructor(columnDef.cellRenderer)) {
+	            var cellRenderer = new columnDef.cellRenderer();
+	            var params = jQuery.extend({}, columnDef.cellRendererParams, {'value': value});
+	        }
+	        cellRenderer.init(params);
+	        colGroupDef.headerName = jQuery(cellRenderer.getGui()).html();
+	    }
+	}
+	{% endif %}
 }

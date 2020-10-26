@@ -198,12 +198,13 @@
 	        }
 
 	        var value = colGroupDef.headerName;
+	        //todo support simple callbacks
 	        if(isConstructor(columnDef.cellRenderer)) {
-	            var cellRenderer = new columnDef.cellRenderer();
-	            var params = jQuery.extend({}, columnDef.cellRendererParams, {'value': value});
-	        }
-	        cellRenderer.init(params);
-	        colGroupDef.headerName = jQuery(cellRenderer.getGui()).html();
+                var cellRenderer = new columnDef.cellRenderer();
+                var params = jQuery.extend({}, columnDef.cellRendererParams, {'value': value});
+                cellRenderer.init(params);
+                colGroupDef.headerName = jQuery(cellRenderer.getGui()).html();
+            }
 	    }
 	}
 	{% endif %}

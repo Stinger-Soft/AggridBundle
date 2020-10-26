@@ -114,17 +114,17 @@
 	{% endif %}
 	{% if grid.vars.treeData %}
 		, treeData: true,
-        getDataPath: function (data) {
-	        return data.orgHierarchy.value;
+		getDataPath: function (data) {
+			return data.orgHierarchy.value;
 		},
-	    autoGroupColumnDef: {
-	        headerName: "Group",
-            filter: true,
-            resizable: true,
-            valueGetter: function(params) {
-	            return '';
-	        }
-	    }
+		autoGroupColumnDef: {
+			headerName: "Group",
+			filter: true,
+			resizable: true,
+			valueGetter: function(params) {
+				return '';
+			}
+		}
 	{% endif %}
 	, onGridReady: function(params) {
 		{{ varAggrid }}.load(params.columnApi, params.api);
@@ -181,31 +181,31 @@
 	}
 	{% if grid.vars.applyCellrendererOnPivotHeader %}
 	, processSecondaryColGroupDef: function(colGroupDef) {
-	    var pivotColumns = {{ varAggrid }}.getColumnApi().getPivotColumns();
-	    var level = colGroupDef.pivotKeys.length - 1;
+		var pivotColumns = {{ varAggrid }}.getColumnApi().getPivotColumns();
+		var level = colGroupDef.pivotKeys.length - 1;
 
-	    var column = pivotColumns[level];
-	    var columnDef = column.colDef;
-	    if(columnDef.hasOwnProperty('cellRenderer')) {
-	        var isConstructor = function(f) {
-	            try {
-	                new f();
-	            } catch (err) {
-	                // verify err is the expected error and then
-	                return false;
-	            }
-	            return true;
-	        }
+		var column = pivotColumns[level];
+		var columnDef = column.colDef;
+		if(columnDef.hasOwnProperty('cellRenderer')) {
+			var isConstructor = function(f) {
+				try {
+					new f();
+				} catch (err) {
+					// verify err is the expected error and then
+					return false;
+				}
+				return true;
+			}
 
-	        var value = colGroupDef.headerName;
-	        //todo support simple callbacks
-	        if(isConstructor(columnDef.cellRenderer)) {
-                var cellRenderer = new columnDef.cellRenderer();
-                var params = jQuery.extend({}, columnDef.cellRendererParams, {'value': value});
-                cellRenderer.init(params);
-                colGroupDef.headerName = jQuery(cellRenderer.getGui()).html();
-            }
-	    }
+			var value = colGroupDef.headerName;
+			//todo support simple callbacks
+			if(isConstructor(columnDef.cellRenderer)) {
+				var cellRenderer = new columnDef.cellRenderer();
+				var params = jQuery.extend({}, columnDef.cellRendererParams, {'value': value});
+				cellRenderer.init(params);
+				colGroupDef.headerName = jQuery(cellRenderer.getGui()).html();
+			}
+		}
 	}
 	{% endif %}
 }

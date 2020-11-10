@@ -1047,13 +1047,12 @@ class Grid implements GridInterface {
 					if($searchExpression !== null) {
 						if(is_array($searchExpression)) {
 							foreach($searchExpression as $expression) {
-								$searchQuery[] = $expression;
+								$searchTermAnds[] = $expression;
 							}
 						} else {
-							$searchQuery[] = $searchExpression;
+							$searchTermAnds[] = $searchExpression;
 						}
 						$bindingCounter++;
-						$searchTermAnds[] = $searchExpression;
 					}
 				}
 				if($conjunction === ColumnTypeInterface::SEARCH_OPERATOR_AND) {

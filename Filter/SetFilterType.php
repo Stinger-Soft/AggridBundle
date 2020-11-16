@@ -32,7 +32,10 @@ class SetFilterType extends AbstractFilterType {
 		$resolver->setDefault('keyValueMapping', null);
 		$resolver->setAllowedTypes('keyValueMapping', ['null', 'array', 'callable']);
 
-		$resolver->setDefault('cellRenderer', static function (Options $options, $previousValue) {
+		$resolver->setDefault('textFormatter', null);
+		$resolver->setAllowedTypes('textFormatter', ['null', 'string']);
+
+		$resolver->setDefault('cellRenderer', static function(Options $options, $previousValue) {
 			if($options['keyValueMapping'] !== null) {
 				return $previousValue ?? 'KeyValueMappingRenderer';
 			}
@@ -45,7 +48,7 @@ class SetFilterType extends AbstractFilterType {
 		$resolver->setAllowedTypes('allow_null_value', 'boolean');
 
 		$resolver->setDefault('null_value', null);
-		$resolver->setNormalizer('null_value', static function (Options $options, $valueToNormalize) {
+		$resolver->setNormalizer('null_value', static function(Options $options, $valueToNormalize) {
 			if($valueToNormalize === null && $options['allow_null_value'] === true) {
 				throw new InvalidArgumentException('When setting "allow_null_value" to true, you must provide a non-null value for the "null_value" option!');
 			}
@@ -126,6 +129,8 @@ class SetFilterType extends AbstractFilterType {
 		$view->vars = array_replace($view->vars, [
 			'data'               => $rawData,
 			'cellRendererParams' => $cellRendererParams,
+			'textFormatter'      => $options['textFormatter']
 		]);
+
 	}
 }

@@ -69,6 +69,21 @@
 		}
 	};
 
+	/**
+	 *
+	 * @param {function} f
+	 * @returns {boolean}
+	 */
+	StingerSoft.isConstructor = function(f) {
+		try {
+			new f();
+		} catch (err) {
+			// verify err is the expected error and then
+			return false;
+		}
+		return true;
+	}
+
 
 	/**
 	 * General Ag-Grid object to be initialized,
@@ -801,6 +816,28 @@
 		return aggridRenderer;
 	};
 
+	StingerSoftAggrid.Renderer.invokeRendererByName = function (renderer, rendererParams, value) {
+		var aggridRenderer = StingerSoftAggrid.Renderer.getRenderer(renderer, rendererParams);
+		if(aggridRenderer === null) {
+			return value;
+		}
+
+		return StingerSoftAggrid.Renderer.invokeRenderer(aggridRenderer, rendererParams, value);
+	};
+
+	StingerSoftAggrid.Renderer.invokeRenderer = function (aggridRenderer, rendererParams, value) {
+		if(StingerSoft.isConstructor(aggridRenderer)) {
+			var cellRenderer = new aggridRenderer();
+			var params = jQuery.extend({}, rendererParams || {}, {'value': value});
+			cellRenderer.init(params);
+			return jQuery(cellRenderer.getGui()).text();
+		} else {
+			var params = jQuery.extend({}, rendererParams || {}, {'value': value});
+			return aggridRenderer(params);
+		}
+	}
+
+
 	/**
 	 * The Namespace for all formatters.
 	 * Custom formatters have to be "registered" to this namespace.
@@ -819,6 +856,29 @@
 		if (formatter in StingerSoftAggrid.Formatter && typeof StingerSoftAggrid.Formatter[formatter] == 'function') {
 			var finalFormatterParams = formatterParams || {};
 			aggridFormatter = StingerSoftAggrid.Formatter[formatter](finalFormatterParams);
+		} else {
+			console.warn('Formatter "' + formatter + '" not found! Returning agGrid default function');
+		}
+		return aggridFormatter;
+	};
+
+	/**
+	 * The Namespace for all formatters.
+	 * Custom formatters have to be "registered" to this namespace.
+	 */
+	StingerSoftAggrid.TextFormatter = StingerSoftAggrid.TextFormatter || {};
+
+	/**
+	 *
+	 * @param {string} formatter - The name of the formatter function to pull
+	 * @param {json} formatterParams
+	 * @returns {*} The according formatter or default to the normal formatter
+	 */
+	StingerSoftAggrid.TextFormatter.getFormatter = function (formatter) {
+		//Default to null -> Uses the default formatter
+		var aggridFormatter = null;
+		if (formatter in StingerSoftAggrid.TextFormatter && typeof StingerSoftAggrid.TextFormatter[formatter] == 'function') {
+			aggridFormatter = StingerSoftAggrid.TextFormatter[formatter];
 		} else {
 			console.warn('Formatter "' + formatter + '" not found! Returning agGrid default function');
 		}

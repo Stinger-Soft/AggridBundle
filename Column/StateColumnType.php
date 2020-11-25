@@ -88,6 +88,7 @@ class StateColumnType extends AbstractColumnType {
 				'states'       => $this->getStateMappings($options),
 				'display_type' => $options['filter_display_type'],
 			];
+			$value['textFormatter'] = 'CellRendererTextFormatter';
 			return $value;
 		});
 	}

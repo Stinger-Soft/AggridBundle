@@ -2,12 +2,12 @@
 {% block filter_params %}
 {% if filter.vars.data is not same as (false) %}
 values: {{ filter.vars.data|json_encode|raw }},
+{% endif %}
 {% if filter.vars.textFormatter is defined and filter.vars.textFormatter is not same as(null) %}
 textFormatter: function(value) {
     var formatter = StingerSoftAggrid.TextFormatter.getFormatter({{ filter.vars.textFormatter|json_encode|raw }});
     return formatter(value, this.colDef);
 },
-{% endif %}
 {% endif %}
 {{ parent() }}
 {% endblock %}

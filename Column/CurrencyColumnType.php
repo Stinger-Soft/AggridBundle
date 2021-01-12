@@ -15,6 +15,7 @@ namespace StingerSoft\AggridBundle\Column;
 
 use NumberFormatter;
 use StingerSoft\AggridBundle\Transformer\CurrencyFormatterDataTransformer;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -40,6 +41,12 @@ class CurrencyColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('currency', 'EUR');
 		$resolver->setAllowedTypes('currency', ['string', 'callable']);
+
+		$resolver->setDefault('number_formatter_attributes', function (Options $options, $previousValue) {
+			$attributes = is_array($previousValue) ? $previousValue : [];
+			$attributes[NumberFormatter::ROUNDING_MODE] = NumberFormatter::ROUND_HALFUP;
+			return $attributes;
+		});
 	}
 
 	/**

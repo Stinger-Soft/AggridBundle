@@ -9,5 +9,8 @@ textFormatter: function(value) {
     return formatter(value, this.colDef);
 },
 {% endif %}
+{% if filter.vars.comparator is defined and filter.vars.comparator is not same as(null) %}
+comparator: StingerSoftAggrid.Comparator.getComparator({{ filter.vars.comparator|json_encode|raw }}),
+{% endif %}
 {{ parent() }}
 {% endblock %}

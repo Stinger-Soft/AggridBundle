@@ -106,4 +106,14 @@
         return StingerSoftAggrid.Comparator.DefaultComparator(dateA, dateB, nodeA, nodeB, isInverted);
     }
 
+    /**
+     * Useful in set filters for mapped columns where the order is predefined by the php backend
+     *
+     * @return {number}
+     * @constructor
+     */
+    StingerSoftAggrid.Comparator.NoopComparator = function (valueA, valueB, nodeA, nodeB, isInverted) {
+        return 0;
+    }
+
 }));

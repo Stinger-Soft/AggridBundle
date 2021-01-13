@@ -38,6 +38,9 @@ class SetFilterType extends AbstractFilterType {
 		$resolver->setDefault('textFormatterParams', null);
 		$resolver->setAllowedTypes('textFormatterParams', ['null', 'array']);
 
+		$resolver->setDefault('comparator', null);
+		$resolver->setAllowedTypes('comparator', ['null', 'string']);
+
 		$resolver->setDefault('cellRenderer', static function(Options $options, $previousValue) {
 			if($options['keyValueMapping'] !== null) {
 				return $previousValue ?? 'KeyValueMappingRenderer';
@@ -130,10 +133,11 @@ class SetFilterType extends AbstractFilterType {
 		$cellRendererParams['keyValueMapping'] = $keyValueMapping;
 		$cellRendererParams['translation_domain'] = $translationDomain;
 		$view->vars = array_replace($view->vars, [
-			'data'               => $rawData,
-			'cellRendererParams' => $cellRendererParams,
-			'textFormatter'      => $options['textFormatter'],
+			'data'                => $rawData,
+			'cellRendererParams'  => $cellRendererParams,
+			'textFormatter'       => $options['textFormatter'],
 			'textFormatterParams' => $options['textFormatterParams'],
+			'comparator'          => $options['comparator'],
 		]);
 
 	}

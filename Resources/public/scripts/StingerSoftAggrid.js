@@ -874,7 +874,7 @@
 	 * @param {json} formatterParams
 	 * @returns {*} The according formatter or default to the normal formatter
 	 */
-	StingerSoftAggrid.TextFormatter.getFormatter = function (formatter) {
+	StingerSoftAggrid.TextFormatter.getFormatter = function (formatter, formatterParams) {
 		//Default to null -> Uses the default formatter
 		var aggridFormatter = null;
 		if (formatter in StingerSoftAggrid.TextFormatter && typeof StingerSoftAggrid.TextFormatter[formatter] == 'function') {

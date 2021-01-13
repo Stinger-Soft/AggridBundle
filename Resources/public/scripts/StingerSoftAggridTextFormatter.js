@@ -54,7 +54,7 @@
     StingerSoftAggrid.TextFormatter.NullValueTextFormatter = function (formatterParams) {
         return function (value, colDef) {
             if (value === null || value === "") {
-                return formatterParams.nullValue || '';
+                return formatterParams.nullValueLabel || '';
             }
             return value;
         };

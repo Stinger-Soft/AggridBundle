@@ -39,14 +39,25 @@
 (function (jQuery, moment, window, document, undefined) {
     moment.locale(jQuery('html').attr('lang'));
 
-    StingerSoftAggrid.TextFormatter.CellRendererTextFormatter = function (value, colDef) {
-        var cellRenderer = colDef.filterParams.cellRenderer;
-        var cellRendererParams = colDef.filterParams.cellRendererParams;
-        var displayValue = StingerSoftAggrid.Renderer.invokeRenderer(cellRenderer, cellRendererParams, value);
-        if(displayValue === null || displayValue === "") {
+    StingerSoftAggrid.TextFormatter.CellRendererTextFormatter = function (formatterParams) {
+        return function (value, colDef) {
+            var cellRenderer = colDef.filterParams.cellRenderer;
+            var cellRendererParams = colDef.filterParams.cellRendererParams;
+            var displayValue = StingerSoftAggrid.Renderer.invokeRenderer(cellRenderer, cellRendererParams, value);
+            if (displayValue === null || displayValue === "") {
+                return value;
+            }
+            return displayValue;
+        };
+    };
+
+    StingerSoftAggrid.TextFormatter.NullValueTextFormatter = function (formatterParams) {
+        return function (value, colDef) {
+            if (value === null || value === "") {
+                return formatterParams.nullValue || '';
+            }
             return value;
-        }
-        return displayValue;
+        };
     };
 
 }));

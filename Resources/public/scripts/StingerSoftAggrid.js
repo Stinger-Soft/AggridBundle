@@ -878,7 +878,8 @@
 		//Default to null -> Uses the default formatter
 		var aggridFormatter = null;
 		if (formatter in StingerSoftAggrid.TextFormatter && typeof StingerSoftAggrid.TextFormatter[formatter] == 'function') {
-			aggridFormatter = StingerSoftAggrid.TextFormatter[formatter];
+			var finalTextFormatterParams = formatterParams || {};
+			aggridFormatter = StingerSoftAggrid.TextFormatter[formatter](finalTextFormatterParams);
 		} else {
 			console.warn('Formatter "' + formatter + '" not found! Returning agGrid default function');
 		}

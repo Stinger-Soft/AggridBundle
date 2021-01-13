@@ -55,6 +55,11 @@
         return displayValue ? displayValue : '';
     };
 
+    StingerSoftAggrid.Renderer.NullValueRenderer = function (params) {
+        var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
+        return displayValue ? displayValue : params.nullValueLabel;
+    };
+
     /**
      * @return {function(*): string}
      */

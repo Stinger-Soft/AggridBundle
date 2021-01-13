@@ -5,7 +5,7 @@ values: {{ filter.vars.data|json_encode|raw }},
 {% endif %}
 {% if filter.vars.textFormatter is defined and filter.vars.textFormatter is not same as(null) %}
 textFormatter: function(value) {
-    var formatter = StingerSoftAggrid.TextFormatter.getFormatter({{ filter.vars.textFormatter|json_encode|raw }});
+    var formatter = StingerSoftAggrid.TextFormatter.getFormatter({{ filter.vars.textFormatter|json_encode|raw }}, {{ filter.vars.textFormatterParams|default([])|json_encode|raw }});
     return formatter(value, this.colDef);
 },
 {% endif %}

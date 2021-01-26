@@ -394,6 +394,13 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('filterValueGetter', null);
 		$resolver->setAllowedTypes('filterValueGetter', ['null', 'string']);
 
+		$resolver->setDefault('valueSetter', null);
+		$resolver->setAllowedTypes('valueSetter', ['null', 'string']);
+
+		$resolver->setDefault('valueSetterParams', null);
+		$resolver->setAllowedTypes('valueSetterParams', ['null', 'array']);
+
+
 		$resolver->setDefault('quickFilter', null);
 		$resolver->setAllowedTypes('quickFilter', ['null', 'string']);
 
@@ -429,6 +436,12 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('cellRendererParams', null);
 		$resolver->setAllowedTypes('cellRendererParams', ['null', 'array']);
+
+		$resolver->setDefault('cellEditor', null);
+		$resolver->setAllowedTypes('cellEditor', ['null', 'string']);
+
+		$resolver->setDefault('cellEditorParams', null);
+		$resolver->setAllowedTypes('cellEditorParams', ['null', 'array']);
 
 		$resolver->setDefault('columnGroupShow', null);
 		$resolver->setAllowedValues('columnGroupShow', [null, 'closed', 'open', true]);
@@ -487,6 +500,8 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['keyCreator'] = $options['keyCreator'];
 		$view->vars['quickFilter'] = $options['quickFilter'];
 		$view->vars['valueGetter'] = $options['valueGetter'];
+		$view->vars['valueSetter'] = $options['valueSetter'];
+		$view->vars['valueSetterParams'] = $options['valueSetterParams'];
 		$view->vars['autoHeight'] = $options['autoHeight'];
 		$view->vars['suppressMenu'] = $options['suppressMenu'];
 		$view->vars['tooltipField'] = $options['tooltipField'];
@@ -497,6 +512,8 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['headerCheckboxSelectionFilteredOnly'] = $options['headerCheckboxSelectionFilteredOnly'];
 		$view->vars['cellRenderer'] = $options['cellRenderer'];
 		$view->vars['cellRendererParams'] = $options['cellRendererParams'];
+		$view->vars['cellEditor'] = $options['cellEditor'];
+		$view->vars['cellEditorParams'] = $options['cellEditorParams'];
 		$view->vars['columnGroupShow'] = $options['columnGroupShow'];
 		$view->vars['cellStyle'] = $options['cellStyle'];
 		$view->vars['cellClass'] = $options['cellClass'];

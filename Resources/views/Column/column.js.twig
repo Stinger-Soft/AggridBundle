@@ -51,12 +51,21 @@
 	{% if column.vars.autoHeight is defined and column.vars.autoHeight is not same as(null) %}
 	autoHeight: {{ column.vars.autoHeight|default(true)|json_encode|raw }},
 	{% endif %}
+	{% if column.vars.cellEditor is defined and column.vars.cellEditor %}
+	cellEditor: {{ column.vars.cellEditor|json_encode|raw }},
+	{% if column.vars.cellEditorParams is defined and column.vars.cellEditorParams and column.vars.cellEditorParams|length > 0 %}
+	cellEditorParams: {{ me.deserializeOptionArray(column.vars.cellEditorParams) }},
+	{% endif %}
+	{% endif %}
 	{% if column.vars.cellRenderer is defined and column.vars.cellRenderer %}
 	cellRenderer: StingerSoftAggrid.Renderer.getRenderer("{{ column.vars.cellRenderer }}", {{ column.vars.cellRendererParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
-			{% endif %}
-			{% if column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
+	{% endif %}
+	{% if column.vars.valueGetter is defined and column.vars.valueGetter is not same as(null) %}
 		valueGetter: StingerSoftAggrid.Getter.getGetter("{{ column.vars.valueGetter }}", {{ column.vars.valueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
-		{% endif %}
+	{% endif %}
+	{% if column.vars.valueSetter is defined and column.vars.valueSetter is not same as(null) %}
+	valueSetter: StingerSoftAggrid.Setter.getSetter("{{ column.vars.valueSetter }}", {{ column.vars.valueSetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
+	{% endif %}
 		{% if column.vars.filterValueGetter is defined and column.vars.filterValueGetter is not same as(null) %}
 	filterValueGetter: StingerSoftAggrid.Getter.getGetter("{{ column.vars.filterValueGetter }}", {{ column.vars.filterValueGetterParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 		{% else %}

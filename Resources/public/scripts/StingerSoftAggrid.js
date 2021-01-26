@@ -936,6 +936,30 @@
 	};
 
 	/**
+	 * The Namespace for all setters.
+	 * Custom setters have to be "registered" to this namespace.
+	 */
+	StingerSoftAggrid.Setter = StingerSoftAggrid.Setter || {};
+
+	/**
+	 *
+	 * @param {string} setter - The name of the setter function to pull
+	 * @param {json} setterParams
+	 * @returns {*} The according setter or default to the normal formatter
+	 */
+	StingerSoftAggrid.Setter.getSetter = function (setter, setterParams) {
+		//Default to null -> Uses the default getter
+		var aggridSetter = null;
+		if (setter in StingerSoftAggrid.Setter && typeof StingerSoftAggrid.Setter[setter] == 'function') {
+			var finalSetterParams = setterParams || {};
+			aggridSetter = StingerSoftAggrid.Setter[setter](setterParams);
+		} else {
+			console.warn('Setter "' + setter + '" not found! Returning agGrid default function');
+		}
+		return aggridSetter;
+	};
+
+	/**
 	 * The Namespace for all keyCreators.
 	 * Custom keyCreators have to be "registered" to this namespace.
 	 */

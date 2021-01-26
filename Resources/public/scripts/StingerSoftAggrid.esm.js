@@ -4,6 +4,7 @@ require('./StingerSoftAggridEditor');
 require('./StingerSoftAggridFilter');
 require('./StingerSoftAggridFormatter');
 require('./StingerSoftAggridGetter');
+require('./StingerSoftAggridSetter');
 require('./StingerSoftAggridRenderer');
 require('./StingerSoftAggridStyler');
 require('./StingerSoftAggridComparator');

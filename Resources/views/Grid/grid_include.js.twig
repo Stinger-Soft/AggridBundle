@@ -7,17 +7,26 @@ jQuery(document).ready(function () {
 	if(typeof moment !== 'undefined') {
 		moment.locale('{{ app.request.locale|default('en') }}');
 	}
-
+	{% block grid_js_before_options %}{% endblock grid_js_before_options %}
+	{% block grid_js_options %}
 	// let the grid know which columns and what data to use
 	var {{ varAggridOptions }} = {% include '@StingerSoftAggrid/Grid/grid_options.js.twig' with {'grid': grid, 'columns': grid.columns} %};
 	{% if grid.vars.nativeOptions != false %}
 	{{ varAggridOptions }} = jQuery.extend({{ varAggridOptions }}, {{ grid.vars.nativeOptions|json_encode|raw }});
 	{% endif %}
 	var {{ varOptions }} = {% include '@StingerSoftAggrid/Grid/stinger_options.js.twig' with {'options': grid.vars} %}
+	{% endblock grid_js_options %}
+	{% block grid_js_after_options %}{% endblock grid_js_after_options %}
 
+	{% block grid_js_before_init %}{% endblock grid_js_before_init %}
+	{% block grid_js_init %}
 	{{ varAggrid }} = new StingerSoftAggrid('#{{ grid.vars.aggrid_id }}');
 	{{ varAggrid }}.init({{ varAggridOptions }}, {{ varOptions }});
+	{% endblock grid_js_init %}
+	{% block grid_js_after_init %}{% endblock grid_js_after_init %}
 
+	{% block grid_js_before_column_extras %}{% endblock grid_js_before_column_extras %}
+	{% block grid_js_column_extras %}
 	{# TODO add recursion for children - Denkt doch auch mal an die Kinder! #}
 	{% for column in grid.columns %}
 		{% if column.vars.exportable is defined and column.vars.exportable is not same as(false) %}
@@ -32,4 +41,6 @@ jQuery(document).ready(function () {
 			);
 		{% endif %}
 	{% endfor %}
+	{% endblock grid_js_column_extras %}
+	{% block grid_js_after_column_extras %}{% endblock grid_js_after_column_extras %}
 })

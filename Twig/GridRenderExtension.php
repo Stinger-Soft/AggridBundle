@@ -105,9 +105,11 @@ class GridRenderExtension extends AbstractExtension {
 	 * @throws SyntaxError
 	 */
 	public function render(GridView $grid, array $options = []): string {
+		$htmlTemplate = $grid->getHtmlTemplate() ?? $this->twigHtmlTemplate;
+		$jsTemplate = $grid->getJsTemplate() ?? $this->twigJsTemplate;
 		$options = array_merge([
-			'html_template' => $this->twigHtmlTemplate,
-			'js_template'   => $this->twigJsTemplate,
+			'html_template' => $htmlTemplate,
+			'js_template'   => $jsTemplate,
 			'grid'          => $grid,
 		], $options);
 		return $this->environment->render($options['html_template'], $options) . "\n" . $this->environment->render($options['js_template'], $options);

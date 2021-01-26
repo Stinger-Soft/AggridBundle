@@ -147,6 +147,14 @@ class GridView extends AbstractBaseView {
 		return array_merge($this->gridOptions['components'] ?? [], $this->additionalComponents);
 	}
 
+	public function getJsTemplate() : ?string {
+		return $this->gridOptions['templateJs'] ?? null;
+	}
+
+	public function getHtmlTemplate() :?string {
+		return $this->gridOptions['templateHtml'] ?? null;
+	}
+
 	/**
 	 * Sets the column views for the table.
 	 *

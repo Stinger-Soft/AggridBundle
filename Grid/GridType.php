@@ -72,6 +72,8 @@ class GridType extends AbstractGridType {
 		$view->vars['aggrid_id'] = str_replace('-', '_', $view->vars['id']);
 		$view->vars['aggrid_js_id'] = str_replace([' ', '#'], ['_', ''], $view->vars['aggrid_id']);
 		$view->vars['stingerSoftAggrid_js_var'] = 'stingerSoftAggrid' . $view->vars['aggrid_js_id'];
+		$view->vars['templateJs'] = $gridOptions['templateJs'];
+		$view->vars['templateHtml'] = $gridOptions['templateHtml'];
 		$view->vars['ajax_url'] = $gridOptions['ajax_url'];
 		$view->vars['dataMode'] = $gridOptions['dataMode'];
 		if(!$gridOptions['autoHeight']) {
@@ -233,6 +235,12 @@ class GridType extends AbstractGridType {
 
 		$resolver->setDefault('templateTopBar', '@StingerSoftAggrid/Grid/grid_search_pagination.html.twig');
 		$resolver->setAllowedTypes('templateTopBar', 'string');
+
+		$resolver->setDefault('templateJs', null);
+		$resolver->setAllowedTypes('templateJs', ['null', 'string']);
+
+		$resolver->setDefault('templateHtml', null);
+		$resolver->setAllowedTypes('templateHtml', ['null', 'string']);
 
 		$resolver->setDefault('versionHashModifier', null);
 		$resolver->setAllowedTypes('versionHashModifier', ['null', 'string']);

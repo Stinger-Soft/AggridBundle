@@ -32,6 +32,7 @@ use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\Service\GridOrderer;
 use StingerSoft\AggridBundle\View\GridView;
+use StingerSoft\PhpCommons\String\Utils;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -261,6 +262,98 @@ class Grid implements GridInterface {
 		$gridView = new GridView($this, $this->gridType, $this->options, $this->columns, $this->components);
 		$this->buildView($gridView, $this->gridType, $this->typeExtensions);
 		return $gridView;
+	}
+
+	public function createConfigurationResponse(): JsonResponse {
+		$view = $this->createView();
+		$jsonStinger = $this->twig->render('@StingerSoftAggrid/Grid/stinger_options.js.twig', [
+			'options' => $view->vars,
+		]);
+
+		$aggridConfig = [];
+		// todo in TS/JS: $aggridConfig['processCellForClipboard']
+		$aggridConfig['enableBrowserTooltips'] = $view->vars['enableBrowserTooltips'];
+		$aggridConfig['enableRangeSelection'] = $view->vars['enableRangeSelection'];
+
+		$aggridConfig['columnDefs'] = [];
+		foreach($view->getColumns() as $column) {
+			$aggridConfig['columnDefs'][] = ['field' => $column->path, 'headerName' => $column->path, 'filterable' => true, 'sortable' => true];
+		}
+
+		$aggridConfig['components'] = [];
+		foreach($view->getAdditionalComponents() as $componentAlias => $component) {
+			$aggridConfig['components'][$componentAlias] = $component;
+		}
+
+		if(count($view->getStatusBarComponents()) > 0) {
+			$aggridConfig['statusBar'] = ['statusPanels' => []];
+			foreach($view->getStatusBarComponents() as $statusBarComponent) {
+				// todo add infos from component
+			}
+		}
+		if(count($view->getSideBarComponents()) > 0 || $view->vars['sideBar'] !== false) {
+			if(count($view->getSideBarComponents()) > 0) {
+				$aggridConfig['sideBar'] = ['toolPanels' => []];
+				if($view->vars['sideBarOptions']['defaultToolPanel'] !== null) {
+					$aggridConfig['sideBar']['defaultToolPanel'] = $view->vars['sideBarOptions']['defaultToolPanel'];
+				}
+				if($view->vars['sideBarOptions']['position'] !== null) {
+					$aggridConfig['sideBar']['position'] = $view->vars['sideBarOptions']['position'];
+				}
+				if($view->vars['sideBarOptions']['hiddenByDefault'] !== null) {
+					$aggridConfig['sideBar']['hiddenByDefault'] = $view->vars['sideBarOptions']['hiddenByDefault'];
+				}
+				foreach($view->getSideBarComponents() as $sideBarComponent) {
+					// todo add infos from component
+				}
+			} else {
+				$aggridConfig['sideBar'] = $view->vars['sideBar'];
+			}
+		}
+
+		self::addFieldIfSet($view->vars, $aggridConfig, 'rowStyle');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'getRowNodeId');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'rowHeight');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'getRowStyle', null, true);
+		self::addFieldIfSet($view->vars, $aggridConfig, 'rowClass');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'getRowClass', null, true);
+		self::addFieldIfSet($view->vars, $aggridConfig, 'rowClassRules'); // todo implement deserializeOptionArray
+		self::addFieldIfSet($view->vars, $aggridConfig, 'icons');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressCsvExport');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressExcelExport');
+		if($view->vars['pagination']) {
+			$aggridConfig['pagination'] = true;
+		}
+		self::addFieldIfSet($view->vars, $aggridConfig, 'paginationPageSize');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'paginationAutoPageSize');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressPaginationPanel');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'domLayout');
+		if($view->vars['dataMode'] === GridType::DATA_MODE_INLINE) {
+			$aggridConfig['rowData'] = $view->getInlineData();
+		}
+		self::addFieldIfSet($view->vars, $aggridConfig, 'rowSelection');
+		self::addFieldIfSet($view->vars, $aggridConfig, 'rowMultiSelectWithClick', false);
+		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressRowClickSelection', false);
+
+		if($view->vars['dataMode'] === GridType::DATA_MODE_ENTERPRISE) {
+			$aggridConfig['rowModelType'] = 'serverSide';
+			self::addFieldIfSet($view->vars, $aggridConfig, 'cacheBlockSize');
+			$aggridConfig['blockLoadDebounceMillis'] = 500;
+		}
+		if($view->vars['treeData']) {
+			//todo add
+		}
+
+		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressPaginationPanel');
+
+		$template = '{"gridId": '.json_encode($view->getGridId()).', "aggrid": ' . json_encode($aggridConfig) . ', "stinger": ' . $jsonStinger . '}';
+		return new JsonResponse($template, 200, [], true);
+	}
+
+	protected static function addFieldIfSet(array $source, array &$target, $key, $ignoreOn = null, bool $filterJsFunction = false): void {
+		if(isset($source[$key]) && $source[$key] !== $ignoreOn && (!$filterJsFunction || !Utils::startsWith($source[$key], 'function'))) {
+			$target[$key] = $source[$key];
+		}
 	}
 
 	/**

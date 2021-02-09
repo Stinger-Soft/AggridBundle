@@ -300,6 +300,16 @@ class Column implements ColumnInterface {
 		return $view;
 	}
 
+	public function createJsonConfiguration(ColumnView $view, ColumnView $parent = null): void {
+		if(null === $parent && $this->parent) {
+			$parent = $this->parent->createView();
+		}
+		$this->buildJsonConfiguration($view, $this->columnType, $this->columnOptions, $this->typeExtensions);
+		if($this->filter) {
+			//todo add json config for filter
+		}
+	}
+
 	/**
 	 * @inheritdoc
 	 */
@@ -580,6 +590,18 @@ class Column implements ColumnInterface {
 
 		if($columnView->vars['translation_domain'] === null) {
 			$columnView->vars['translation_domain'] = $this->columnOptions['translation_domain'];
+		}
+	}
+
+	protected function buildJsonConfiguration(ColumnView $columnView, ColumnTypeInterface $columnType, array $columnOptions = [], array $extensions = []): void {
+		if($columnType->getParent()) {
+			$parentType = $this->dependencyInjectionExtension->resolveColumnType($columnType->getParent());
+			$this->buildJsonConfiguration($columnView, $parentType, $columnOptions);
+		}
+		$columnType->buildJsonConfiguration($columnView, $this, $columnOptions);
+
+		foreach($extensions as $extension) {
+			$extension->buildJsonConfiguration($columnView, $this, $columnOptions);
 		}
 	}
 

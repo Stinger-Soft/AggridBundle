@@ -245,4 +245,11 @@ interface ColumnInterface {
 	 * @throws ReflectionException
 	 */
 	public function createView(ColumnView $parent = null): ColumnView;
+
+	/**
+	 * Creates the json configuration in the given view
+	 * @param ColumnView $view
+	 */
+	public function createJsonConfiguration(ColumnView $view, ColumnView $parent = null): void;
+	
 }

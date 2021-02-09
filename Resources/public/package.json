@@ -1,6 +1,6 @@
 {
   "name": "stinger-ag-grid",
-  "version": "1.0.x",
+  "version": "2.1.x",
   "description": "ag-Grid Enterprise Features",
   "main": "scripts/StingerSoftAggrid.esm.js",
   "repository": {

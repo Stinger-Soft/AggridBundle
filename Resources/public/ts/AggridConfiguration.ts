@@ -17,4 +17,5 @@ export class AggridConfiguration {
     rowClassRules: any
     icons: any
     suppressCsvExport: boolean
+    pagination: any
 }

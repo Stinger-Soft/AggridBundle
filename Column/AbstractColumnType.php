@@ -64,6 +64,13 @@ abstract class AbstractColumnType implements ColumnTypeInterface {
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public function buildJsonConfiguration(ColumnView $view, ColumnInterface $column, array $options): void {
+
+	}
+
+	/**
 	 * {@inheritdoc}
 	 * @see \StingerSoft\AggridBundle\Column\ColumnTypeInterface::getParent()
 	 */

@@ -13,12 +13,25 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\View;
 
+use StingerSoft\PhpCommons\String\Utils;
+
 abstract class AbstractBaseView {
 
 	/**
 	 * @var array Array of data which can be used inside the template
 	 */
 	public $vars;
+
+	/**
+	 * @var null|string[]
+	 */
+	public $jsonConfiguration;
+
+	public static function addFieldIfSet(array $source, array &$target, $key, $ignoreOn = null, bool $filterJsFunction = false): void {
+		if(isset($source[$key]) && $source[$key] !== $ignoreOn && (!$filterJsFunction || !Utils::startsWith($source[$key], 'function'))) {
+			$target[$key] = $source[$key];
+		}
+	}
 
 	/**
 	 * Gets array of data which can be used inside the template

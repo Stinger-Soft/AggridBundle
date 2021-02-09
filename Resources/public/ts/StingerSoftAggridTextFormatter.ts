@@ -6,7 +6,7 @@ import {invokeRenderer, StingerSoftAggridRenderer} from "./StingerSoftAggridRend
 export class StingerSoftAggridTextFormatter {
     private static formatter = [];
 
-    public static getFormatter = function (formatter, formatterParams) {
+    public static getFormatter = function (formatter, formatterParams: any = {}) {
         //Default to null -> Uses the default formatter
         var aggridFormatter = null;
         if (formatter in this.formatter && typeof this.formatter [formatter] == 'function') {

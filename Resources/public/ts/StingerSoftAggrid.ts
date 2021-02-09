@@ -10,6 +10,8 @@ import {StingerSoftAggridFilter} from "./StingerSoftAggridFilter";
 import {StingerSoftAggridEditor} from "./StingerSoftAggridEditor";
 import {StingerSoftAggridStyler} from "./StingerSoftAggridStyler";
 import {StingerSoftAggridTextFormatter} from "./StingerSoftAggridTextFormatter";
+import {StingerSoftAggridKeyCreator} from "./StingerSoftAggridKeyCreator";
+import {StingerSoftAggridTooltip} from "./StingerSoftAggridTooltip";
 
 declare var jQuery: jQuery;
 
@@ -41,6 +43,8 @@ export class StingerSoftAggrid {
 
     public static Comparator = StingerSoftAggridComparator;
 
+    public static Creator = StingerSoftAggridKeyCreator;
+
     public static Editor = StingerSoftAggridEditor;
 
     public static Filter = StingerSoftAggridFilter;
@@ -55,6 +59,7 @@ export class StingerSoftAggrid {
 
     public static TextFormatter = StingerSoftAggridTextFormatter;
 
+    public static Tooltip =  StingerSoftAggridTooltip;
 
     constructor(private aggridElement: HTMLElement, private api?: GridApi, private columnApi?: ColumnApi) {
         this.gridId = aggridElement.id;
@@ -63,12 +68,13 @@ export class StingerSoftAggrid {
 
     public init(options: GridConfiguration): void {
         this.options = options;
-        if (this.options.hasOwnProperty('enterpriseLicense')) {
-            this.setLicenseKey(this.options.stinger.enterpriseLicense);
-        }
+
 
         if (!this.api) {
-            new Grid(this.aggridElement, this.options.aggrid);
+            if (this.options.stinger.hasOwnProperty('enterpriseLicense')) {
+                this.setLicenseKey(this.options.stinger.enterpriseLicense);
+            }
+            var aggrid = new Grid(this.aggridElement, this.options.aggrid);
             this.api = this.options.aggrid.api;
             this.columnApi = this.options.aggrid.columnApi;
         }
@@ -81,6 +87,7 @@ export class StingerSoftAggrid {
 
     private setLicenseKey(licenseKey: string) {
         this.licenseKey = licenseKey;
+
     }
 
     public static getValueFromParams = function (params) {
@@ -139,7 +146,7 @@ export class StingerSoftAggrid {
             console.log('fetching data');
             this.fetchRowsViaAjax();
         }
-        if (this.options.hasOwnProperty('dataMode') && this.options.stinger.dataMode === 'enterprise') {
+        if (this.options.stinger.dataMode === 'enterprise') {
             this.isServerSide = true;
             this.api.setServerSideDatasource(this.getEnterpriseDatasource());
         }

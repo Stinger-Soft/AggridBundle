@@ -26,4 +26,8 @@ abstract class AbstractColumnTypeExtension implements ColumnTypeExtensionInterfa
 
 	public function buildData(ColumnInterface $column, array $options) {
 	}
+
+	public function buildJsonConfiguration(ColumnView $view, ColumnInterface $column, array $options): void {
+		
+	}
 }

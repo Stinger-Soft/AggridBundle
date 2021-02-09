@@ -16,7 +16,7 @@ export class StingerSoftAggridValueGetter {
      * @param {json} getterParams
      * @returns {*} The according getter or default to the normal formatter
      */
-    static getGetter(getter: string, getterParams: any[]) {
+    static getGetter(getter: string, getterParams: any = {}) {
         //Default to null -> Uses the default getter
         var aggridGetter = null;
         if (getter in this.getter && typeof this.getter[getter] == 'function') {

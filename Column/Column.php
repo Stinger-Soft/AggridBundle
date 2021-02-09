@@ -304,10 +304,12 @@ class Column implements ColumnInterface {
 		if(null === $parent && $this->parent) {
 			$parent = $this->parent->createView();
 		}
-		$this->buildJsonConfiguration($view, $this->columnType, $this->columnOptions, $this->typeExtensions);
-		if($this->filter) {
-			//todo add json config for filter
+
+		if($this->filter && $view->filter) {
+			$this->filter->createJsonConfiguration($view->filter);
 		}
+		$this->buildJsonConfiguration($view, $this->columnType, $this->columnOptions, $this->typeExtensions);
+
 	}
 
 	/**

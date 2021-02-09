@@ -11,7 +11,7 @@ import {IAfterGuiAttachedParams, ICellEditorComp, ICellEditorParams, Promise} fr
 export class StingerSoftAggridEditor {
     private static editor = [];
 
-    public static getEditor = function (editor: string, editorParams) {
+    public static getEditor = function (editor: string, editorParams: any = {}) {
         //Default to null -> Uses the default formatter
         var aggridEditor = null;
         if (editor in this.editor && typeof this.editor [editor] == 'function') {

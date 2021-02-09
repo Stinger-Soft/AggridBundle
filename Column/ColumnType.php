@@ -546,17 +546,18 @@ class ColumnType extends AbstractColumnType {
 		$translated_label = $label;
 		$translationDomain = $view->vars['translation_domain'] === null ? $gridOptions['translation_domain'] : $view->vars['translation_domain'];
 		if($translationDomain !== false && $labelIsTranslatable) {
-			$translated_label = $this->translator->trans($label, [],$translationDomain);
+			$translated_label = $this->translator->trans($label, [], $translationDomain);
 		}
 
 		$view->jsonConfiguration['headerName'] = $translated_label;
 		$view->jsonConfiguration['field'] = $view->path;
 		$view->jsonConfiguration['sortable'] = $view->vars['orderable'];
 
-		if(isset($view->vars['filter'])) {
-			//todo
+		if(isset($view->filter) && $view->filter) {
+			$view->jsonConfiguration['filter'] = $view->filter->jsonConfiguration['filter'];
+			$view->jsonConfiguration['filterParams'] = $view->filter->jsonConfiguration['filterParams'];
 		} else {
-			$view->jsonConfiguration['filter'] = $view->vars['orderable'];
+			$view->jsonConfiguration['filter'] = $view->vars['filterable'];
 		}
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'width');
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'minWidth');
@@ -583,7 +584,62 @@ class ColumnType extends AbstractColumnType {
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueSetterParams');
 
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueFormatter');
+		if(!isset($view->jsonConfiguration['valueFormatter'])) {
+			$view->jsonConfiguration['valueFormatter'] = 'DefaultFormatter';
+		}
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueFormatterParams');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'filterValueGetter');
+		if(!isset($view->jsonConfiguration['filterValueGetter'])) {
+			$view->jsonConfiguration['filterValueGetter'] = 'DisplayValueGetter';
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'filterValueGetterParams');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'getQuickFilterText');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'keyCreator');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'tooltipField');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'tooltip');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerTooltip');
+		if(isset($view->jsonConfiguration['headerTooltip']) && isset($view->vars['headerTooltip_translation_domain']) && $view->vars['headerTooltip_translation_domain'] != false) {
+			$view->jsonConfiguration['headerTooltip'] = $this->translator->trans($view->jsonConfiguration['headerTooltip'], [], $view->vars['headerTooltip_translation_domain']);
+		}
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'columnGroupShow');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellStyle');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellClass');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerClass');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'toolPanelClass');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellClassRules');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'checkboxSelection');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerCheckboxSelection');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerCheckboxSelectionFilteredOnly');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'suppressFilter');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'checkboxSelection');
+		$view->jsonConfiguration['hide'] = !$view->vars['visible'];
+
+		if(isset($view->vars['enterpriseLicense']) && $view->vars['treeData'] !== true) {
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowGroup');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'enableRowGroup');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'enableValue');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'pivot');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'enablePivot');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'aggFunc');
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'resizable');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'editable');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'comparator');
+		if(isset($view->vars['children']) && $view->vars['children'] !== null && count($view->vars['children']) > 0) {
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'groupId');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'marryChildren');
+			$children = [];
+			foreach($view->vars['children'] as $child) {
+				$child->jsonConfiguration;
+			}
+			$view->jsonConfiguration['children'] = $children;
+		}
+
 	}
 
 }

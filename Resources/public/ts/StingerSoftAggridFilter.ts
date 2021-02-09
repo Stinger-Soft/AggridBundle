@@ -1,7 +1,7 @@
 export class StingerSoftAggridFilter {
     private static filter = [];
 
-    public static getFilter = function (filter: string, filterParams) {
+    public static getFilter = function (filter: string, filterParams: any = {}) {
         //Default to null -> Uses the default formatter
         var aggridFilter = null;
         if (filter in this.filter && typeof this.filter [filter] == 'function') {

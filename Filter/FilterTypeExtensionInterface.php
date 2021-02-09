@@ -24,4 +24,12 @@ interface FilterTypeExtensionInterface {
 	public function configureOptions(OptionsResolver $resolver, array $columnOptions = [], array $gridOptions = []) : void;
 
 	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void;
+
+	/**
+	 * Adds the json compatible configuration of this filter to the view
+	 * @param FilterView      $viewthe filter view to add any additional information to
+	 * @param FilterInterface $filterthe filter instance the view belongs to
+	 * @param array           $optionsthe options of the column, previously configured by the #configureOptions method
+	 */
+	public function buildJsonConfiguration(FilterView $view, FilterInterface $filter, array $options): void;
 }

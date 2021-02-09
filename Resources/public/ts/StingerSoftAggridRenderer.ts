@@ -4,12 +4,13 @@ import type jQuery from 'jquery';
 import {StingerSoftAggrid} from "./StingerSoftAggrid";
 import {ICellRendererComp, ICellRendererParams, Promise} from "ag-grid-community";
 import {isConstructor} from "./utils";
+declare var Translator: any;
 
 
 export class StingerSoftAggridRenderer {
     private static renderer = [];
 
-    public static getRenderer(renderer: string, rendererParams: any[]) {
+    public static getRenderer(renderer: string, rendererParams: any = {}) {
         //Default to null -> Uses the default renderer
         var aggridRenderer = null;
         if (renderer in this.renderer && typeof this.renderer[renderer] == 'function') {
@@ -60,19 +61,19 @@ export function StripHtmlRenderer(params) {
 };
 StingerSoftAggridRenderer.registerRenderer('StripHtmlRenderer', StripHtmlRenderer);
 
-// export function KeyValueMappingRenderer(rendererParams) {
-//     var val = StingerSoftAggrid.getValueFromParams(rendererParams);
-//     var translationDomain = rendererParams.hasOwnProperty('translation_domain') && rendererParams.translation_domain ? rendererParams.translation_domain : 'messages';
-//     var keyValueMapping = rendererParams.hasOwnProperty('keyValueMapping') && rendererParams.keyValueMapping ? rendererParams.keyValueMapping : {};
-//     if (val && keyValueMapping.hasOwnProperty(val)) {
-//         if (translationDomain) {
-//             return Translator.trans(keyValueMapping[val], {}, translationDomain);
-//         }
-//         return keyValueMapping[val];
-//     }
-//     return val ? val : '';
-// };
-// StingerSoftAggridRenderer.registerRenderer('KeyValueMappingRenderer', KeyValueMappingRenderer);
+export function KeyValueMappingRenderer(rendererParams) {
+    var val = StingerSoftAggrid.getValueFromParams(rendererParams);
+    var translationDomain = rendererParams.hasOwnProperty('translation_domain') && rendererParams.translation_domain ? rendererParams.translation_domain : 'messages';
+    var keyValueMapping = rendererParams.hasOwnProperty('keyValueMapping') && rendererParams.keyValueMapping ? rendererParams.keyValueMapping : {};
+    if (val && keyValueMapping.hasOwnProperty(val)) {
+        if (translationDomain && typeof Translator !== "undefined" ) {
+            return Translator.trans(keyValueMapping[val], {}, translationDomain);
+        }
+        return keyValueMapping[val];
+    }
+    return val ? val : '';
+};
+StingerSoftAggridRenderer.registerRenderer('KeyValueMappingRenderer', KeyValueMappingRenderer);
 
 
 export class YesNoRenderer implements ICellRendererComp {

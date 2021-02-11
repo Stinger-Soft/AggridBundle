@@ -16,4 +16,5 @@ export class StingerConfiguration {
     searchEnabled: any
     stingerVersion: any
     versionHash: any
+    paginationDropDown: any
 }

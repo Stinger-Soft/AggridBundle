@@ -1,5 +1,5 @@
-/// <reference types="jquery">
-import type jQuery from 'jquery';
+declare var jQuery: JQueryStatic;
+
 import {ColDef, Column, ColumnApi, ColumnResizedEvent, Grid, GridApi, GridOptions} from "ag-grid-community";
 import {GridConfiguration} from "./GridConfiguration";
 import {StingerSoftAggridRenderer} from "./StingerSoftAggridRenderer";
@@ -15,8 +15,6 @@ import {StingerSoftAggridTooltip} from "./StingerSoftAggridTooltip";
 import type {BazingaTranslator} from 'bazingajstranslation/js/translator.min.js';
 
 declare var Translator: BazingaTranslator;
-
-declare var jQuery: jQuery;
 
 export class StingerSoftAggrid {
 
@@ -183,16 +181,16 @@ export class StingerSoftAggrid {
     public registerjQueryListeners() {
         var that = this;
 
-        let searchField: jQuery = undefined;
+        let searchField: JQuery = undefined;
         if (this.options.stinger.searchEnabled) {
             searchField = jQuery(this.gridId + '_search');
             searchField.on('input keyup change', function () {
                 var value = jQuery(this).val();
-                that.quickFilter(value);
+                that.quickFilter(String(value));
             });
         }
 
-        let paginationDropdown: jQuery = undefined;
+        let paginationDropdown: JQuery = undefined;
         if (this.options.aggrid.hasOwnProperty('pagination') && this.options.aggrid.pagination) {
             paginationDropdown = jQuery(this.gridId + '_paginationDropdown');
             paginationDropdown.on('change', function () {

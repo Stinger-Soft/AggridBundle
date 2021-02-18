@@ -9,16 +9,20 @@ import {
     ComponentFactory,
     ComponentRef,
     ComponentFactoryResolver,
-    ViewContainerRef, ViewChildren
+    ViewContainerRef, ViewChildren, Directive, HostListener
 } from '@angular/core';
-import type { BazingaTranslator } from 'bazingajstranslation/js/translator.min.js';
+import type {BazingaTranslator} from 'bazingajstranslation/js/translator.min.js';
+import {Router} from '@angular/router';
+
 declare var Translator: BazingaTranslator;
 import {HttpClient} from '@angular/common/http';
 import {AgGridAngular} from 'ag-grid-angular';
+
 import("ag-grid-enterprise");
 import {LicenseManager} from "ag-grid-enterprise";
 import {StingerSoftAggrid} from "../StingerSoftAggrid";
 import {GridConfiguration} from "../GridConfiguration";
+
 LicenseManager.setLicenseKey("your license key");
 
 @Component({
@@ -38,7 +42,8 @@ export class GridComponent implements OnInit, AfterViewInit {
 
     constructor(
         @Inject(HttpClient) private http: HttpClient,
-        @Inject(ComponentFactoryResolver) private componentFactoryResolver: ComponentFactoryResolver
+        @Inject(ComponentFactoryResolver) private componentFactoryResolver: ComponentFactoryResolver,
+        @Inject(Router) private router: Router
     ) {
     }
 
@@ -81,12 +86,25 @@ export class GridComponent implements OnInit, AfterViewInit {
         // getting the component's HTML
         let element: HTMLElement = <HTMLElement>componentRef.location.nativeElement;
 
-        if(this.configuration.stinger.attr) {
+        if (this.configuration.stinger.attr) {
             element.setAttribute('style', this.configuration.stinger.attr.style);
             element.classList.add(this.configuration.stinger.attr.class);
             element.id = this.configuration.stinger.attr.id;
         }
     }
 
-
+    @HostListener('document:click', ['$event'])
+    public handleClick(event: Event): void {
+        if (event.target instanceof HTMLAnchorElement) {
+            const element = event.target as HTMLAnchorElement;
+            if (element.className === 'routerlink' && element?.hasAttribute('nghref')) {
+                event.preventDefault();
+                const route = element?.getAttribute('nghref');
+                if (route) {
+                    event.preventDefault();
+                    this.router.navigate([`/${route}`]);
+                }
+            }
+        }
+    }
 }

@@ -1,5 +1,4 @@
-/// <reference types="jquery">
-import type jQuery from 'jquery';
+declare var jQuery: JQueryStatic;
 
 import {StingerSoftAggrid} from "./StingerSoftAggrid";
 import {ValueGetterParams} from "ag-grid-community";

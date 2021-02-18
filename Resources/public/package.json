@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Stinger-Soft/AggridBundle/",
   "devDependencies": {
+    "@types/jquery": "^3||^2",
     "ag-grid-community": "^21.1.1",
     "ag-grid-enterprise": "^21.1.1",
     "webpack": "^4.26.1"

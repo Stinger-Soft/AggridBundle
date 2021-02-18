@@ -1,5 +1,5 @@
-/// <reference types="jquery">
-import type jQuery from 'jquery';
+declare var jQuery: JQueryStatic;
+
 const language = jQuery('html').attr('lang') || 'en';
 require('moment/locale/'+language);
 const moment = require('moment');

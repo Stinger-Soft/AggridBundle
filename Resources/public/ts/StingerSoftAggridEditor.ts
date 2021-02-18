@@ -1,5 +1,4 @@
-/// <reference types="jquery">
-import type jQuery from 'jquery';
+declare var jQuery: JQueryStatic;
 
 const language = jQuery('html').attr('lang') || 'en';
 require('moment/locale/' + language);
@@ -47,6 +46,7 @@ export class DatePicker implements ICellEditorComp {
         }
 
         // https://jqueryui.com/datepicker/
+        // @ts-ignore
         jQuery(this.eInput).datepicker({
             format: moment.localeData().longDateFormat('L').toLowerCase()
         });

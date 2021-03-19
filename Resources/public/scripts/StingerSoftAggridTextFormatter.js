@@ -43,7 +43,7 @@
         return function (value, colDef) {
             var cellRenderer = colDef.filterParams.cellRenderer;
             var cellRendererParams = colDef.filterParams.cellRendererParams;
-            var displayValue = StingerSoftAggridRenderer.invokeRenderer(cellRenderer, cellRendererParams, value);
+            var displayValue = StingerSoftAggrid.Renderer.invokeRenderer(cellRenderer, cellRendererParams, value);
             if (displayValue === null || displayValue === "") {
                 return value;
             }

@@ -196,29 +196,43 @@ export class StateRenderer implements ICellRendererComp {
                 return;
             }
 
-            var stateConfig = this.states[value];
+            var values = Array.isArray(value) ? value : [value];
+            var i = 0;
 
-            var iconClass = stateConfig.icon;
-            var label = stateConfig.label;
-            var color = stateConfig.color;
-            let icon = undefined;
-
-            if (params['display_type'] !== this.TYPE_LABEL_ONLY) {
-                this.eGui.innerHTML = "<i></i>";
-                icon = this.eGui.querySelector('i');
-                icon.className = iconClass + ' ' + color;
-            }
-            if (params['display_type'] === this.TYPE_LABEL_ONLY || params['display_type'] === this.TYPE_ICON_WITH_LABEL) {
-                if(params['display_type'] === this.TYPE_ICON_WITH_LABEL) {
-                    label = ' ' + label;
+            for(var item of values) {
+                if (!this.states.hasOwnProperty(item)) {
+                    continue;
                 }
-                let textnode = document.createTextNode(label);
-                this.eGui.appendChild(textnode);
-            }
-            if (params['display_type'] === this.TYPE_ICON_TOOLTIP) {
-                icon.setAttribute("data-toggle", "tooltip");
-                icon.setAttribute("data-container", "body");
-                icon.setAttribute("title", label);
+                const stateConfig = this.states[item];
+
+                const iconClass = stateConfig.icon;
+                let label = stateConfig.label;
+                const color = stateConfig.color;
+                let icon = undefined;
+
+                if (params.display_type !== this.TYPE_LABEL_ONLY) {
+                    this.eGui.innerHTML = "<i></i>";
+                    icon = document.createElement('i');
+                    icon.className = iconClass + ' ' + color;
+                    this.eGui.appendChild(icon);
+                }
+                if (params.display_type === this.TYPE_LABEL_ONLY || params.display_type === this.TYPE_ICON_WITH_LABEL) {
+                    if (params.display_type === this.TYPE_ICON_WITH_LABEL) {
+                        label = ' ' + label;
+                    }
+                    let textnode = document.createTextNode(label);
+                    this.eGui.appendChild(textnode);
+                }
+                if (params.display_type === this.TYPE_ICON_TOOLTIP) {
+                    icon.setAttribute("data-toggle", "tooltip");
+                    icon.setAttribute("data-container", "body");
+                    icon.setAttribute("title", label);
+                }
+
+                if (++i < values.length) {
+                    let textnode = document.createTextNode(", ");
+                    this.eGui.appendChild(textnode);
+                }
             }
         }
 

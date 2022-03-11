@@ -5,13 +5,18 @@
 		// AMD
 		var useEnterprise = false;
 		try {
-			define(['ag-grid-enterprise/dist/ag-grid-enterprise.noStyle.js'], function (test) {
+			// import('ag-grid-enterprises').then( function (test) {
+			// 	useEnterprise = true;
+			// });
+			// eval("define(['ag-grid-enterprise'], function (test) { " +
+			// 	"useEnterprise = true; console.log(useEnterprise);" +
+			// "});");
+			define(['ag-grid-enterprise'], function (test) {
 				useEnterprise = true;
 			});
 		} catch (err) {
 			useEnterprise = false;
 		}
-		var useEnterprise = true;
 		define(['jquery', 'moment', useEnterprise ? 'ag-grid-enterprise/dist/ag-grid-enterprise.noStyle.js' : 'ag-grid-community'], function (jQuery, moment, agGrid) {
 			return factory(jQuery, moment, agGrid, window, document);
 		});

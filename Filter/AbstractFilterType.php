@@ -43,6 +43,10 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void {
 	}
 
+	public function buildJsonConfiguration(FilterView $view, FilterInterface $filter, array $options): void {
+		
+	}
+
 	public function applyFilter(QueryBuilder $queryBuilder, array $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
 		$isConditionalFilter = isset($filterRequest['operator']);
 		if($isConditionalFilter) {

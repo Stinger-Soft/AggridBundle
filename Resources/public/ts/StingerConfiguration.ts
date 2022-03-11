@@ -15,4 +15,6 @@ export class StingerConfiguration {
     reloadButton: any
     searchEnabled: any
     stingerVersion: any
+    versionHash: any
+    paginationDropDown: any
 }

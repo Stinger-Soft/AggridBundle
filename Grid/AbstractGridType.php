@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Grid;
 
+use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
+use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\AggridBundle\View\GridView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -36,6 +38,14 @@ class AbstractGridType implements GridTypeInterface {
 	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function buildView(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void {
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildJsonConfiguration()
+	 */
+	public function buildJsonConfiguration(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void {
 	}
 
 	/**

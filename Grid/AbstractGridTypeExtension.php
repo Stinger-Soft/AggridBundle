@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Grid;
 
+use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Helper\GridBuilderInterface;
 use StingerSoft\AggridBundle\View\GridView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -28,6 +29,10 @@ abstract class AbstractGridTypeExtension implements GridTypeExtensionInterface {
 	}
 
 	public function configureOptions(OptionsResolver $resolver): void {
+
+	}
+
+	public function buildJsonConfiguration(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void {
 
 	}
 

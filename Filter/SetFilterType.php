@@ -16,6 +16,7 @@ namespace StingerSoft\AggridBundle\Filter;
 use Doctrine\ORM\QueryBuilder;
 use InvalidArgumentException;
 use StingerSoft\AggridBundle\Grid\GridType;
+use StingerSoft\AggridBundle\View\AbstractBaseView;
 use StingerSoft\AggridBundle\View\FilterView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -62,6 +63,17 @@ class SetFilterType extends AbstractFilterType {
 		});
 		$resolver->setDefault('strict_null_check', false);
 		$resolver->setAllowedTypes('strict_null_check', 'bool');
+	}
+
+	public function buildJsonConfiguration(FilterView $view, FilterInterface $filter, array $options): void {
+		$view->jsonConfiguration = $view->jsonConfiguration ?? [];
+		$view->jsonConfiguration['filterParams'] = $view->jsonConfiguration['filterParams'] ?? [];
+		if($view->vars['data']) {
+			$view->jsonConfiguration['filterParams']['values'] = $view->vars['data'];
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'textFormatter');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'textFormatterParams');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'comparator');
 	}
 
 	protected function createExpression(string $comparisonType, string $parameterBindingName, string $queryPath, QueryBuilder $queryBuilder, string $rootAlias, array $filterTypeOptions, $value, $toValue) {

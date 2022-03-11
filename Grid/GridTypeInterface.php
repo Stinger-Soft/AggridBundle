@@ -46,6 +46,20 @@ interface GridTypeInterface {
 	public function buildView(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void;
 
 	/**
+	 * Builds a json compatible array to configure the grid and it's children
+	 *
+	 * This method is called for each type in the hierarchy starting from the
+	 * top most type. It allows adding more variables to the given view which may be used during rendering of the grid.
+	 *
+	 * @param GridView      $view        the grid view to add any additional information to
+	 * @param GridInterface $grid        the grid instance the view belongs to
+	 * @param array         $gridOptions the options of the grid, previously configured via the #configureOptions method
+	 * @param Column[]      $columns     the columns of the grid
+	 * @return void
+	 */
+	public function buildJsonConfiguration(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void;
+
+	/**
 	 * Returns the HTML id to identify this grid.
 	 *
 	 * @param array $gridOptions the resolved options of the grid type, maybe containing an id prefix or suffix

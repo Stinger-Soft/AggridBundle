@@ -243,6 +243,13 @@ class Filter implements FilterInterface {
 		return $view;
 	}
 
+	public function createJsonConfiguration(FilterView $filterView, FilterView $parent = null): void {
+		if(null === $parent && $this->parent) {
+			$parent = $this->parent->createJsonConfiguration($columnView);
+		}
+		$this->buildJsonConfiguration($filterView, $this->filterType, $this->filterOptions, $this->typeExtensions);
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -301,7 +308,17 @@ class Filter implements FilterInterface {
 		foreach($extensions as $extension) {
 			$extension->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, $mainRootAlias);
 		}
+	}
 
+	protected function buildJsonConfiguration(FilterView $filterView, FilterTypeInterface $filterType, array $filterOptions = [], array $extensions = []): void {
+		if($filterType->getParent()) {
+			$parentType = $this->dependencyInjectionExtension->resolveFilterType($filterType->getParent());
+			$this->buildJsonConfiguration($filterView, $parentType, $filterOptions);
+		}
+		$filterType->buildJsonConfiguration($filterView, $this, $filterOptions);
+		foreach($extensions as $extension) {
+			$extension->buildJsonConfiguration($filterView, $this, $filterOptions);
+		}
 	}
 
 	/**

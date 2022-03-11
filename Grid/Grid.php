@@ -264,96 +264,27 @@ class Grid implements GridInterface {
 		return $gridView;
 	}
 
+	public function addJsonConfiguration(GridView $view): void {
+		$this->buildJsonConfiguration($view, $this->gridType, $this->typeExtensions);
+		$view->configureColumnJsConfiguration();
+		
+	}
+
 	public function createConfigurationResponse(): JsonResponse {
 		$view = $this->createView();
+		$this->addJsonConfiguration($view);
+
 		$jsonStinger = $this->twig->render('@StingerSoftAggrid/Grid/stinger_options.js.twig', [
+			'grid'    => $view,
 			'options' => $view->vars,
 		]);
 
-		$aggridConfig = [];
-		// todo in TS/JS: $aggridConfig['processCellForClipboard']
-		$aggridConfig['enableBrowserTooltips'] = $view->vars['enableBrowserTooltips'];
-		$aggridConfig['enableRangeSelection'] = $view->vars['enableRangeSelection'];
-
-		$aggridConfig['columnDefs'] = [];
 		foreach($view->getColumns() as $column) {
-			$aggridConfig['columnDefs'][] = ['field' => $column->path, 'headerName' => $column->path, 'filterable' => true, 'sortable' => true];
+			$view->jsonConfiguration['columnDefs'][] = $column->jsonConfiguration;
 		}
 
-		$aggridConfig['components'] = [];
-		foreach($view->getAdditionalComponents() as $componentAlias => $component) {
-			$aggridConfig['components'][$componentAlias] = $component;
-		}
-
-		if(count($view->getStatusBarComponents()) > 0) {
-			$aggridConfig['statusBar'] = ['statusPanels' => []];
-			foreach($view->getStatusBarComponents() as $statusBarComponent) {
-				// todo add infos from component
-			}
-		}
-		if(count($view->getSideBarComponents()) > 0 || $view->vars['sideBar'] !== false) {
-			if(count($view->getSideBarComponents()) > 0) {
-				$aggridConfig['sideBar'] = ['toolPanels' => []];
-				if($view->vars['sideBarOptions']['defaultToolPanel'] !== null) {
-					$aggridConfig['sideBar']['defaultToolPanel'] = $view->vars['sideBarOptions']['defaultToolPanel'];
-				}
-				if($view->vars['sideBarOptions']['position'] !== null) {
-					$aggridConfig['sideBar']['position'] = $view->vars['sideBarOptions']['position'];
-				}
-				if($view->vars['sideBarOptions']['hiddenByDefault'] !== null) {
-					$aggridConfig['sideBar']['hiddenByDefault'] = $view->vars['sideBarOptions']['hiddenByDefault'];
-				}
-				foreach($view->getSideBarComponents() as $sideBarComponent) {
-					// todo add infos from component
-				}
-			} else {
-				$aggridConfig['sideBar'] = $view->vars['sideBar'];
-			}
-		}
-
-		self::addFieldIfSet($view->vars, $aggridConfig, 'rowStyle');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'getRowNodeId');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'rowHeight');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'getRowStyle', null, true);
-		self::addFieldIfSet($view->vars, $aggridConfig, 'rowClass');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'getRowClass', null, true);
-		self::addFieldIfSet($view->vars, $aggridConfig, 'rowClassRules'); // todo implement deserializeOptionArray
-		self::addFieldIfSet($view->vars, $aggridConfig, 'icons');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressCsvExport');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressExcelExport');
-		if($view->vars['pagination']) {
-			$aggridConfig['pagination'] = true;
-		}
-		self::addFieldIfSet($view->vars, $aggridConfig, 'paginationPageSize');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'paginationAutoPageSize');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressPaginationPanel');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'domLayout');
-		if($view->vars['dataMode'] === GridType::DATA_MODE_INLINE) {
-			$aggridConfig['rowData'] = $view->getInlineData();
-		}
-		self::addFieldIfSet($view->vars, $aggridConfig, 'rowSelection');
-		self::addFieldIfSet($view->vars, $aggridConfig, 'rowMultiSelectWithClick', false);
-		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressRowClickSelection', false);
-
-		if($view->vars['dataMode'] === GridType::DATA_MODE_ENTERPRISE) {
-			$aggridConfig['rowModelType'] = 'serverSide';
-			self::addFieldIfSet($view->vars, $aggridConfig, 'cacheBlockSize');
-			$aggridConfig['blockLoadDebounceMillis'] = 500;
-		}
-		if($view->vars['treeData']) {
-			//todo add
-		}
-
-		self::addFieldIfSet($view->vars, $aggridConfig, 'suppressPaginationPanel');
-
-		$template = '{"gridId": '.json_encode($view->getGridId()).', "aggrid": ' . json_encode($aggridConfig) . ', "stinger": ' . $jsonStinger . '}';
+		$template = '{"gridId": ' . json_encode($view->getGridId()) . ', "aggrid": ' . json_encode($view->jsonConfiguration) . ', "stinger": ' . $jsonStinger . '}';
 		return new JsonResponse($template, 200, [], true);
-	}
-
-	protected static function addFieldIfSet(array $source, array &$target, $key, $ignoreOn = null, bool $filterJsFunction = false): void {
-		if(isset($source[$key]) && $source[$key] !== $ignoreOn && (!$filterJsFunction || !Utils::startsWith($source[$key], 'function'))) {
-			$target[$key] = $source[$key];
-		}
 	}
 
 	/**
@@ -400,7 +331,6 @@ class Grid implements GridInterface {
 			return;
 		}
 		$paramBag = $this->options['dataMode'] === GridType::DATA_MODE_ENTERPRISE ? $request->request : $request->query;
-
 		$requestString = $paramBag->get('agGrid', null);
 		if($requestString === null) {
 			$this->isSubmitted = false;
@@ -900,6 +830,27 @@ class Grid implements GridInterface {
 			$extension->buildView($view, $this, $this->options, $this->columns);
 		}
 	}
+
+	/**
+	 * @param GridView $view
+	 * @param GridTypeInterface $gridType
+	 * @param GridTypeExtensionInterface[] $extensions the extensions to be applied
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 */
+	protected function buildJsonConfiguration(GridView $view, GridTypeInterface $gridType, array $extensions = []): void {
+		if($gridType->getParent()) {
+			$parentType = $this->dependencyInjectionExtension->resolveGridType($gridType->getParent());
+			$this->buildJsonConfiguration($view, $parentType);
+		}
+		$gridType->buildJsonConfiguration($view, $this, $this->options, $this->columns);
+
+		foreach($extensions as $extension) {
+			$extension->buildJsonConfiguration($view, $this, $this->options, $this->columns);
+		}
+	}
+
+
 
 	protected function orderColumns(): void {
 		// order columns according to position!

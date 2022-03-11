@@ -166,6 +166,16 @@ class GridView extends AbstractBaseView {
 		return $this;
 	}
 
+	public function configureColumnJsConfiguration() {
+		foreach($this->columns as $column) {
+			$options = $column->getColumnOptions();
+			if($options['renderable'] && $column->getParent() === null && isset($this->columnViews[$column->getPath()])) {
+				$view = $this->columnViews[$column->getPath()];
+				$column->createJsonConfiguration($view);
+			}
+		}
+	}
+
 	/**
 	 * @throws ReflectionException
 	 * @throws InvalidArgumentTypeException

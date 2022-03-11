@@ -48,6 +48,9 @@
 	{% if grid.identityColumns is defined and grid.identityColumns is not same as(null) and grid.identityColumns|length > 0 %}
 	, "identityColumns": {{ grid.identityColumns|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.paginationDropDown is defined and grid.vars.paginationDropDown is not same as(null)  %}
+	, "paginationDropDown":  {{ grid.vars.paginationDropDown|json_encode|raw }}
+	{% endif %}
 	{% if grid.vars.attr is defined and grid.vars.attr is not same as(null)  %}
 	, "attr":  {{ grid.vars.attr|json_encode|raw }}
 	{% endif %}

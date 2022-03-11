@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -23,15 +24,11 @@ use StingerSoft\AggridBundle\Column\ColumnInterface;
 class Nl2BrStringDataTransformer implements DataTransformerInterface {
 
 	/**
-	 * @param ColumnInterface $column
-	 * @param                 $item
-	 * @param mixed           $value
-	 *            The value in the original representation
-	 * @return mixed The value in the transformed representation
+	 * @inheritDoc
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
-		if (isset($options['nl2br'])) {
+		if(isset($options['nl2br']) && $value !== null) {
 			return nl2br($value);
 		}
 		return $value;

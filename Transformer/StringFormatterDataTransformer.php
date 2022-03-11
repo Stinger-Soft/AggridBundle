@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -27,30 +28,30 @@ use StingerSoft\AggridBundle\Column\ColumnInterface;
 class StringFormatterDataTransformer implements DataTransformerInterface {
 
 	/**
-	 * @param ColumnInterface $column
-	 * @param                 $item
-	 * @param mixed           $value
-	 *            The value in the original representation
-	 * @return mixed The value in the transformed representation
+	 * @inheritDoc
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
+		$formatNullValue = $options['format_null'];
+		if($value === null && !$formatNullValue) {
+			return null;
+		}
 		$itemFormat = $options['string_format'];
 		$additionalParameters = $options['string_format_parameters'];
 		if(is_callable($itemFormat)) {
-			$itemFormat = call_user_func($itemFormat, $item, $value, $column->getPath());
+			$itemFormat = $itemFormat($item, $value, $column->getPath());
 		}
-		$values = array($value);
+		$values = [$value];
 		if(is_callable($additionalParameters)) {
 			// ah the parameters itself are callable and should return an array of key => values, so call the delegate
-			$additionalParameters = call_user_func($additionalParameters, $item, $value, $column->getPath());
+			$additionalParameters = $additionalParameters($item, $value, $column->getPath());
 		}
-		if(count($additionalParameters)) {
+		if(is_array($additionalParameters) && count($additionalParameters)) {
 			// there are additional parameters!
 			foreach($additionalParameters as $additionalParameterKey => $additionalParameterValue) {
 				if(is_callable($additionalParameterValue)) {
 					// the value is a delegate, so call it for retrieving the value
-					$values[] = call_user_func($additionalParameterValue, $item, $value, $column->getPath());
+					$values[] = $additionalParameterValue($item, $value, $column->getPath());
 				} else {
 					$values[] = $additionalParameterValue;
 				}

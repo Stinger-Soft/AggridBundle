@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Transformer;
 
+use InvalidArgumentException;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 
 /**
@@ -24,16 +26,13 @@ class MappingDataTransformer implements DataTransformerInterface {
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
-		if (!isset($options['mapping'])) {
-			throw new \InvalidArgumentException('The mapping option must be set!');
+		if(!isset($options['mapping'])) {
+			throw new InvalidArgumentException('The mapping option must be set!');
 		}
-		if (is_callable($options['mapping'])) {
+		if(is_callable($options['mapping'])) {
 			return call_user_func($options['mapping'], $item, $column, $value, $options);
 		}
-		if (!isset($options['mapping'][$value])) {
-			return $options['empty_value'];
-		}
-		return $options['mapping'][$value];
+		return $options['mapping'][$value] ?? $options['empty_value'] ?? null;
 	}
 
 }

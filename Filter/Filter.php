@@ -1,13 +1,25 @@
 <?php
+declare(strict_types=1);
+
+/*
+ * This file is part of the Stinger Soft AgGrid package.
+ *
+ * (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
+ * (c) Florian Meyer <florian.meyer@stinger-soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace StingerSoft\AggridBundle\Filter;
 
-use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use ReflectionException;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
 use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\AggridBundle\View\FilterView;
+use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -55,7 +67,7 @@ class Filter implements FilterInterface {
 	 *
 	 * @var null|callable the delegate to be used for filtering (if any), allowing to update query builder
 	 */
-	protected $filterDelegate = null;
+	protected $filterDelegate;
 
 	/**
 	 *
@@ -73,6 +85,9 @@ class Filter implements FilterInterface {
 	 */
 	protected $dependencyInjectionExtension;
 
+	/** @var FilterTypeExtensionInterface[] */
+	protected $typeExtensions = [];
+
 	/**
 	 * Filter constructor.
 	 *
@@ -85,19 +100,34 @@ class Filter implements FilterInterface {
 	 *            the options of the column the filter belongs to
 	 * @param array                                 $gridOptions
 	 *            the options of the table the filter belongs to
-	 * @param QueryBuilder|array                    $dataSource
+	 * @param QueryBuilder|array|null               $dataSource
 	 *            the data source of the table the column and this the filter will be attached to.
 	 *            In case it is a query builder, it will be cloned in order to allow the filter to
 	 *            modify it if necessary.
 	 * @param FilterInterface|null                  $parent
 	 *            the parent filter (if any) or null.
 	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
-	public function __construct(FilterTypeInterface $filterType, DependencyInjectionExtensionInterface $dependencyInjectionExtension, array $filterTypeOptions = [], array $columnOptions = [], array $gridOptions = [], $dataSource = null, FilterInterface $parent = null) {
+	public function __construct(
+		FilterTypeInterface $filterType,
+		DependencyInjectionExtensionInterface $dependencyInjectionExtension,
+		array $filterTypeOptions = [],
+		array $columnOptions = [],
+		array $gridOptions = [],
+		$dataSource = null,
+		FilterInterface $parent = null
+	) {
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->columnOptions = $columnOptions;
 		$this->gridOptions = $gridOptions;
 		$this->filterType = $filterType;
+		$this->typeExtensions = $this->dependencyInjectionExtension->resolveFilterTypeExtensions(get_class($filterType));
+		foreach($this->typeExtensions as $extension) {
+			if(!$extension instanceof FilterTypeExtensionInterface) {
+				throw new UnexpectedTypeException($extension, FilterTypeExtensionInterface::class);
+			}
+		}
 		$this->filterOptions = $this->setupFilterOptionsResolver($filterType, $filterTypeOptions);
 		$this->parent = $parent;
 		$this->dataSource = $dataSource;
@@ -205,19 +235,21 @@ class Filter implements FilterInterface {
 		}
 
 		$view = new FilterView($parent);
-		$this->buildView($view, $this->filterType, $this->filterOptions);
+		$this->buildView($view, $this->filterType, $this->filterOptions, $this->typeExtensions);
 
 		if($view->vars['translation_domain'] === null) {
 			$view->vars['translation_domain'] = $this->columnOptions['translation_domain'];
 		}
-
 		return $view;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function applyFilter(QueryBuilder $queryBuilder, $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
 		$delegate = $this->filterDelegate;
 		if($delegate && is_callable($delegate)) {
-			return $delegate($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias);
+			return $delegate($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias, $this->getFilterType());
 		}
 
 		return $this->getFilterType()->applyFilter($queryBuilder, $filterRequest, $parameterBindingName, $queryPath, $filterTypeOptions, $rootAlias);
@@ -236,20 +268,24 @@ class Filter implements FilterInterface {
 	/**
 	 * Updates the given view.
 	 *
-	 * @param FilterView          $filterView
-	 *            the view to be updated
-	 * @param FilterTypeInterface $filterType
-	 *            the filter type containing the information that may be relevant for the view
-	 * @param array               $filterOptions
-	 *            the options defined for the filter type, containing information
-	 *            such as the filter_server_delegate etc.
+	 * @param FilterView                     $filterView
+	 *                                                   the view to be updated
+	 * @param FilterTypeInterface            $filterType
+	 *                                                   the filter type containing the information that may be relevant for the view
+	 * @param array                          $filterOptions
+	 *                                                   the options defined for the filter type, containing information
+	 *                                                   such as the filter_server_delegate etc.
+	 * @param FilterTypeExtensionInterface[] $extensions the extensions to be applied to the view
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
-	protected function buildView(FilterView $filterView, FilterTypeInterface $filterType, array $filterOptions = []): void {
+	protected function buildView(FilterView $filterView, FilterTypeInterface $filterType, array $filterOptions = [], array $extensions = []): void {
 		if($filterType->getParent()) {
 			$parentType = $this->dependencyInjectionExtension->resolveFilterType($filterType->getParent());
 			$this->buildView($filterView, $parentType, $filterOptions);
 		}
 		$rootAliases = $this->queryBuilder ? $this->queryBuilder->getRootAliases() : [];
+		$mainRootAlias = count($rootAliases) > 0 ? current($rootAliases) : '';
 		if($this->columnOptions['filter_query_path'] !== null) {
 			$path = $this->columnOptions['filter_query_path'];
 		} else if($this->columnOptions['query_path'] !== null) {
@@ -257,10 +293,15 @@ class Filter implements FilterInterface {
 		} else {
 			$path = $this->columnOptions['path'];
 			if($this->queryBuilder && false === strpos($path, '.')) {
-				$path = current($rootAliases) . '.' . $path;
+				$path = $mainRootAlias !== '' ? $mainRootAlias . '.' . $path : $path;
 			}
 		}
-		$filterType->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, current($rootAliases));
+		$filterType->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, $mainRootAlias);
+
+		foreach($extensions as $extension) {
+			$extension->buildView($filterView, $this, $filterOptions, $this->queryBuilder ?: $this->dataSource, $path, $mainRootAlias);
+		}
+
 	}
 
 	/**
@@ -275,10 +316,14 @@ class Filter implements FilterInterface {
 	 *            the initial options to also be resolved (if any).
 	 * @return array the resolved options for the given filter type.
 	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
 	protected function setupFilterOptionsResolver(FilterTypeInterface $filterType, array $options = []): array {
 		$resolver = new OptionsResolver();
 		$this->resolveOptions($filterType, $resolver);
+		foreach($this->typeExtensions as $extension) {
+			$extension->configureOptions($resolver, $this->gridOptions);
+		}
 		return $resolver->resolve($options);
 	}
 
@@ -290,8 +335,9 @@ class Filter implements FilterInterface {
 	 * @param OptionsResolver     $resolver
 	 *            the resolver used for checking option values and defaults etc.
 	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
-	private function resolveOptions(FilterTypeInterface $filterType, OptionsResolver $resolver) {
+	protected function resolveOptions(FilterTypeInterface $filterType, OptionsResolver $resolver): void {
 		if($filterType->getParent()) {
 			$parentType = $this->getFilterTypeInstance($filterType->getParent());
 			$this->resolveOptions($parentType, $resolver);
@@ -305,8 +351,10 @@ class Filter implements FilterInterface {
 	 * @param string $class
 	 *            Class name of the filter type
 	 * @return object|FilterTypeInterface an instance of the given filter type
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
-	private function getFilterTypeInstance($class): FilterTypeInterface {
+	protected function getFilterTypeInstance(string $class): FilterTypeInterface {
 		return $this->dependencyInjectionExtension->resolveFilterType($class);
 	}
 }

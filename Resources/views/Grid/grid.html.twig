@@ -1,6 +1,6 @@
 {% import '@StingerSoftAggrid/Grid/macros.html.twig' as me %}
 {% block before_grid %}
-	{% include '@StingerSoftAggrid/Grid/grid_search_pagination.html.twig' %}
+	{% include grid.vars.templateTopBar|default('@StingerSoftAggrid/Grid/grid_search_pagination.html.twig') %}
 {% endblock before_grid %}
 {% block grid %}
 <div {{ me.attributes(grid.vars.attr, grid.vars.translation_domain) }}></div>

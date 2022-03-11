@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -21,10 +23,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class YesNoColumnType extends AbstractColumnType {
-	const DISPLAY_ICON_ONLY = 'icon-only';
-	const DISPLAY_LABEL_ONLY = 'label-only';
-	const DISPLAY_ICON_WITH_LABEL = 'icon-with-label';
-	const DISPLAY_ICON_WITH_TOOLTIP = 'icon-with-tooltip';
+
+	public const DISPLAY_ICON_ONLY = 'icon-only';
+	public const DISPLAY_LABEL_ONLY = 'label-only';
+	public const DISPLAY_ICON_WITH_LABEL = 'icon-with-label';
+	public const DISPLAY_ICON_WITH_TOOLTIP = 'icon-with-tooltip';
 
 	/**
 	 * @var TranslatorInterface
@@ -33,38 +36,39 @@ class YesNoColumnType extends AbstractColumnType {
 
 	/**
 	 * YesNoColumnType constructor.
+	 *
 	 * @param TranslatorInterface $translator
 	 */
 	public function __construct(TranslatorInterface $translator) {
 		$this->translator = $translator;
 	}
 
-	public function configureOptions(OptionsResolver $resolver, array $gridOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setDefault('yes_label', 'stingersoft_aggrid.column_types.yes_no.yes');
-		$resolver->setAllowedTypes('yes_label', array('null', 'string'));
+		$resolver->setAllowedTypes('yes_label', ['null', 'string']);
 
 		$resolver->setDefault('no_label', 'stingersoft_aggrid.column_types.yes_no.no');
-		$resolver->setAllowedTypes('no_label', array('null', 'string'));
+		$resolver->setAllowedTypes('no_label', ['null', 'string']);
 
 		$resolver->setDefault('yes_icon', 'fa fa-fw fa-check');
-		$resolver->setAllowedTypes('yes_icon', array('null', 'string'));
+		$resolver->setAllowedTypes('yes_icon', ['null', 'string']);
 
 		$resolver->setDefault('no_icon', 'fa fa-fw fa-times');
-		$resolver->setAllowedTypes('no_icon', array('null', 'string'));
+		$resolver->setAllowedTypes('no_icon', ['null', 'string']);
 
-		$resolver->setDefault('display_type', YesNoColumnType::DISPLAY_ICON_ONLY);
-		$resolver->setAllowedValues('display_type', array(
-			YesNoColumnType::DISPLAY_ICON_WITH_TOOLTIP, YesNoColumnType::DISPLAY_ICON_WITH_LABEL,
-			YesNoColumnType::DISPLAY_LABEL_ONLY, YesNoColumnType::DISPLAY_ICON_ONLY
-		));
+		$resolver->setDefault('display_type', self::DISPLAY_ICON_ONLY);
+		$resolver->setAllowedValues('display_type', [
+			self::DISPLAY_ICON_WITH_TOOLTIP, self::DISPLAY_ICON_WITH_LABEL,
+			self::DISPLAY_LABEL_ONLY, self::DISPLAY_ICON_ONLY,
+		]);
 
-		$resolver->setDefault('filter_display_type', YesNoColumnType::DISPLAY_LABEL_ONLY);
-		$resolver->setAllowedValues('filter_display_type', array(
-			YesNoColumnType::DISPLAY_ICON_WITH_TOOLTIP, YesNoColumnType::DISPLAY_ICON_WITH_LABEL,
-			YesNoColumnType::DISPLAY_LABEL_ONLY, YesNoColumnType::DISPLAY_ICON_ONLY
-		));
+		$resolver->setDefault('filter_display_type', self::DISPLAY_LABEL_ONLY);
+		$resolver->setAllowedValues('filter_display_type', [
+			self::DISPLAY_ICON_WITH_TOOLTIP, self::DISPLAY_ICON_WITH_LABEL,
+			self::DISPLAY_LABEL_ONLY, self::DISPLAY_ICON_ONLY,
+		]);
 
-		$resolver->setNormalizer('display_type', static function(Options $options, $value) {
+		$resolver->setNormalizer('display_type', static function (Options $options, $value) {
 			if($value === YesNoColumnType::DISPLAY_ICON_ONLY || $value === YesNoColumnType::DISPLAY_ICON_WITH_LABEL || $value === YesNoColumnType::DISPLAY_ICON_WITH_TOOLTIP) {
 				if($options['yes_icon'] === null || $options['no_icon'] === null) {
 					throw new InvalidOptionsException(sprintf('When using "display_type" with a value of "%s" you must set "yes_icon" and "no_icon"!', $value));
@@ -79,26 +83,28 @@ class YesNoColumnType extends AbstractColumnType {
 		});
 
 		$resolver->setDefault('label_translation_domain', 'StingerSoftAggridBundle');
-		$resolver->setAllowedValues('label_translation_domain', static function($value) {
-			if(is_string($value)) return true;
-			if($value === null) return true;
-			if($value === false) return true;
+		$resolver->setAllowedValues('label_translation_domain', static function ($value) {
+			if(is_string($value)) {
+				return true;
+			}
+			if($value === null) {
+				return true;
+			}
+			if($value === false) {
+				return true;
+			}
 			return false;
 		});
 		$resolver->setDefault('cellRenderer', 'YesNoRenderer');
 		$resolver->setDefault('filter_type', SetFilterType::class);
 
 		$translator = $this->translator;
-		$resolver->setNormalizer('filter_options', static function(Options $options, $value) use ($translator) {
+		$resolver->setNormalizer('filter_options', static function (Options $options, $value) use ($translator) {
 			if($value === null) {
 				$value = [];
 			}
 			$value['cellRenderer'] = 'YesNoRenderer';
-			if($options['label_translation_domain'] === null) {
-				$transDomain = $options['translation_domain'];
-			} else {
-				$transDomain = $options['label_translation_domain'];
-			}
+			$transDomain = $options['label_translation_domain'] ?? $options['translation_domain'];
 			$value['cellRendererParams'] = [
 				'yes_label'    => $transDomain === false ? $options['yes_label'] : $translator->trans($options['yes_label'], [], $transDomain),
 				'no_label'     => $transDomain === false ? $options['no_label'] : $translator->trans($options['no_label'], [], $transDomain),
@@ -106,7 +112,7 @@ class YesNoColumnType extends AbstractColumnType {
 				'no_icon'      => $options['no_icon'],
 				'display_type' => $options['filter_display_type'],
 			];
-			$value['data'] = static function(FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias) {
+			$value['data'] = static function (FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias) {
 				if($filter->getGridOption('dataMode') === GridType::DATA_MODE_ENTERPRISE) {
 					return [0, 1];
 				}
@@ -115,7 +121,6 @@ class YesNoColumnType extends AbstractColumnType {
 			return $value;
 
 		});
-//		$resolver->setDefault('js_column_template', '@StingerSoftAggrid/Column/yesno.js.twig');
 	}
 
 	public function buildView(ColumnView $view, ColumnInterface $column, array $options): void {
@@ -137,9 +142,6 @@ class YesNoColumnType extends AbstractColumnType {
 			'no_icon'      => $options['no_icon'],
 			'display_type' => $options['display_type'],
 		];
-//		if( $options['display_type'] !== self::DISPLAY_LABEL_ONLY) {
-//			$view->vars['render_html'] = true;
-//		}
 	}
 
 }

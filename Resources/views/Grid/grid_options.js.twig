@@ -1,32 +1,75 @@
 {
 	{% block grid_def_start %}
 	{% endblock grid_def_start %}
+	{% import '@StingerSoftAggrid/Grid/macros.html.twig' as me %}
 	columnDefs: [
 	{% for column in grid.columns %}
 		{% include column.template with {'column': column} %}{% if not loop.last %},{% endif %}
 	{% endfor %}
 	],
+	processCellForClipboard: function(params) {
+		return {{ varAggrid }}.processCellForClipboard(params);
+	},
 	multiSortKey: 'ctrl',
+	enableBrowserTooltips: {{ grid.vars.enableBrowserTooltips|json_encode|raw }},
+	enableRangeSelection: {{ grid.vars.enableRangeSelection|json_encode|raw }},
 	components: {
 		datePicker: StingerSoftAggrid.Editor.DatePicker
+		{% for componentAlias, component in grid.additionalComponents %}
+		, {{ componentAlias }}: {{ component }}
+		{% endfor %}
 	}
+	{% if grid.statusBarComponents|length > 0 %}
+	, statusBar: {
+		statusPanels: [
+		{% for statusBarComponent in grid.statusBarComponents %}
+			{% include statusBarComponent.template with {'component': statusBarComponent} %}{% if not loop.last %},{% endif %}
+		{% endfor %}
+		]
+	}
+	{% endif %}
+	{% if grid.sideBarComponents|length > 0 or grid.vars.sideBar != false %}
+		{% if grid.sideBarComponents|length > 0 %}
+		, sideBar: {
+			{% if grid.vars.sideBarOptions.defaultToolPanel is not null %}
+			defaultToolPanel: {{ grid.vars.sideBarOptions.defaultToolPanel|json_encode|raw }},
+			{% endif %}
+			{% if grid.vars.sideBarOptions.position is not null %}
+			position: {{ grid.vars.sideBarOptions.position|json_encode|raw }},
+			{% endif %}
+			{% if grid.vars.sideBarOptions.hiddenByDefault is not null %}
+			hiddenByDefault: {{ grid.vars.sideBarOptions.hiddenByDefault|json_encode|raw }},
+			{% endif %}
+			toolPanels: [
+			{% for sideBarComponent in grid.sideBarComponents %}
+				{% include sideBarComponent.template with {'component': sideBarComponent} %}{% if not loop.last %},{% endif %}
+			{% endfor %}
+			]
+		}
+		{% elseif grid.vars.sideBar != false %}
+			, sideBar: {{ grid.vars.sideBar|json_encode|raw }}
+		{% endif %}
+	{% endif %}
 	{% if grid.vars.rowStyle is defined and grid.vars.rowStyle is not same as(null) %}
 	, rowStyle: {{ grid.vars.rowStyle|json_encode|raw }}
 	{% endif %}
 	{% if grid.vars.getRowNodeId is defined and grid.vars.getRowNodeId is not same as(null) %}
 	, getRowNodeId: {{ grid.vars.getRowNodeId }}
 	{% endif %}
+	{% if grid.vars.rowHeight is defined and grid.vars.rowHeight is not same as(null) %}
+	, rowHeight: {{ grid.vars.rowHeight|json_encode|raw }}
+	{% endif %}
 	{% if grid.vars.getRowStyle is defined and grid.vars.getRowStyle is not same as(null) %}
-	, getRowStyle: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowStyle|json_encode|raw }})
+	, getRowStyle: {% if grid.vars.getRowStyle starts with 'function' %}{{ grid.vars.getRowStyle|raw }}{% else %}StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowStyle|json_encode|raw }}){% endif %}
 	{% endif %}
 	{% if grid.vars.rowClass is defined and grid.vars.rowClass is not same as(null) %}
 	, rowClass: {{ grid.vars.rowClass|json_encode|raw }}
 	{% endif %}
 	{% if grid.vars.getRowClass is defined and grid.vars.getRowClass is not same as(null) %}
-	, getRowClass: StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowClass|json_encode|raw }})
+	, getRowClass: {% if grid.vars.getRowClass starts with 'function' %}{{ grid.vars.getRowClass|raw }}{% else %}StingerSoftAggrid.Styler.getStyler({{ grid.vars.getRowClass|json_encode|raw }}){% endif %}
 	{% endif %}
 	{% if grid.vars.rowClassRules is defined and grid.vars.rowClassRules is not same as(null) %}
-	, rowClassRules: {{ grid.vars.rowClassRules|json_encode|raw }}
+	, rowClassRules: {{ me.deserializeOptionArray(grid.vars.rowClassRules) }}
 	{% endif %}
 	{% if grid.vars.icons is defined and grid.vars.icons is not same as(null) %}
 		, icons: {{ grid.vars.icons|json_encode|raw }}
@@ -49,11 +92,11 @@
 	{% if grid.vars.paginationAutoPageSize is defined and grid.vars.suppressPaginationPanel is not same as(null) %}
 		, suppressPaginationPanel: {{ grid.vars.paginationAutoPageSize|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.domLayout is defined and grid.vars.domLayout %}
+		, domLayout: {{ grid.vars.domLayout|json_encode|raw }}
+	{% endif %}
 	{% if grid.vars.dataMode == 'inline' %}
 		, rowData: {{ grid.inlineData|raw }}
-	{% endif %}
-	{% if grid.vars.sideBar != false %}
-		, sideBar: {{ grid.vars.sideBar|json_encode|raw }}
 	{% endif %}
 	{% if grid.vars.rowSelection is defined and grid.vars.rowSelection is not same as(null) %}
 		, rowSelection: {{ grid.vars.rowSelection|json_encode|raw }}
@@ -72,29 +115,97 @@
 	{% if grid.vars.treeData %}
 		, treeData: true,
 		getDataPath: function (data) {
-			return data.orgHierarchy;
+			return data.orgHierarchy.value;
 		},
 		autoGroupColumnDef: {
-			headerName: "Path",
+			headerName: "Group",
 			filter: true,
 			resizable: true,
 			valueGetter: function(params) {
-				var label = params.node.key;
-				if(label.includes('$$')) {
-					label = label.split('$$')[1];
-				}
-				return label;
+				return '';
 			}
 		}
 	{% endif %}
 	, onGridReady: function(params) {
 		{{ varAggrid }}.load(params.columnApi, params.api);
+		{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_INLINE') %}
+			{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns is not same as(false) %}
+				{% if grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_TO_FIT') %}
+					{{ varAggrid }}.getGridApi().sizeColumnsToFit();
+				{% elseif grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_ALL') %}
+					{{ varAggrid }}.autoSizeColumns();
+				{% endif %}
+			{% endif %}
+		{% elseif grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_ENTERPRISE') %}
+			{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_ALL') %}
+					{{ varAggrid }}.autoSizeColumnsWhenReady();
+			{% endif %}
+		{% endif %}
 	}
+	{% if grid.identityColumns is defined and grid.identityColumns is not same as(null) and grid.identityColumns|length > 0 %}
+	, getRowNodeId: function(data) {
+		return {{ varAggrid }}.getRowNodeId(data);
+	}
+	{% endif %}
+	{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_AJAX') or grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_ENTERPRISE')%}
+		{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns is not same as(false) %}
+	, onFirstDataRendered: function() {
+		{% if grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_TO_FIT') %}
+			{{ varAggrid }}.getGridApi().sizeColumnsToFit();
+		{% elseif grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_ALL') %}
+			{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_AJAX') %}
+				{{ varAggrid }}.autoSizeColumns();
+			{% endif %}
+		{% endif %}
+		}
+		{% endif %}
+	{% endif %}
 	{% if app.request.locale != 'en' %}
 	, localeTextFunc: function(key, defaultValue) {
 		var gridKey = 'stingersoft_aggrid.' + key;
 		var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
-		return value === gridKey ? defaultValue : value;
+		if(value === gridKey) {
+			console.warn('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
+			return defaultValue;
+		}
+		return value;
+	}
+	{% endif %}
+	, onColumnResized: function(params) {
+		if(params.source == 'uiColumnDragged') {
+			var length = params.columns.length;
+			for (var i = 0; i < length; i++) {
+				{{ varAggrid }}.addResizedColumn(params.columns[i]);
+			}
+		}
+	}
+	{% if grid.vars.applyCellrendererOnPivotHeader %}
+	, processSecondaryColGroupDef: function(colGroupDef) {
+		var pivotColumns = {{ varAggrid }}.getColumnApi().getPivotColumns();
+		var level = colGroupDef.pivotKeys.length - 1;
+
+		var column = pivotColumns[level];
+		var columnDef = column.colDef;
+		if(columnDef.hasOwnProperty('cellRenderer')) {
+			var isConstructor = function(f) {
+				try {
+					new f();
+				} catch (err) {
+					// verify err is the expected error and then
+					return false;
+				}
+				return true;
+			}
+
+			var value = colGroupDef.headerName;
+			//todo support simple callbacks
+			if(isConstructor(columnDef.cellRenderer)) {
+				var cellRenderer = new columnDef.cellRenderer();
+				var params = jQuery.extend({}, columnDef.cellRendererParams, {'value': value});
+				cellRenderer.init(params);
+				colGroupDef.headerName = jQuery(cellRenderer.getGui()).html();
+			}
+		}
 	}
 	{% endif %}
 }

@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -23,9 +24,12 @@ class EmailColumnType extends AbstractColumnType {
 	 * {@inheritdoc}
 	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
-		$resolver->setDefault('route', function($item, $value) {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
+		$resolver->setDefault('route', function ($item, $value) {
 			return 'mailto:' . $value;
 		});
+		$resolver->setDefault('filter_options', [
+			'cellRenderer' => 'StripHtmlRenderer',
+		]);
 	}
 }

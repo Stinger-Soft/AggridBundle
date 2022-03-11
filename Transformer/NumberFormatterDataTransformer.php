@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -21,24 +22,21 @@ use StingerSoft\AggridBundle\Column\ColumnInterface;
  */
 class NumberFormatterDataTransformer implements DataTransformerInterface {
 
+	use NumberFormatterTrait;
+
 	/**
-	 * @param ColumnInterface $column
-	 * @param                 $item
-	 * @param mixed           $value
-	 *            The value in the original representation
-	 * @return mixed The value in the transformed representation
+	 * @inheritDoc
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
-		if($options['number_formatter_pattern'] === null) {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
-		} else {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
+		$formatNullValue = $options['format_null'];
+		if($value === null && !$formatNullValue) {
+			return null;
 		}
+		$formatter = $this->getNumberFormatter($options);
 		if($options['number_formatter_style'] === \NumberFormatter::CURRENCY) {
 			return $formatter->formatCurrency($value, $options['number_formatter_currency']);
 		}
-
 		return $formatter->format($value);
 	}
 }

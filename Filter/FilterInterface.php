@@ -1,19 +1,35 @@
 <?php
+declare(strict_types=1);
+
+/*
+ * This file is part of the Stinger Soft AgGrid package.
+ *
+ * (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
+ * (c) Florian Meyer <florian.meyer@stinger-soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace StingerSoft\AggridBundle\Filter;
 
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use ReflectionException;
+use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\AggridBundle\View\FilterView;
 
 interface FilterInterface {
+
 	/**
 	 * Creates a new view to be used for rendering column filters.
 	 *
 	 * @param ColumnView      $columnView
 	 * @param FilterView|null $parent an already pre-populated parent view to extend, if any
 	 * @return FilterView the new filter view.
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
 	public function createView(ColumnView $columnView, ?FilterView $parent = null): ?FilterView;
 
@@ -71,13 +87,13 @@ interface FilterInterface {
 	 * @param string $key The array key to fetch
 	 * @return mixed the option defined for the original column this filter belongs to
 	 */
-	public function getColumnOption($key);
+	public function getColumnOption(string $key);
 
 	/**
 	 * Set the option by key defined for the original column this filter belongs to
 	 *
-	 * @param string $key The array key to set
-	 * @param mixed $value the options defined for the original column this filter belongs to
+	 * @param string $key   The array key to set
+	 * @param mixed  $value the options defined for the original column this filter belongs to
 	 * @return FilterInterface
 	 */
 	public function setColumnOption(string $key, $value): self;
@@ -88,13 +104,13 @@ interface FilterInterface {
 	 * @param string $key The array key to fetch
 	 * @return mixed the view variable defined for the original column this filter belongs to
 	 */
-	public function getColumnViewVar($key);
+	public function getColumnViewVar(string $key);
 
 	/**
 	 * Set the view variable by key defined for the original column this filter belongs to
 	 *
-	 * @param string $key The array key to set
-	 * @param mixed $value the new view value defined for the original column this filter belongs to
+	 * @param string $key   The array key to set
+	 * @param mixed  $value the new view value defined for the original column this filter belongs to
 	 * @return FilterInterface
 	 */
 	public function setColumnViewVar(string $key, $value): self;
@@ -105,7 +121,7 @@ interface FilterInterface {
 	 * @param string $key The array key to fetch
 	 * @return mixed the option defined for the original grid this filter belongs to
 	 */
-	public function getGridOption($key);
+	public function getGridOption(string $key);
 
 	/**
 	 * Apply any filtering on the given QueryBuilder using the given value to filter by.
@@ -116,36 +132,36 @@ interface FilterInterface {
 	 *
 	 * @param QueryBuilder $queryBuilder
 	 *            the query builder to create filter expressions for.
-	 * @param string[] $filterRequest
+	 * @param string[]     $filterRequest
 	 *            an array containing the requested filter settings, including the following keys:
 	 *            <code>type</code>: The matching type (see FilterTypeInterface::FILTER_MATCH_MODE_*)
 	 *            <code>filter</code>: The value to filter for
 	 *            <code>filterTo</code>: Second value to filter for (e.g. for range filters)
 	 *            <code>filterType</code>: The value type of the filter
 	 *
-	 * @param string $parameterBindingName
+	 * @param string       $parameterBindingName
 	 *            the initial name of the parameter to be used for binding the filter
 	 *            value to any query builder expression, the binding name is suffixed
 	 *            with a counter value. The value can and should be used to bind
 	 *            parameters on the query builder, like this:
 	 *            <code>$queryBuilder->setParameter($parameterBindingName, $filterValue)</code>
-	 * @param string $queryPath
+	 * @param string       $queryPath
 	 *            the path determining the field to filter on. If you for instance performed
 	 *            a <code>$queryBuilder->leftJoin('user.address', 'address')</code> and
 	 *            the column to be filtered shall display the addresses city, the query path
 	 *            would be something like <code>address.city</code>. Use <code>$rootAlias</code>
 	 *            in order to be able to query on <code>user.address.city</code> (if required).
-	 * @param array $filterTypeOptions
+	 * @param array        $filterTypeOptions
 	 *            an array containing all resolved and configured options of the filter type.
 	 *            These options may contain additional information useful for filtering, such as
 	 *            performing case insensitive filtering, matching information (exact matches only,
 	 *            substring matches, etc.)
-	 * @param string $rootAlias
+	 * @param string       $rootAlias
 	 * @return Expr|Expr\Comparison|null an expression (and set parameters!) to be added to the filter query or <code>null</code> in
-	 *         case no filtering will be applied for the given values. If this method
-	 *         returns any expression, its parameters MUST be bound in here!.
-	 *         Any expression returned will be added to an <code>andWhere</code> clause
-	 *         to the underlying query builder.
+	 *            case no filtering will be applied for the given values. If this method
+	 *            returns any expression, its parameters MUST be bound in here!.
+	 *            Any expression returned will be added to an <code>andWhere</code> clause
+	 *            to the underlying query builder.
 	 *
 	 * @see FilterTypeInterface::applyFilter()
 	 */

@@ -1,7 +1,19 @@
 <?php
+declare(strict_types=1);
+
+/*
+ * This file is part of the Stinger Soft AgGrid package.
+ *
+ * (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
+ * (c) Florian Meyer <florian.meyer@stinger-soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace StingerSoft\AggridBundle\Filter;
 
+use Closure;
 use StingerSoft\AggridBundle\Grid\GridType;
 use StingerSoft\AggridBundle\View\FilterView;
 use Symfony\Component\OptionsResolver\Options;
@@ -10,7 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 final class FilterType extends AbstractFilterType {
 
 	public const NEW_ROWS_ACTION_KEEP = 'keep';
-	public const NEW_ROWS_ACTION_DEFAULT = 'default';
+	public const NEW_ROWS_ACTION_DEFAULT = 'clear';
 
 	/**
 	 * {@inheritdoc}
@@ -59,6 +71,9 @@ final class FilterType extends AbstractFilterType {
 		$resolver->setDefined('newRowsAction');
 		$resolver->setAllowedValues('newRowsAction', [null, self::NEW_ROWS_ACTION_DEFAULT, self::NEW_ROWS_ACTION_KEEP]);
 		$resolver->setDefault('newRowsAction', static function (Options $options, $previousValue) use ($gridOptions) {
+			if($previousValue === null) {
+				$previousValue = $gridOptions['filterNewRowsAction'];
+			}
 			if($previousValue === null && $gridOptions['dataMode'] === GridType::DATA_MODE_ENTERPRISE) {
 				return self::NEW_ROWS_ACTION_KEEP;
 			}
@@ -78,10 +93,10 @@ final class FilterType extends AbstractFilterType {
 		$resolver->setAllowedTypes('validate_empty', ['bool']);
 
 		$resolver->setDefault('validation_delegate', null);
-		$resolver->setAllowedTypes('validation_delegate', ['null', 'callable', \Closure::class]);
+		$resolver->setAllowedTypes('validation_delegate', ['null', 'callable', Closure::class]);
 
 		$resolver->setDefault('server_delegate', null);
-		$resolver->setAllowedTypes('server_delegate', ['null', 'callable', \Closure::class]);
+		$resolver->setAllowedTypes('server_delegate', ['null', 'callable', Closure::class]);
 	}
 
 	public function getParent(): ?string {

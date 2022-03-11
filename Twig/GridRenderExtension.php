@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -18,23 +19,18 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class GridRenderExtension extends AbstractExtension {
 
-	/**
-	 * @var Environment
-	 */
+	/** @var Environment */
 	protected $environment;
 
-	/**
-	 * @var string
-	 */
+	/**  @var string */
 	protected $twigHtmlTemplate;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $twigJsTemplate;
 
 	/**
@@ -42,16 +38,14 @@ class GridRenderExtension extends AbstractExtension {
 	 * @param string      $twigHtmlTemplate
 	 * @param string      $twigJsTemplate
 	 */
-	public function __construct(Environment $environment, $twigHtmlTemplate, $twigJsTemplate) {
+	public function __construct(Environment $environment, string $twigHtmlTemplate, string $twigJsTemplate) {
 		$this->environment = $environment;
 		$this->twigHtmlTemplate = $twigHtmlTemplate;
 		$this->twigJsTemplate = $twigJsTemplate;
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 *
 	 */
 	public function getFunctions(): array {
 		return [
@@ -67,21 +61,55 @@ class GridRenderExtension extends AbstractExtension {
 	}
 
 	/**
-	 * Renders a grid with the specified renderer.
+	 * {@inheritdoc}
+	 */
+	public function getFilters(): array {
+		return [
+			new TwigFilter('aggrid_array_is_associative', [
+				self::class,
+				'isAssociativeArray',
+			]),
+			new TwigFilter('aggrid_array_is_indexed', [
+				self::class,
+				'isIndexedArray',
+			]),
+		];
+	}
+
+	public static function isIndexedArray($array): bool {
+		return !self::isAssociativeArray($array);
+	}
+
+	public static function isAssociativeArray($array): bool {
+		if(!is_array($array)) {
+			return false;
+		}
+		$keys = array_keys($array);
+		foreach($keys as $key) {
+			if(is_string($key)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Renders a grid.
 	 *
 	 * @param GridView $grid
 	 * @param array    $options
-	 * @param string   $renderer
 	 *
 	 * @return string
 	 * @throws LoaderError
 	 * @throws RuntimeError
 	 * @throws SyntaxError
 	 */
-	public function render(GridView $grid, array $options = [], $renderer = null): string {
+	public function render(GridView $grid, array $options = []): string {
+		$htmlTemplate = $grid->getHtmlTemplate() ?? $this->twigHtmlTemplate;
+		$jsTemplate = $grid->getJsTemplate() ?? $this->twigJsTemplate;
 		$options = array_merge([
-			'html_template' => $this->twigHtmlTemplate,
-			'js_template'   => $this->twigJsTemplate,
+			'html_template' => $htmlTemplate,
+			'js_template'   => $jsTemplate,
 			'grid'          => $grid,
 		], $options);
 		return $this->environment->render($options['html_template'], $options) . "\n" . $this->environment->render($options['js_template'], $options);

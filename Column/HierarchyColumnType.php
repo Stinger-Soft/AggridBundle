@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -17,7 +18,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class HierarchyColumnType extends AbstractColumnType {
 
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setRequired('parent_field');
 		$resolver->setDefault('id_field', 'id');
 		$resolver->setDefault('path', 'orgHierarchy');
@@ -25,14 +26,14 @@ class HierarchyColumnType extends AbstractColumnType {
 
 		$propertyAccessor = PropertyAccess::createPropertyAccessor();
 
-		$resolver->setDefault('value_delegate', static function($item, $path, $options) use ($propertyAccessor) {
-			$path = [];
+		$resolver->setDefault('value_delegate', static function ($item, string $path, array $options) use ($propertyAccessor) {
+			$paths = [];
 			$parent = $item;
 			while($parent = $propertyAccessor->getValue($parent, $options['parent_field'])) {
-				array_unshift($path, $propertyAccessor->getValue($parent, $options['id_field']));
+				array_unshift($paths, $propertyAccessor->getValue($parent, $options['id_field']));
 			}
-			$path[] = $propertyAccessor->getValue($item, $options['id_field']);
-			return $path;
+			$paths[] = $propertyAccessor->getValue($item, $options['id_field']);
+			return $paths;
 		});
 	}
 }

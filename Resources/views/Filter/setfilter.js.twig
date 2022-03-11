@@ -3,5 +3,14 @@
 {% if filter.vars.data is not same as (false) %}
 values: {{ filter.vars.data|json_encode|raw }},
 {% endif %}
+{% if filter.vars.textFormatter is defined and filter.vars.textFormatter is not same as(null) %}
+textFormatter: function(value) {
+    var formatter = StingerSoftAggrid.TextFormatter.getFormatter({{ filter.vars.textFormatter|json_encode|raw }}, {{ filter.vars.textFormatterParams|default([])|json_encode|raw }});
+    return formatter(value, this.colDef);
+},
+{% endif %}
+{% if filter.vars.comparator is defined and filter.vars.comparator is not same as(null) %}
+comparator: StingerSoftAggrid.Comparator.getComparator({{ filter.vars.comparator|json_encode|raw }}),
+{% endif %}
 {{ parent() }}
 {% endblock %}

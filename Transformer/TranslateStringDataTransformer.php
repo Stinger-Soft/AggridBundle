@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -31,25 +32,20 @@ class TranslateStringDataTransformer implements DataTransformerInterface {
 		$this->translator = $translator;
 	}
 
-
 	/**
-	 * @param ColumnInterface $column
-	 * @param                 $item
-	 * @param mixed           $value
-	 *            The value in the original representation
-	 * @return mixed The value in the transformed representation
+	 * @inheritDoc
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
 		if($options['value_translation_domain'] === true || $options['value_translation_domain'] === null) {
 			if($options['translation_domain'] === null) {
 				$tableOption = $column->getGridOptions();
-				$value = $this->translator->trans($value, array(), $tableOption['translation_domain']);
+				$value = $this->translator->trans($value, [], $tableOption['translation_domain']);
 			} else {
-				$value = $this->translator->trans($value, array(), $options['translation_domain']);
+				$value = $this->translator->trans($value, [], $options['translation_domain']);
 			}
 		} else if($options['value_translation_domain'] !== false) {
-			$value = $this->translator->trans($value, array(), $options['value_translation_domain']);
+			$value = $this->translator->trans($value, [], $options['value_translation_domain']);
 		}
 		return $value;
 	}

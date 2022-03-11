@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,8 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Helper;
 
+use ReflectionClass;
+use ReflectionException;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 
 /**
@@ -31,16 +34,16 @@ trait InstanceHelperTrait {
 	/**
 	 * Tries to create an instance of the given type class, ensuring that it implements the given interface.
 	 *
-	 * @param $typeClassName          string the FQCN of the type to be created
-	 * @param $typeInterfaceClassName string|null the FQCN of the interface the type to be created must implement or
-	 *                                null if no interface must be implemented
+	 * @param string      $typeClassName          the FQCN of the type to be created
+	 * @param string|null $typeInterfaceClassName the FQCN of the interface the type to be created must implement or
+	 *                                            null if no interface must be implemented
 	 * @return object a new instance of the given type class
 	 * @throws InvalidArgumentTypeException in case the class identified by the given class name does not implement
-	 * @throws \ReflectionException
-	 *                                identified by the the given interface class name
+	 * @throws ReflectionException
+	 *                                            identified by the the given interface class name
 	 */
-	public function createTypeInstance($typeClassName, $typeInterfaceClassName = null) {
-		$reflectionClass = new \ReflectionClass($typeClassName);
+	public function createTypeInstance(string $typeClassName, $typeInterfaceClassName = null) {
+		$reflectionClass = new ReflectionClass($typeClassName);
 		if($typeInterfaceClassName !== null && !$reflectionClass->implementsInterface($typeInterfaceClassName)) {
 			throw new InvalidArgumentTypeException(sprintf('The given class type "%s" does not implement the interface "%s"', $typeClassName, $typeInterfaceClassName));
 		}

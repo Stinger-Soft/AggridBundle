@@ -5,8 +5,8 @@ stingersoft_aggrid:
   # for filter panel
   page: 'Seite'
   more: 'Mehr'
-  to: 'Bis'
-  of: 'Von'
+  to: 'bis'
+  of: 'von'
   next: 'Nächste'
   last: 'Letzte'
   first: 'Erste'
@@ -87,11 +87,15 @@ stingersoft_aggrid:
   min: 'Minimum'
   max: 'Maximum'
   none: 'Keins'
-  count: 'Zählen'
+  count: 'Anzahl'
   average: 'Durchschnitt'
   rowAndFilteredCount: 'Zeilen'
   filteredRowCount: 'Gefiltert'
   selectedRowCount: 'Ausgewählt'
+  totalAndFilteredRows: 'Zeilen'
+  totalRows: 'Zeilen gesamt'
+  filteredRows: 'Gefiltert'
+  selectedRows: 'Ausgewählt'
 
   # standard menu
   copy: 'Kopieren'
@@ -99,6 +103,9 @@ stingersoft_aggrid:
   ctrlC: 'Strg+C'
   paste: 'Einfügen'
   ctrlV: 'Strg+V'
+
+  pagination:
+    entries_per_page: Einträge pro Seite
 
   column_types:
     yes_no:

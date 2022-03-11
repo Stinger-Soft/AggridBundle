@@ -13,8 +13,14 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Service;
 
 use Psr\Container\ContainerInterface;
+use ReflectionException;
+use StingerSoft\AggridBundle\Column\ColumnTypeExtensionInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Components\ComponentTypeInterface;
+use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
+use StingerSoft\AggridBundle\Filter\FilterTypeExtensionInterface;
 use StingerSoft\AggridBundle\Filter\FilterTypeInterface;
+use StingerSoft\AggridBundle\Grid\GridTypeExtensionInterface;
 use StingerSoft\AggridBundle\Grid\GridTypeInterface;
 use StingerSoft\AggridBundle\Helper\InstanceHelperTrait;
 
@@ -24,13 +30,33 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 
 	protected $typeContainer;
 
-	protected $parameters = array();
+	protected $parameters = [];
+
+	/** @var array|GridTypeExtensionInterface[] */
+	protected $gridTypeExtensions = [];
+
+	/** @var array|ColumnTypeExtensionInterface[] */
+	protected $columnTypeExtensions = [];
+
+	/** @var array|FilterTypeExtensionInterface[] */
+	protected $filterTypeExtensions = [];
 
 	/**
-	 * @param ContainerInterface $typeContainer
+	 * @param ContainerInterface             $typeContainer
+	 * @param GridTypeExtensionInterface[]   $gridTypeExtensions
+	 * @param ColumnTypeExtensionInterface[] $columnTypeExtensions
+	 * @param FilterTypeExtensionInterface[] $filterTypeExtensions
 	 */
-	public function __construct(ContainerInterface $typeContainer) {
+	public function __construct(
+		ContainerInterface $typeContainer,
+		array $gridTypeExtensions,
+		array $columnTypeExtensions,
+		array $filterTypeExtensions
+	) {
 		$this->typeContainer = $typeContainer;
+		$this->gridTypeExtensions = $gridTypeExtensions;
+		$this->columnTypeExtensions = $columnTypeExtensions;
+		$this->filterTypeExtensions = $filterTypeExtensions;
 	}
 
 	public function resolveGridType(string $type): GridTypeInterface {
@@ -41,9 +67,33 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 		return $this->resolveType($type, ColumnTypeInterface::class);
 	}
 
+	public function resolveComponentType(string $type): ComponentTypeInterface {
+		return $this->resolveType($type, ComponentTypeInterface::class);
+	}
 
 	public function resolveFilterType(string $type): FilterTypeInterface {
 		return $this->resolveType($type, FilterTypeInterface::class);
+	}
+
+	public function resolveGridTypeExtensions(string $type): array {
+		if(array_key_exists($type, $this->gridTypeExtensions)) {
+			return $this->gridTypeExtensions[$type];
+		}
+		return [];
+	}
+
+	public function resolveColumnTypeExtensions(string $type): array {
+		if(array_key_exists($type, $this->columnTypeExtensions)) {
+			return $this->columnTypeExtensions[$type];
+		}
+		return [];
+	}
+
+	public function resolveFilterTypeExtensions(string $type): array {
+		if(array_key_exists($type, $this->filterTypeExtensions)) {
+			return $this->filterTypeExtensions[$type];
+		}
+		return [];
 	}
 
 	public function setParameter(string $key, $value): void {
@@ -58,8 +108,8 @@ class DependencyInjectionExtension implements DependencyInjectionExtensionInterf
 	 * @param string $type
 	 * @param string $typeInterfaceClassName
 	 * @return mixed|object
-	 * @throws \ReflectionException
-	 * @throws \StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 * @throws InvalidArgumentTypeException
 	 */
 	protected function resolveType(string $type, string $typeInterfaceClassName) {
 		if($this->typeContainer->has($type)) {

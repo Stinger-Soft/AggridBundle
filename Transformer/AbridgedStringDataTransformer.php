@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -38,11 +39,7 @@ class AbridgedStringDataTransformer implements DataTransformerInterface {
 	}
 
 	/**
-	 * @param ColumnInterface $column
-	 * @param                 $item
-	 * @param mixed           $value
-	 *            The value in the original representation
-	 * @return mixed The value in the transformed representation
+	 * @inheritDoc
 	 * @throws LoaderError
 	 * @throws RuntimeError
 	 * @throws SyntaxError
@@ -50,6 +47,11 @@ class AbridgedStringDataTransformer implements DataTransformerInterface {
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
 		$path = $column->getPath();
+
+		if(is_array($value)) {
+			$value = implode(', ', $value);
+		}
+
 		//$value = $value ?: $this->getDelegateValueOrScalar('empty_value', $item, $path, $options);
 		return $this->environment->render('@StingerSoftAggrid/Column/abridged_string.html.twig', [
 			'item'          => $item,

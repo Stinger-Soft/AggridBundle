@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -14,9 +15,9 @@ namespace StingerSoft\AggridBundle\Grid;
 
 use Doctrine\ORM\QueryBuilder;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Filter\FilterType;
 use StingerSoft\AggridBundle\StingerSoftAggridBundle;
 use StingerSoft\AggridBundle\View\GridView;
-use StingerSoft\PhpCommons\Builder\HashCodeBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
@@ -29,7 +30,11 @@ class GridType extends AbstractGridType {
 	public const DATA_MODE_AJAX = 'ajax';
 	public const DATA_MODE_ENTERPRISE = 'enterprise';
 
-	private $licenseKey;
+	public const COLUMN_AUTO_SIZE_TO_FIT = 'sizeToFit';
+	public const COLUMN_AUTO_SIZE_ALL = 'all';
+
+	/** @var string|null */
+	protected $licenseKey;
 
 	public function __construct(ParameterBagInterface $parameterBag) {
 		if($parameterBag->has(StingerSoftAggridBundle::PARAMETER_LICENSE_KEY)) {
@@ -38,18 +43,14 @@ class GridType extends AbstractGridType {
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function getParent(): ?string {
 		return null;
 	}
 
 	/**
-	 *
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildGrid()
 	 */
 	public function buildView(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void {
 		$this->configureDefaultViewValues($view, $gridOptions, $columns);
@@ -59,30 +60,43 @@ class GridType extends AbstractGridType {
 
 	/**
 	 * {@inheritdoc}
-	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::configureOptions()
 	 */
 	public function configureOptions(OptionsResolver $resolver): void {
 		$this->configureStingerOptions($resolver);
 		$this->configureAggridOptions($resolver);
 	}
 
-	private function configureDefaultViewValues(GridView $view, array $gridOptions, array $columns): void {
+	/** @noinspection PhpUnusedParameterInspection */
+	protected function configureDefaultViewValues(GridView $view, array $gridOptions, array $columns): void {
 		$view->vars['id'] = $gridOptions['attr']['id'] = $view->getGridId();
 		$view->vars['aggrid_id'] = str_replace('-', '_', $view->vars['id']);
 		$view->vars['aggrid_js_id'] = str_replace([' ', '#'], ['_', ''], $view->vars['aggrid_id']);
 		$view->vars['stingerSoftAggrid_js_var'] = 'stingerSoftAggrid' . $view->vars['aggrid_js_id'];
+		$view->vars['templateJs'] = $gridOptions['templateJs'];
+		$view->vars['templateHtml'] = $gridOptions['templateHtml'];
 		$view->vars['ajax_url'] = $gridOptions['ajax_url'];
 		$view->vars['dataMode'] = $gridOptions['dataMode'];
-		$gridOptions['attr']['style'] = 'height: ' . $gridOptions['height'];
+		if(!$gridOptions['autoHeight']) {
+			$gridOptions['attr']['style'] = 'height: ' . $gridOptions['height'];
+		} else {
+			$view->vars['domLayout'] = 'autoHeight';
+		}
 		$gridOptions['attr']['class'] = $gridOptions['theme'];
 		$view->vars['attr'] = $gridOptions['attr'];
 
 	}
 
-	private function configureAggridViewValues(GridView $view, array $gridOptions): void {
+	protected function configureAggridViewValues(GridView $view, array $gridOptions): void {
+		$view->vars['enableBrowserTooltips'] = $gridOptions['enableBrowserTooltips'];
+		$view->vars['enableRangeSelection'] = $gridOptions['enableRangeSelection'];
 		$view->vars['enterpriseLicense'] = $gridOptions['enterpriseLicense'];
 		$view->vars['treeData'] = $gridOptions['treeData'];
 		$view->vars['sideBar'] = $gridOptions['sideBar'];
+		$view->vars['sideBarOptions'] = [
+			'defaultToolPanel' => $gridOptions['sideBarOptions']['defaultToolPanel'] ?? null,
+			'position'         => $gridOptions['sideBarOptions']['position'] ?? null,
+			'hiddenByDefault'  => $gridOptions['sideBarOptions']['hiddenByDefault'] ?? null,
+		];
 		$view->vars['cacheBlockSize'] = $gridOptions['cacheBlockSize'];
 		$view->vars['pagination'] = $gridOptions['pagination'];
 		$view->vars['paginationPageSize'] = $gridOptions['paginationPageSize'];
@@ -91,6 +105,7 @@ class GridType extends AbstractGridType {
 		$view->vars['icons'] = $gridOptions['icons'];
 		$view->vars['suppressCsvExport'] = $gridOptions['suppressCsvExport'];
 		$view->vars['suppressExcelExport'] = $gridOptions['suppressExcelExport'];
+		$view->vars['rowHeight'] = $gridOptions['rowHeight'];
 		$view->vars['rowStyle'] = $gridOptions['rowStyle'];
 		$view->vars['getRowStyle'] = $gridOptions['getRowStyle'];
 		$view->vars['rowClass'] = $gridOptions['rowClass'];
@@ -101,16 +116,26 @@ class GridType extends AbstractGridType {
 		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
 		$view->vars['nativeOptions'] = $gridOptions['nativeOptions'];
 		$view->vars['getRowNodeId'] = $gridOptions['getRowNodeId'];
+		$view->vars['components'] = $gridOptions['components'];
 	}
 
-	private function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
+	protected function configureStingerViewValues(GridView $view, array $gridOptions, array $columns): void {
 		$view->vars['translation_domain'] = $gridOptions['translation_domain'];
 		$view->vars['total_results_query_builder'] = $gridOptions['total_results_query_builder'];
 		$view->vars['default_order_property'] = $gridOptions['default_order_property'];
 		$view->vars['default_order_direction'] = $gridOptions['default_order_direction'];
+		$view->vars['default_orders'] = $gridOptions['default_orders'];
 		$view->vars['persistState'] = $gridOptions['persistState'];
 		$view->vars['searchEnabled'] = $gridOptions['searchEnabled'];
 		$view->vars['paginationDropDown'] = $gridOptions['paginationDropDown'];
+		$view->vars['reloadButton'] = $gridOptions['reloadButton'];
+		$view->vars['clearFilterButton'] = $gridOptions['clearFilterButton'];
+		$view->vars['autosizeColumnsButton'] = $gridOptions['autosizeColumnsButton'];
+		$view->vars['autoResizeColumns'] = $gridOptions['autoResizeColumns'];
+		$view->vars['autoResizeManuallyResizedColumns'] = $gridOptions['autoResizeManuallyResizedColumns'];
+		$view->vars['autoResizeFixedWidthColumns'] = $gridOptions['autoResizeFixedWidthColumns'];
+		$view->vars['form_id'] = $gridOptions['form_id'];
+		$view->vars['templateTopBar'] = $gridOptions['templateTopBar'];
 
 		if($gridOptions['versionHash'] === true) {
 			$hashing = hash_init('sha256', HASH_HMAC, 'stingersoft-aggrid');
@@ -123,9 +148,10 @@ class GridType extends AbstractGridType {
 			$gridOptions['versionHash'] = hash_final($hashing);
 		}
 		$view->vars['versionHash'] = $gridOptions['versionHash'];
+		$view->vars['applyCellrendererOnPivotHeader'] = $gridOptions['applyCellrendererOnPivotHeader'];
 	}
 
-	private function configureStingerOptions(OptionsResolver $resolver): void {
+	protected function configureStingerOptions(OptionsResolver $resolver): void {
 		$resolver->setDefault('translation_domain', 'messages');
 		$resolver->setAllowedTypes('translation_domain', [
 			'string',
@@ -136,15 +162,44 @@ class GridType extends AbstractGridType {
 		$resolver->setAllowedTypes('total_results_query_builder', ['null', QueryBuilder::class]);
 
 		$resolver->setDefault('default_order_property', 'id');
-		$resolver->setAllowedTypes('default_order_property', ['string', 'null']);
+		$resolver->setAllowedTypes('default_order_property', ['null', 'string', 'null']);
 		$resolver->setDefault('default_order_direction', 'asc');
 		$resolver->setAllowedValues('default_order_direction', ['asc', 'desc']);
+
+		$resolver->setDefault('default_orders', null);
+		$resolver->setAllowedTypes('default_orders', ['array', 'null']);
+		$resolver->setNormalizer('default_orders', static function (Options $options, $valueToNormalize) {
+			if(is_array($valueToNormalize) && count($valueToNormalize) > 0) {
+				foreach($valueToNormalize as $key => $direction) {
+					$hasValidKey = is_string($key);
+					$fixedDirection = strtolower(trim($direction));
+					$hasValidDirection = $fixedDirection === 'asc' || $fixedDirection === 'desc';
+					if(!$hasValidKey || !$hasValidDirection) {
+						$message = '';
+						if(!$hasValidKey) {
+							$message = sprintf('The option "%s" with value [%s => %s] is invalid. Entry keys must be strings as they represent query paths and not %s! ', 'default_orders', $key, $direction, $key);
+						}
+						if(!$hasValidDirection) {
+							$message .= sprintf('The option "%s" with value [%s => %s] is invalid. Entry values must either be "asc" or "desc" but not %s!', 'default_orders', $key, $direction, $direction);
+						}
+						throw new InvalidOptionsException($message);
+					}
+				}
+			}
+			return $valueToNormalize;
+		});
 
 		$resolver->setDefault('height', '50vh');
 
 		$resolver->setDefault('hydrateAsObject', true);
 		$resolver->setAllowedTypes('hydrateAsObject', [
 			'boolean',
+		]);
+
+		$resolver->setDefault('queryHints', null);
+		$resolver->setAllowedTypes('queryHints', [
+			'null',
+			'array',
 		]);
 
 		$resolver->setDefault('persistState', false);
@@ -161,6 +216,15 @@ class GridType extends AbstractGridType {
 		});
 		$resolver->setAllowedTypes('paginationDropDown', ['null', 'array']);
 
+		$resolver->setDefault('reloadButton', false);
+		$resolver->setAllowedTypes('reloadButton', ['boolean']);
+
+		$resolver->setDefault('clearFilterButton', false);
+		$resolver->setAllowedTypes('clearFilterButton', ['boolean']);
+
+		$resolver->setDefault('autosizeColumnsButton', false);
+		$resolver->setAllowedTypes('autosizeColumnsButton', ['boolean']);
+
 		$resolver->setDefault('versionHash', static function (Options $options, $previousValue) {
 			if($previousValue === null && $options['persistState'] === true) {
 				return true;
@@ -169,11 +233,49 @@ class GridType extends AbstractGridType {
 		});
 		$resolver->setAllowedTypes('versionHash', ['bool', 'null', 'string']);
 
+		$resolver->setDefault('templateTopBar', '@StingerSoftAggrid/Grid/grid_search_pagination.html.twig');
+		$resolver->setAllowedTypes('templateTopBar', 'string');
+
+		$resolver->setDefault('templateJs', null);
+		$resolver->setAllowedTypes('templateJs', ['null', 'string']);
+
+		$resolver->setDefault('templateHtml', null);
+		$resolver->setAllowedTypes('templateHtml', ['null', 'string']);
+
 		$resolver->setDefault('versionHashModifier', null);
 		$resolver->setAllowedTypes('versionHashModifier', ['null', 'string']);
+
+		$resolver->setDefault('form_id', null);
+		$resolver->setAllowedTypes('form_id', ['null', 'string']);
+
+		$resolver->setDefault('filterNewRowsAction', null);
+		$resolver->setAllowedValues('filterNewRowsAction', [
+			null,
+			FilterType::NEW_ROWS_ACTION_DEFAULT,
+			FilterType::NEW_ROWS_ACTION_KEEP,
+		]);
+
+		$resolver->setDefault('autoResizeColumns', false);
+		$resolver->setAllowedValues('autoResizeColumns', [
+			false, self::COLUMN_AUTO_SIZE_ALL, self::COLUMN_AUTO_SIZE_TO_FIT,
+		]);
+
+		$resolver->setDefault('autoResizeManuallyResizedColumns', false);
+		$resolver->setAllowedTypes('autoResizeManuallyResizedColumns', 'bool');
+		$resolver->setDefault('autoResizeFixedWidthColumns', false);
+		$resolver->setAllowedTypes('autoResizeFixedWidthColumns', 'bool');
 	}
 
-	private function configureAggridOptions(OptionsResolver $resolver): void {
+	protected function configureAggridOptions(OptionsResolver $resolver): void {
+		$resolver->setDefault('components', null);
+		$resolver->setAllowedTypes('components', ['null', 'array']);
+
+		$resolver->setDefault('enableBrowserTooltips', true);
+		$resolver->setAllowedTypes('enableBrowserTooltips', 'bool');
+
+		$resolver->setDefault('enableRangeSelection', false);
+		$resolver->setAllowedTypes('enableRangeSelection', 'bool');
+
 		$resolver->setDefault('theme', 'ag-theme-balham');
 		$resolver->setAllowedTypes('theme', 'string');
 
@@ -204,10 +306,7 @@ class GridType extends AbstractGridType {
 		]);
 
 		$resolver->setDefault('enterpriseLicense', function (Options $options, $previousValue) {
-			if($previousValue === null) {
-				return $this->licenseKey;
-			}
-			return $previousValue;
+			return $previousValue ?? $this->licenseKey;
 		});
 		$resolver->setAllowedTypes('enterpriseLicense', [
 			'string',
@@ -224,6 +323,30 @@ class GridType extends AbstractGridType {
 				throw new InvalidArgumentException('treeData is only available in the enterprise edition. Please set a license key!');
 			}
 			return $value;
+		});
+
+		$resolver->setDefault('autoHeight', false);
+		$resolver->setAllowedTypes('autoHeight', 'bool');
+
+		$addSideBarOptions = static function (OptionsResolver $sidebarResolver) {
+			$sidebarResolver->setDefault('defaultToolPanel', null);
+			$sidebarResolver->setAllowedTypes('defaultToolPanel', ['null', 'string']);
+
+			$sidebarResolver->setDefault('position', null);
+			$sidebarResolver->setAllowedValues('position', [null, 'right', 'left']);
+
+			$sidebarResolver->setDefined('hiddenByDefault');
+			$sidebarResolver->setAllowedValues('hiddenByDefault', [null, true]);
+		};
+		$resolver->setDefault('sideBarOptions', static function (OptionsResolver $sidebarResolver) use ($addSideBarOptions) {
+			$addSideBarOptions($sidebarResolver);
+		});
+		$resolver->setAllowedTypes('sideBarOptions', 'array');
+		$resolver->setNormalizer('sideBarOptions', static function (Options $options, $valueToNormalize) use ($addSideBarOptions) {
+			$sidebarResolver = new OptionsResolver();
+			$addSideBarOptions($sidebarResolver);
+			$sidebarResolver->resolve($valueToNormalize);
+			return $valueToNormalize;
 		});
 
 		$resolver->setDefault('sideBar', false);
@@ -248,12 +371,13 @@ class GridType extends AbstractGridType {
 			}
 			return $valueToNormalize;
 		});
+		$resolver->setDeprecated('sideBar', 'Add components to the sidebar by using the GridBuilder::addComponent method!');
 
 		$resolver->setDefault('menuTabs', null);
 		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);
 		$resolver->setNormalizer('menuTabs', static function (Options $options, $value) {
 			if($value === null) {
-				return $value;
+				return null;
 			}
 			if(is_array($value)) {
 				foreach($value as $item) {
@@ -302,7 +426,9 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('getRowClass', null);
 		$resolver->setAllowedTypes('getRowClass', ['null', 'string']);
 		$resolver->setDefault('rowClassRules', null);
-		$resolver->setAllowedTypes('rowClassRules', ['null', 'string']);
+		$resolver->setAllowedTypes('rowClassRules', ['null', 'string', 'array']);
+		$resolver->setDefault('rowHeight', null);
+		$resolver->setAllowedTypes('rowHeight', ['null', 'int']);
 
 		$resolver->setDefault('rowSelection', null);
 		$resolver->setAllowedValues('rowSelection', [null, 'single', 'multiple']);
@@ -313,12 +439,12 @@ class GridType extends AbstractGridType {
 
 		//Possible icons: https://www.ag-grid.com/javascript-grid-icons/
 		$resolver->setDefault('icons', [
-			'sortAscending'  => '<i class="fas fa-sort-amount-up"></i>',
+			'sortAscending' => '<i class="fas fa-sort-amount-up"></i>',
 			'sortDescending' => '<i class="fas fa-sort-amount-down"></i>',
-			'menu'           => '<i class="far fa-bars" style="width: 12px;"></i>',
-			'menuPin'        => '<i class="far fa-thumbtack"></i>',
-			'filter'         => '<i class="far fa-filter"></i>',
-			'columns'        => '<i class="far fa-columns"></i>',
+			'menu' => '<i class="far fa-bars" style="width: 12px;"></i>',
+			'menuPin' => '<i class="far fa-thumbtack"></i>',
+			'filter' => '<i class="far fa-filter"></i>',
+			'columns' => '<i class="far fa-columns"></i>',
 			'columnMoveMove' => '<i class="far fa-arrows-alt"></i>',
 			'dropNotAllowed' => '<i class="far fa-ban"></i>',
 			//			'checkboxChecked'       => '<i class="far fa-check-square" style="font-size: 1.3em;"></i>',
@@ -330,6 +456,10 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('nativeOptions', false);
 		$resolver->setDefault('getRowNodeId', null);
 		$resolver->setAllowedTypes('getRowNodeId', ['string', 'null']);
+
+
+		$resolver->setDefault('applyCellrendererOnPivotHeader', false);
+		$resolver->setAllowedTypes('applyCellrendererOnPivotHeader', 'bool');
 	}
 
 	protected function validateSideBarOptions(Options $options, $sidebarOption) {
@@ -364,7 +494,8 @@ class GridType extends AbstractGridType {
 		throw new InvalidOptionsException(sprintf('"%s" is not a valid option for the sidebar as it must be an array!', (string)$sidebarOption));
 	}
 
-	protected function validateToolPanel(Options $options, $valueToNormalize) {
+	/** @noinspection PhpUnusedParameterInspection */
+	protected function validateToolPanel(Options $options, $valueToNormalize): void {
 		$optionsResolver = new OptionsResolver();
 		$optionsResolver->setRequired('id');
 		$optionsResolver->setAllowedTypes('id', 'string');
@@ -380,7 +511,7 @@ class GridType extends AbstractGridType {
 
 		$optionsResolver->setDefault('toolPanel', null);
 		$optionsResolver->setAllowedTypes('toolPanel', ['string', 'null']);
-		$optionsResolver->setNormalizer('toolPanel', function (Options $options, $toolPanel) {
+		$optionsResolver->setNormalizer('toolPanel', static function (Options $options, $toolPanel) {
 			if($toolPanel === null && $options['toolPanelFramework'] === null) {
 				throw new InvalidOptionsException('You must specify a value for either "toolPanel" or "toolPanelFramework" !');
 			}
@@ -389,7 +520,7 @@ class GridType extends AbstractGridType {
 
 		$optionsResolver->setDefault('toolPanelFramework', null);
 		$optionsResolver->setAllowedTypes('toolPanelFramework', ['string', 'null']);
-		$optionsResolver->setNormalizer('toolPanelFramework', function (Options $options, $toolPanel) {
+		$optionsResolver->setNormalizer('toolPanelFramework', static function (Options $options, $toolPanel) {
 			if($toolPanel === null && $options['toolPanel'] === null) {
 				throw new InvalidOptionsException('You must specify a value for either "toolPanel" or "toolPanelFramework" !');
 			}

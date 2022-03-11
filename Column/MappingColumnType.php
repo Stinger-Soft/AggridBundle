@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -38,13 +39,14 @@ class MappingColumnType extends AbstractColumnType {
 	 *
 	 * @see AbstractColumnType::configureOptions()
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setRequired('mapping');
-		$resolver->setAllowedTypes('mapping', array('array', 'callable'));
+		$resolver->setAllowedTypes('mapping', ['array', 'callable']);
 
 		$resolver->setDefault('value_translation_domain', null);
-		$resolver->setAllowedTypes('value_translation_domain', array('string', 'boolean', 'null'));
+		$resolver->setAllowedTypes('value_translation_domain', ['string', 'boolean', 'null']);
 
+		$resolver->setDefault('empty_value', null);
 	}
 
 	/**

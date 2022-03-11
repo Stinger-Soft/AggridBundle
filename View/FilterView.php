@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -17,11 +18,11 @@ namespace StingerSoft\AggridBundle\View;
  *
  * This class and its public properties can be used in the filter js and html templates.
  */
-class FilterView {
+class FilterView extends AbstractBaseView {
 
 	/**
 	 * @var string the path to the javascript twig template file to be used when rendering this filter upon
-	 * initialization of the yacdf
+	 * initialization of the grid
 	 */
 	public $jsTemplate = '';
 
@@ -29,13 +30,6 @@ class FilterView {
 	 * @var null|FilterView the parent of this view (if any).
 	 */
 	public $parent = null;
-
-	/**
-	 * The variables assigned to this view.
-	 *
-	 * @var array
-	 */
-	public $vars = array();
 
 	/**
 	 * FilterView constructor.

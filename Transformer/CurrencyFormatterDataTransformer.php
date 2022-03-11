@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -21,28 +22,22 @@ use StingerSoft\AggridBundle\Column\ColumnInterface;
  */
 class CurrencyFormatterDataTransformer implements DataTransformerInterface {
 
+	use NumberFormatterTrait;
+
 	/**
-	 * @param ColumnInterface $column
-	 * @param                 $item
-	 * @param mixed           $value
-	 *            The value in the original representation
-	 * @return mixed The value in the transformed representation
+	 * @inheritDoc
 	 */
 	public function transform(ColumnInterface $column, $item, $value) {
 		$options = $column->getColumnOptions();
 		$formatNullValue = $options['format_null'];
 		if($value === null && !$formatNullValue) {
-			return $value;
+			return null;
 		}
-		if($options['number_formatter_pattern'] === null) {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style']);
-		} else {
-			$formatter = new \NumberFormatter($options['number_formatter_locale'], $options['number_formatter_style'], $options['number_formatter_pattern']);
-		}
+		$formatter = $this->getNumberFormatter($options);
 		$currency = $options['currency'];
 		if(is_callable($currency)) {
-			$currency = call_user_func($currency, $item, $column->getPath(), $options);
+			$currency = $currency($item, $column->getPath(), $options);
 		}
-		return $formatter->formatCurrency($value, $currency);
+		return $formatter->formatCurrency($value ?? 0.0, $currency);
 	}
 }

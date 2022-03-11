@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,7 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Helper;
 
-use InvalidArgumentException;
+use ArrayIterator;
 use IteratorAggregate;
 use OutOfBoundsException;
 use ReflectionException;
@@ -20,23 +21,27 @@ use StingerSoft\AggridBundle\Column\Column;
 use StingerSoft\AggridBundle\Column\ColumnGroupType;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
+use StingerSoft\AggridBundle\Components\ComponentInterface;
+use StingerSoft\AggridBundle\Components\SideBar\SideBarComponent;
+use StingerSoft\AggridBundle\Components\SideBar\SideBarComponentTypeInterface;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponent;
+use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentTypeInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use StingerSoft\AggridBundle\Grid\Grid;
 use StingerSoft\AggridBundle\Service\DependencyInjectionExtensionInterface;
-use StingerSoft\AggridBundle\View\ColumnView;
 use Traversable;
 
 class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 
 	/**
-	 * @var ColumnInterface[] Array of all column settings
+	 * @var ColumnInterface[] Array of all columns
 	 */
 	protected $columns;
 
 	/**
-	 * @var ColumnInterface[] Array of all column settings
+	 * @var ComponentInterface[] Array of all status bar components
 	 */
-	protected $groupColumns;
+	protected $components;
 
 	/**
 	 * @var Grid the grid this builder is used for
@@ -58,13 +63,16 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 		$this->gridOptions = $gridOptions;
 		$this->dependencyInjectionExtension = $dependencyInjectionExtension;
 		$this->columns = [];
-		$this->groupColumns = [];
+		$this->components = [
+			ComponentInterface::CATEGORY_STATUS_BAR => [],
+			ComponentInterface::CATEGORY_SIDE_BAR   => [],
+		];
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function add($column, ?string $type = null, array $options = []): GridBuilderInterface {
+	public function add($column, string $type, array $options = []): GridBuilderInterface {
 		$this->addColumn($column, $type, $options);
 		return $this;
 	}
@@ -72,7 +80,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addColumn($column, ?string $type = null, array $options = []): ColumnInterface {
+	public function addColumn($column, string $type, array $options = []): ColumnInterface {
 		if(!$column instanceof ColumnInterface) {
 			$column = $this->createColumn($column, $type, $options);
 			if($column->getColumnType() instanceof ColumnGroupType) {
@@ -86,7 +94,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addGroup($column, ?string $type = null, array $options = []): GridBuilderInterface {
+	public function addGroup($column, string $type, array $options = []): GridBuilderInterface {
 		$this->addGroupColumn($column, $type, $options);
 		return $this;
 	}
@@ -94,7 +102,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addGroupColumn($column, ?string $type = null, array $options = []): ColumnInterface {
+	public function addGroupColumn($column, string $type, array $options = []): ColumnInterface {
 		if(!$column instanceof ColumnInterface) {
 			$column = $this->createColumn($column, $type, $options);
 		}
@@ -109,26 +117,9 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	}
 
 	/**
-	 * @param ColumnInterface|string $column
-	 * @param string|null            $type
-	 * @param array                  $options
-	 * @return ColumnInterface
-	 * @throws InvalidArgumentTypeException
-	 */
-	protected function createColumn($column, ?string $type = null, array $options = []): ColumnInterface {
-		$typeInstance = null;
-		try {
-			$typeInstance = $this->getColumnTypeInstance($type);
-			return new Column($column, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions, $this->grid->getQueryBuilder());
-		} catch(ReflectionException $re) {
-			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', null, $re);
-		}
-	}
-
-	/**
 	 * Returns whether a column with the given path exists (implements the \ArrayAccess interface).
 	 *
-	 * @param string $path The path of the column
+	 * @param mixed $path The path of the column
 	 * @return bool
 	 */
 	public function offsetExists($path): bool {
@@ -138,7 +129,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Returns the column with the given path (implements the \ArrayAccess interface).
 	 *
-	 * @param string $path The path of the column
+	 * @param mixed $path The path of the column
 	 * @return ColumnInterface The column
 	 * @throws OutOfBoundsException If the named column does not exist.
 	 */
@@ -149,19 +140,20 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	/**
 	 * Adds a column to the grid (implements the \ArrayAccess interface).
 	 *
-	 * @param string          $path   Ignored. The path of the column is used
-	 * @param ColumnInterface $column The column to be added
+	 * @param mixed                 $path   Ignored. The path of the column is used
+	 * @param mixed|ColumnInterface $column The column to be added
 	 * @throws InvalidArgumentTypeException
-	 * @see self::add()
+	 * @see          self::add()
+	 * @noinspection PhpMissingParamTypeInspection
 	 */
 	public function offsetSet($path, $column): void {
-		$this->add($column);
+		$this->add($path, get_class($column->getColumnType()));
 	}
 
 	/**
 	 * Removes the column with the given path from the grid (implements the \ArrayAccess interface).
 	 *
-	 * @param string $path The path of the column to remove
+	 * @param mixed $path The path of the column to remove
 	 */
 	public function offsetUnset($path): void {
 		$this->remove($path);
@@ -173,7 +165,7 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	 * @return Traversable|Column[]
 	 */
 	public function getIterator() {
-		return $this->columns;
+		return new ArrayIterator($this->columns);
 	}
 
 	/**
@@ -225,8 +217,76 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 		return $this->columns;
 	}
 
-	public function getGroupColumns(): array {
-		return $this->groupColumns;
+	public function addComponent(string $id, ?string $type = null, array $options = []): GridBuilderInterface {
+		$statusBarComponent = $this->createComponent($id, $type, $options);
+
+		$category = $statusBarComponent->getComponentCategory();
+		$this->components[$category][$statusBarComponent->getId()] = $statusBarComponent;
+
+		return $this;
+
+	}
+
+	public function removeComponent(string $category, string $id): GridBuilderInterface {
+		if(isset($this->components[$category][$id])) {
+			unset($this->components[$category][$id]);
+		}
+		return $this;
+	}
+
+	public function hasComponent(string $category, string $id): bool {
+		return isset($this->components[$category][$id]);
+	}
+
+	public function getComponent(string $category, string $id): ComponentInterface {
+		if(isset($this->components[$category][$id])) {
+			return $this->components[$category][$id];
+		}
+
+		throw new OutOfBoundsException(sprintf('Component with id "%s" does not exist in category "%s".', $id, $category));
+	}
+
+	public function components(?string $category = null): array {
+		if($category === null) {
+			return $this->components;
+		}
+		return $this->components[$category];
+	}
+
+	/**
+	 * @param ColumnInterface|string $column
+	 * @param string                 $type
+	 * @param array                  $options
+	 * @return ColumnInterface
+	 * @throws InvalidArgumentTypeException
+	 */
+	protected function createColumn($column, string $type, array $options = []): ColumnInterface {
+		$typeInstance = null;
+		try {
+			$typeInstance = $this->getColumnTypeInstance($type);
+			return new Column($column, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions, $this->grid->getDataSource());
+		} catch(ReflectionException $re) {
+			throw new InvalidArgumentTypeException('If the column parameter is no instance of the interface ' . ColumnInterface::class . ' you must specify a valid classname for the type to be used! ' . $type . ' given', 0, $re);
+		}
+	}
+
+	/**
+	 * @param string $id
+	 * @param string $type
+	 * @param array  $options
+	 * @return ComponentInterface
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 */
+	protected function createComponent(string $id, string $type, array $options = []): ComponentInterface {
+		$typeInstance = $this->dependencyInjectionExtension->resolveComponentType($type);
+		if($typeInstance instanceof StatusBarComponentTypeInterface) {
+			return new StatusBarComponent($id, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions);
+		}
+		if($typeInstance instanceof SideBarComponentTypeInterface) {
+			return new SideBarComponent($id, $typeInstance, $this->dependencyInjectionExtension, $options, $this->gridOptions);
+		}
+		throw new InvalidArgumentTypeException(sprintf('%s does neither implement "%s" nor "%s"!', $type, StatusBarComponentTypeInterface::class, SideBarComponentTypeInterface::class));
 	}
 
 	/**
@@ -235,12 +295,10 @@ class GridBuilder implements IteratorAggregate, GridBuilderInterface {
 	 * @param string $class
 	 *            Classname of the column type
 	 * @return ColumnTypeInterface
-	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
 	 */
-	private function getColumnTypeInstance($class): ColumnTypeInterface {
-		if($class === null) {
-			throw new InvalidArgumentException('Paramater class may not be null!');
-		}
+	protected function getColumnTypeInstance(string $class): ColumnTypeInterface {
 		return $this->dependencyInjectionExtension->resolveColumnType($class);
 	}
 }

@@ -1,5 +1,14 @@
 stingersoft_aggrid:
   refresh: 'Refresh'
+  searchOoo: 'Search...'
+  clearFilter: 'Clear filter'
+
+  pagination:
+    entries_per_page: Entries per Page
+
+  autosizeAllColumns: 'Auto-Size all columns'
+  selectAll: 'Select All'
+
   column_types:
     yes_no:
       no: No

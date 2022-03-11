@@ -6,10 +6,19 @@ filterParams: {
 	cellRenderer: StingerSoftAggrid.Renderer.getRenderer("{{ filter.vars.cellRenderer }}", {{ filter.vars.cellRendererParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }}),
 	{% endif %}
 	{% if filter.vars.cellRendererParams is defined and filter.vars.cellRendererParams is not same as(null) %}
-		cellRendererParams: {{ filter.vars.cellRendererParams|json_encode|raw }},
+		cellRendererParams: {{ filter.vars.cellRendererParams|default({})|json_encode(constant('JSON_FORCE_OBJECT'))|raw }},
 	{% endif %}
 	{% if filter.vars.newRowsAction is defined and filter.vars.newRowsAction is not same as(null) %}
 	newRowsAction: {{ filter.vars.newRowsAction|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.includeBlanksInEquals is defined and filter.vars.includeBlanksInEquals is not same as(null)%}
+	includeBlanksInEquals: {{ filter.vars.includeBlanksInEquals|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.includeBlanksInLessThan is defined and filter.vars.includeBlanksInLessThan is not same as(null)%}
+	includeBlanksInLessThan: {{ filter.vars.includeBlanksInLessThan|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.includeBlanksInGreaterThan is defined and filter.vars.includeBlanksInGreaterThan is not same as(null)%}
+	includeBlanksInGreaterThan: {{ filter.vars.includeBlanksInGreaterThan|json_encode|raw }},
 	{% endif %}
 	{% if filter.vars.applyButton is defined and filter.vars.applyButton is not same as(null) %}
 		applyButton: {{ filter.vars.applyButton|json_encode|raw }},

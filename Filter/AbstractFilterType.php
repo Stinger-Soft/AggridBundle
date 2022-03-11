@@ -1,4 +1,15 @@
 <?php
+declare(strict_types=1);
+
+/*
+ * This file is part of the Stinger Soft AgGrid package.
+ *
+ * (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
+ * (c) Florian Meyer <florian.meyer@stinger-soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace StingerSoft\AggridBundle\Filter;
 
@@ -58,7 +69,7 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 	}
 
 	public function handleFilterRequest(QueryBuilder $queryBuilder, array $filterRequest, string $parameterBindingName, string $queryPath, array $filterTypeOptions, string $rootAlias) {
-		$filterValue = $filterRequest['filter'] ?? $filterRequest['values'];
+		$filterValue = $filterRequest['filter'] ?? $filterRequest['values'] ?? null;
 		$filterValueTo = $filterRequest['filterTo'] ?? null;
 		$filterType = $filterRequest['type'] ?? null;
 		if(is_array($filterValue)) {
@@ -75,6 +86,9 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 		switch($comparisonType) {
 			case FilterTypeInterface::FILTER_MATCH_MODE_EQUALS:
 				$expr = $queryBuilder->expr()->eq($queryPath, $parameterBindingName);
+				if(isset($filterTypeOptions['includeBlanksInEquals']) && $filterTypeOptions['includeBlanksInEquals']) {
+					$expr = $queryBuilder->expr()->orX($expr, $queryBuilder->expr()->isNull($queryPath));
+				}
 				$queryBuilder->setParameter($parameterBindingName, $value);
 				break;
 			case FilterTypeInterface::FILTER_MATCH_MODE_NOT_EQUALS:
@@ -83,18 +97,30 @@ abstract class AbstractFilterType implements FilterTypeInterface {
 				break;
 			case FilterTypeInterface::FILTER_MATCH_MODE_GREATER_THAN:
 				$expr = $queryBuilder->expr()->gt($queryPath, $parameterBindingName);
+				if(isset($filterTypeOptions['includeBlanksInGreaterThan']) && $filterTypeOptions['includeBlanksInGreaterThan']) {
+					$expr = $queryBuilder->expr()->orX($expr, $queryBuilder->expr()->isNull($queryPath));
+				}
 				$queryBuilder->setParameter($parameterBindingName, $value);
 				break;
 			case FilterTypeInterface::FILTER_MATCH_MODE_GREATER_THAN_OR_EQUALS:
 				$expr = $queryBuilder->expr()->gte($queryPath, $parameterBindingName);
+				if(isset($filterTypeOptions['includeBlanksInGreaterThan']) && $filterTypeOptions['includeBlanksInGreaterThan']) {
+					$expr = $queryBuilder->expr()->orX($expr, $queryBuilder->expr()->isNull($queryPath));
+				}
 				$queryBuilder->setParameter($parameterBindingName, $value);
 				break;
 			case FilterTypeInterface::FILTER_MATCH_MODE_LESS_THAN:
 				$expr = $queryBuilder->expr()->lt($queryPath, $parameterBindingName);
+				if(isset($filterTypeOptions['includeBlanksInLessThan']) && $filterTypeOptions['includeBlanksInLessThan']) {
+					$expr = $queryBuilder->expr()->orX($expr, $queryBuilder->expr()->isNull($queryPath));
+				}
 				$queryBuilder->setParameter($parameterBindingName, $value);
 				break;
 			case FilterTypeInterface::FILTER_MATCH_MODE_LESS_THAN_OR_EQUALS:
 				$expr = $queryBuilder->expr()->lte($queryPath, $parameterBindingName);
+				if(isset($filterTypeOptions['includeBlanksInLessThan']) && $filterTypeOptions['includeBlanksInLessThan']) {
+					$expr = $queryBuilder->expr()->orX($expr, $queryBuilder->expr()->isNull($queryPath));
+				}
 				$queryBuilder->setParameter($parameterBindingName, $value);
 				break;
 			case FilterTypeInterface::FILTER_MATCH_MODE_RANGE:

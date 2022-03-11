@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -22,12 +23,12 @@ class CountColumnType extends AbstractColumnType {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setDefault('orderable', false);
 		$resolver->setDefault('searchable', false);
 
 		$propAccessor = $this->getPropertyAccessor();
-		$resolver->setDefault('value_delegate', function($item, $path) use ($propAccessor) {
+		$resolver->setDefault('value_delegate', function ($item, $path) use ($propAccessor) {
 			return count($propAccessor->getValue($item, $path));
 		});
 	}

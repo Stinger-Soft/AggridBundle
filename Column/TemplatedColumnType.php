@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,26 +13,22 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
-use StingerSoft\AggridBundle\Helper\TemplatingTrait;
-use StingerSoft\AggridBundle\View\ColumnView;
+use StingerSoft\AggridBundle\Transformer\TwigDataTransformer;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Templating\EngineInterface;
-use Twig\Environment;
 
 class TemplatedColumnType extends AbstractColumnType {
 
-	use ColumnTrait;
-	use TemplatingTrait;
+	protected $transformer;
 
-	public function __construct(?EngineInterface $templating, ?Environment $twig) {
-		$this->templating = $templating;
-		$this->twig = $twig;
+	public function __construct(TwigDataTransformer $transformer) {
+		$this->transformer = $transformer;
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
+	public function configureOptions(OptionsResolver $resolver, array $gridOptions = []): void {
 		$resolver->setRequired('template');
 		$resolver->setAllowedTypes('template', 'string');
 
@@ -47,19 +44,35 @@ class TemplatedColumnType extends AbstractColumnType {
 		$resolver->setDefault('searchable', AbstractColumnType::CLIENT_SIDE_ONLY);
 		$resolver->setDefault('cellRenderer', 'RawHtmlRenderer');
 
-		$that = $this;
-		$resolver->setDefault('value_delegate', function ($item, $path, $options) use ($that, $tableOptions) {
-			$value = $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
-			$originalContext = [
-				'item'         => $item,
-				'path'         => $path,
-				'value'        => $value,
-				'options'      => $options,
-				'tableOptions' => $tableOptions,
-			];
-			$additionalContext = $options['additionalContext'];
-			$context = array_merge($additionalContext, $originalContext);
-			return trim($that->renderView($options['template'], $context));
+		$resolver->setNormalizer('filter_options', static function (Options $options, $value) {
+			if($value === null) {
+				$value = [];
+			}
+			if(!isset($value['cellRenderer'])) {
+				$value['cellRenderer'] = 'RawHtmlRenderer';
+			}
+			return $value;
 		});
+
+		$resolver->setDefault('exportValueFormatter', function (Options $options, $previousValue) {
+			if($previousValue !== null) {
+				return $previousValue;
+			}
+			if($options['mapped']) {
+				return 'ValueFormatter';
+			}
+			return 'StripHtmlDisplayValueFormatter';
+		});
+
+		$resolver->setDefault('value_delegate', function ($item, $path, $options) {
+			return $options['mapped'] ? $this->generateItemValue($item, $path, $options) : null;
+		});
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function buildData(ColumnInterface $column, array $options) {
+		$column->addDataTransformer($this->transformer);
 	}
 }

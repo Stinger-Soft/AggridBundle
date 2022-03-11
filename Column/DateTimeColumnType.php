@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Column;
 
+use Locale;
 use StingerSoft\AggridBundle\Transformer\DateTimeFormatterDataTransformer;
 use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -31,10 +33,10 @@ class DateTimeColumnType extends AbstractColumnType {
 	 * {@inheritdoc}
 	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
-		$resolver->setDefault('locale', null);
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
+		$resolver->setDefault('locale', Locale::getDefault());
 
-		$dateTimeFormatValidator = function($valueToCheck) {
+		$dateTimeFormatValidator = function ($valueToCheck) {
 			return array_key_exists($valueToCheck, DateTimeFormatterDataTransformer::getValidFormats());
 		};
 		$resolver->setDefault('time_format', 'medium');
@@ -44,7 +46,10 @@ class DateTimeColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('format', null);
 		$resolver->setDefault('calendar', 'gregorian');
-		$resolver->setAllowedValues('calendar', array('gregorian', 'traditional'));
+		$resolver->setAllowedValues('calendar', ['gregorian', 'traditional']);
+
+		$resolver->setDefault('comparator', 'DateComparator');
+		$resolver->setDefault('filterValueGetter', 'ValueGetter');
 	}
 
 	/**

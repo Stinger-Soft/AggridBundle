@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -16,6 +17,12 @@ use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 interface ColumnTypeInterface {
+
+	/** @var string constant for search expression conjunction using AND */
+	public const SEARCH_OPERATOR_AND = 'AND';
+
+	/** @var string constant for search expression conjunction using OR */
+	public const SEARCH_OPERATOR_OR = 'OR';
 
 	/** @var string constant for menu tab containing general information */
 	public const MENU_TAB_GENERAL = 'generalMenuTab';

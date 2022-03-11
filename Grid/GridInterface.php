@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -13,15 +14,21 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Grid;
 
 use StingerSoft\AggridBundle\Column\Column;
-use StingerSoft\AggridBundle\View\GridView;
+use StingerSoft\AggridBundle\Components\Component;
 
 interface GridInterface {
+
 	/**
 	 * Get all columns belonging to the grid.
 	 *
 	 * @return Column[] all columns belonging to the grid.
 	 */
 	public function getColumns(): array;
+
+	/**
+	 * @return Component[]
+	 */
+	public function getComponents(): array;
 
 	public function createJsonData(): string;
 }

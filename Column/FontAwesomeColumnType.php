@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -22,13 +23,13 @@ class FontAwesomeColumnType extends AbstractColumnType {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function configureOptions(OptionsResolver $resolver, array $tableOptions = array()): void {
+	public function configureOptions(OptionsResolver $resolver, array $tableOptions = []): void {
 		$resolver->setDefault('mapped', true);
 		$resolver->setDefault('no_value_icon', null);
-		$resolver->setAllowedTypes('no_value_icon', array(
+		$resolver->setAllowedTypes('no_value_icon', [
 			'null',
-			'string'
-		));
+			'string',
+		]);
 		$resolver->setDefault('template', '@StingerSoftAggrid/Column/fontawesome_icon.html.twig');
 	}
 

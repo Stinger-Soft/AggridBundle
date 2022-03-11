@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 /*
  * This file is part of the Stinger Soft AgGrid package.
  *
@@ -65,7 +66,7 @@ interface FilterTypeInterface {
 	public const FILTER_MATCH_MODE_ENDS_WITH = 'endsWith';
 
 	/**
-	 * @var string String constant for specifying that filtering should be applied using a in range mecahnism
+	 * @var string String constant for specifying that filtering should be applied using a in range mechanism
 	 */
 	public const FILTER_MATCH_MODE_RANGE = 'inRange';
 
@@ -139,8 +140,8 @@ interface FilterTypeInterface {
 	 *                                              <code>filterTo</code>: Second value to filter for (e.g. for range filters)
 	 *                                              <code>filterType</code>: The value type of the filter
 	 *                                              or
-	 *                                              <code>codition1</code>: The condition1 of the filter
-	 *                                              <code>codition2</code>: The condition2 of the filter
+	 *                                              <code>condition1</code>: The condition1 of the filter
+	 *                                              <code>condition2</code>: The condition2 of the filter
 	 *                                              <code>operator</code>: The operator of the conditions
 	 * @param string       $parameterBindingName    the initial name of the parameter to be used for binding the filter
 	 *                                              value to any query builder expression, the binding name is suffixed

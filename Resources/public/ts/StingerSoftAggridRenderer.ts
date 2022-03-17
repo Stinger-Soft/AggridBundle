@@ -3,6 +3,7 @@ declare var jQuery: JQueryStatic;
 import {StingerSoftAggrid} from "./StingerSoftAggrid";
 import {ICellRendererComp, ICellRendererParams, Promise} from "ag-grid-community";
 import {isConstructor} from "./utils";
+
 declare var Translator: any;
 
 
@@ -26,7 +27,7 @@ export class StingerSoftAggridRenderer {
 }
 
 export function invokeRenderer(aggridRenderer, rendererParams, value) {
-    if(isConstructor(aggridRenderer)) {
+    if (isConstructor(aggridRenderer)) {
         var cellRenderer = new aggridRenderer();
         var params = jQuery.extend({}, rendererParams || {}, {'value': value});
         cellRenderer.init(params);
@@ -41,13 +42,15 @@ export function invokeRenderer(aggridRenderer, rendererParams, value) {
 export function RawHtmlRenderer(params) {
     var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
     return displayValue ? displayValue : '';
-};
+}
+
 StingerSoftAggridRenderer.registerRenderer('RawHtmlRenderer', RawHtmlRenderer);
 
 export function NullValueRenderer(params) {
     var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
     return displayValue ? displayValue : params.nullValueLabel;
-};
+}
+
 StingerSoftAggridRenderer.registerRenderer('NullValueRenderer', NullValueRenderer);
 
 
@@ -57,7 +60,8 @@ StingerSoftAggridRenderer.registerRenderer('NullValueRenderer', NullValueRendere
 export function StripHtmlRenderer(params) {
     var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
     return displayValue ? jQuery("<div/>").html(displayValue).text() : '';
-};
+}
+
 StingerSoftAggridRenderer.registerRenderer('StripHtmlRenderer', StripHtmlRenderer);
 
 export function KeyValueMappingRenderer(rendererParams) {
@@ -65,13 +69,14 @@ export function KeyValueMappingRenderer(rendererParams) {
     var translationDomain = rendererParams.hasOwnProperty('translation_domain') && rendererParams.translation_domain ? rendererParams.translation_domain : 'messages';
     var keyValueMapping = rendererParams.hasOwnProperty('keyValueMapping') && rendererParams.keyValueMapping ? rendererParams.keyValueMapping : {};
     if (val && keyValueMapping.hasOwnProperty(val)) {
-        if (translationDomain && typeof Translator !== "undefined" ) {
+        if (translationDomain && typeof Translator !== "undefined") {
             return Translator.trans(keyValueMapping[val], {}, translationDomain);
         }
         return keyValueMapping[val];
     }
     return val ? val : '';
-};
+}
+
 StingerSoftAggridRenderer.registerRenderer('KeyValueMappingRenderer', KeyValueMappingRenderer);
 
 
@@ -156,6 +161,7 @@ export class YesNoRenderer implements ICellRendererComp {
         return true;
     }
 }
+
 StingerSoftAggridRenderer.registerRenderer('YesNoRenderer', YesNoRenderer);
 
 export class StateRenderer implements ICellRendererComp {
@@ -199,7 +205,7 @@ export class StateRenderer implements ICellRendererComp {
             var values = Array.isArray(value) ? value : [value];
             var i = 0;
 
-            for(var item of values) {
+            for (var item of values) {
                 if (!this.states.hasOwnProperty(item)) {
                     continue;
                 }
@@ -243,4 +249,5 @@ export class StateRenderer implements ICellRendererComp {
         return true;
     }
 }
+
 StingerSoftAggridRenderer.registerRenderer('StateRenderer', StateRenderer);

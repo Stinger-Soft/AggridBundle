@@ -170,7 +170,7 @@
                 return;
             }
 
-            if (params.display_type !== this.TYPE_LABEL_ONLY) {
+            if (params['display_type'] !== this.TYPE_LABEL_ONLY) {
                 this.eGui.innerHTML = "<i></i>";
                 this.icon = this.eGui.querySelector('i');
                 if (value == this.noValue) {
@@ -179,7 +179,7 @@
                     this.icon.className = this.yesIconClass;
                 }
             }
-            if (params.display_type === this.TYPE_LABEL_ONLY || params.display_type === this.TYPE_ICON_WITH_LABEL) {
+            if (params['display_type'] === this.TYPE_LABEL_ONLY || params['display_type'] === this.TYPE_ICON_WITH_LABEL) {
                 if (value == this.noValue) {
                     this.textnode = document.createTextNode(this.noLabel);
                     this.eGui.appendChild(this.textnode);
@@ -188,7 +188,7 @@
                     this.eGui.appendChild(this.textnode);
                 }
             }
-            if (params.display_type === this.TYPE_ICON_TOOLTIP) {
+            if (params['display_type'] === this.TYPE_ICON_TOOLTIP) {
                 this.icon.setAttribute("data-toggle", "tooltip");
                 this.icon.setAttribute("data-container", "body");
                 if (value == this.noValue) {

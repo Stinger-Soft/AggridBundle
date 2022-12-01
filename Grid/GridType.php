@@ -195,6 +195,7 @@ class GridType extends AbstractGridType {
 		$view->vars['rowSelection'] = $gridOptions['rowSelection'];
 		$view->vars['rowMultiSelectWithClick'] = $gridOptions['rowMultiSelectWithClick'];
 		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
+		$view->vars['getContextMenuItems'] = $gridOptions['getContextMenuItems'];
 		$view->vars['nativeOptions'] = $gridOptions['nativeOptions'];
 		$view->vars['getRowNodeId'] = $gridOptions['getRowNodeId'];
 		$view->vars['components'] = $gridOptions['components'];
@@ -538,6 +539,7 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('getRowNodeId', null);
 		$resolver->setAllowedTypes('getRowNodeId', ['string', 'null']);
 
+		$resolver->setDefault('getContextMenuItems', false);
 
 		$resolver->setDefault('applyCellrendererOnPivotHeader', false);
 		$resolver->setAllowedTypes('applyCellrendererOnPivotHeader', 'bool');

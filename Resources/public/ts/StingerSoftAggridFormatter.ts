@@ -1,7 +1,7 @@
 declare var jQuery: JQueryStatic;
 
 const language = jQuery('html').attr('lang') || 'en';
-if(language !== 'en ') {
+if(language !== 'en') {
     require('moment/locale/' + language);
 }
 const moment = require('moment');

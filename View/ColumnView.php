@@ -44,4 +44,19 @@ class ColumnView extends AbstractBaseView {
 		$this->parent = $parent;
 	}
 
+	public function getChildView(string $path): ?ColumnView {
+		if(!isset($this->vars['children']) && !is_array($this->vars['children'])) {
+			return null;
+		}
+		/**
+		 * @var ColumnView $child
+		 */
+		foreach($this->vars['children'] as $child) {
+			if($child->path === $path) {
+				return $child;
+			}
+		}
+		return null;
+	}
+
 }

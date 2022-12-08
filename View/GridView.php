@@ -172,7 +172,27 @@ class GridView extends AbstractBaseView {
 			if($options['renderable'] && $column->getParent() === null && isset($this->columnViews[$column->getPath()])) {
 				$view = $this->columnViews[$column->getPath()];
 				$column->createJsonConfiguration($view);
+				$this->addChildJsonViews($view, $column);
 			}
+		}
+	}
+
+	/**
+	 * @param ColumnView      $parentView
+	 * @param ColumnInterface $column
+	 * @throws InvalidArgumentTypeException
+	 * @throws ReflectionException
+	 */
+	protected function addChildJsonViews(ColumnView $parentView, ColumnInterface $column): void {
+		if(count($column->getChildren())) {
+			$childViews = [];
+			foreach($column->getChildren() as $child) {
+				$view = $parentView->getChildView($child->getPath());
+				$child->createJsonConfiguration($view, $parentView);
+				$this->addChildJsonViews($view, $child);
+				$childViews[] = $view->jsonConfiguration;
+			}
+			$parentView->jsonConfiguration['children'] = $childViews;
 		}
 	}
 

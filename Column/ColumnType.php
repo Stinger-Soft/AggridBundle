@@ -633,11 +633,6 @@ class ColumnType extends AbstractColumnType {
 		if(isset($view->vars['children']) && $view->vars['children'] !== null && count($view->vars['children']) > 0) {
 			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'groupId');
 			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'marryChildren');
-			$children = [];
-			foreach($view->vars['children'] as $child) {
-				$child->jsonConfiguration;
-			}
-			$view->jsonConfiguration['children'] = $children;
 		}
 
 	}

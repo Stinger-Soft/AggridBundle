@@ -1,6 +1,6 @@
 declare var jQuery: JQueryStatic;
 
-import {ColDef, Column, ColumnApi, ColumnResizedEvent, Grid, GridApi, GridOptions} from "ag-grid-community";
+import {ColDef, ColGroupDef, Column, ColumnApi, ColumnResizedEvent, Grid, GridApi, GridOptions} from "ag-grid-community";
 import {GridConfiguration} from "./GridConfiguration";
 import {StingerSoftAggridRenderer} from "./StingerSoftAggridRenderer";
 import {StingerSoftAggridValueGetter} from "./StingerSoftAggridValueGetter";
@@ -414,75 +414,86 @@ export class StingerSoftAggrid {
         }, this.filterTimeout);
     }
 
+    protected static processJsonColumnConfiguration(column: (ColDef | ColGroupDef), configuration: GridConfiguration): (ColDef | ColGroupDef) {
+        if (column.hasOwnProperty('render_html') && column['render_html']) {
+            column['cellRenderer'] = (params) => {
+                return params.value ? params.value : '';
+            }
+        }
+
+        if (column.hasOwnProperty('cellRenderer') && column['cellRenderer']) {
+            column['cellRenderer'] = StingerSoftAggrid.Renderer.getRenderer(column['cellRenderer'], column['cellRendererParams'] || {});
+        }
+        if (column.hasOwnProperty('valueGetter') && column['valueGetter']) {
+            column['valueGetter'] = StingerSoftAggrid.Getter.getGetter(column['valueGetter'], column['valueGetterParams'] || {});
+        }
+        if (column.hasOwnProperty('filterValueGetter') && column['filterValueGetter']) {
+            column['filterValueGetter'] = StingerSoftAggrid.Getter.getGetter(column['filterValueGetter'], column['filterValueGetterParams'] || {});
+        }
+
+        if (column.hasOwnProperty('valueSetter') && column['valueSetter']) {
+
+        }
+        if (column.hasOwnProperty('valueFormatter') && column['valueFormatter']) {
+            column['valueFormatter'] = StingerSoftAggrid.Formatter.getFormatter(column['valueFormatter'], column['valueFormatterParams'] || {});
+        }
+
+        if (column.hasOwnProperty('comparator') && column['comparator']) {
+            column['comparator'] = StingerSoftAggrid.Comparator.getComparator(column['comparator']);
+        }
+        if (column.hasOwnProperty('getQuickFilterText') && column['getQuickFilterText']) {
+            column['getQuickFilterText'] = StingerSoftAggrid.Filter.getFilter(column['getQuickFilterText'], configuration.stinger.dataMode);
+        } else if (column.hasOwnProperty('valueGetter') && column['valueGetter']) {
+            column['getQuickFilterText'] = column['valueGetter'];
+        } else if (column.hasOwnProperty('valueFormatter') && column['valueFormatter']) {
+            column['getQuickFilterText'] = column['valueFormatter'];
+        } else {
+            column['getQuickFilterText'] = StingerSoftAggrid.Formatter.getFormatter('DefaultFormatter');
+        }
+
+        if (column.hasOwnProperty('keyCreator') && column['keyCreator']) {
+            column['keyCreator'] = StingerSoftAggrid.Creator.getKeyCreator(column['keyCreator']);
+        }
+        if (column.hasOwnProperty('tooltip') && column['tooltip']) {
+            column['tooltip'] = StingerSoftAggrid.Tooltip.getTooltip(column['tooltip']);
+        }
+        if (column.hasOwnProperty('checkboxSelection') && column['checkboxSelection'] !== true && column['checkboxSelection'] !== false) {
+            console.warn('Passing a callable via JSON configuration for the field [checkboxSelection] is not supported!');
+            delete column['checkboxSelection'];
+        }
+
+        // if(column.hasOwnProperty('comparator') && column['comparator']) {
+        //     column['comparator'] = StingerSoftAggrid.Comparator.getComparator(column['comparator']);
+        // }
+
+        if (column.hasOwnProperty('valueFormatterParams')) {
+            delete column['valueFormatterParams'];
+        }
+
+        if (column.hasOwnProperty('filterParams')) {
+            if (column['filterParams'] && column['filterParams'].hasOwnProperty('cellRenderer')) {
+                column['filterParams'].cellRenderer = StingerSoftAggrid.Renderer.getRenderer(column['filterParams'].cellRenderer, column['filterParams'].cellRendererParams || {});
+            }
+            if (column['filterParams'] && column['filterParams'].hasOwnProperty('textFormatter')) {
+                column['filterParams'].textFormatter = function (value) {
+                    var formatter = StingerSoftAggrid.TextFormatter.getFormatter(column['filterParams'].textFormatter, column['filterParams'].textFormatterParams || {});
+                    return formatter(value, this.colDef);
+                }
+            }
+        }
+        if (column.hasOwnProperty('children')) {
+            for(const childColumn of (column as ColGroupDef).children) {
+                StingerSoftAggrid.processJsonColumnConfiguration(childColumn as  (ColDef | ColGroupDef), configuration);
+            }
+        }
+        return column;
+    }
+
     public static processJsonConfiguration(configuration: GridConfiguration): void {
-        for (let column of configuration.aggrid.columnDefs) {
-
-            if (column.hasOwnProperty('render_html') && column['render_html']) {
-                column['cellRenderer'] = (params) => {
-                    return params.value ? params.value : '';
-                }
-            }
-
-            if (column.hasOwnProperty('cellRenderer') && column['cellRenderer']) {
-                column['cellRenderer'] = StingerSoftAggrid.Renderer.getRenderer(column['cellRenderer'], column['cellRendererParams'] || {});
-            }
-            if (column.hasOwnProperty('valueGetter') && column['valueGetter']) {
-                column['valueGetter'] = StingerSoftAggrid.Getter.getGetter(column['valueGetter'], column['valueGetterParams'] || {});
-            }
-            if (column.hasOwnProperty('filterValueGetter') && column['filterValueGetter']) {
-                column['filterValueGetter'] = StingerSoftAggrid.Getter.getGetter(column['filterValueGetter'], column['filterValueGetterParams'] || {});
-            }
-
-            if (column.hasOwnProperty('valueSetter') && column['valueSetter']) {
-
-            }
-            if (column.hasOwnProperty('valueFormatter') && column['valueFormatter']) {
-                column['valueFormatter'] = StingerSoftAggrid.Formatter.getFormatter(column['valueFormatter'], column['valueFormatterParams'] || {});
-            }
-
-            if (column.hasOwnProperty('comparator') && column['comparator']) {
-                column['comparator'] = StingerSoftAggrid.Comparator.getComparator(column['comparator']);
-            }
-            if (column.hasOwnProperty('getQuickFilterText') && column['getQuickFilterText']) {
-                column['getQuickFilterText'] = StingerSoftAggrid.Filter.getFilter(column['getQuickFilterText'], configuration.stinger.dataMode);
-            } else if (column.hasOwnProperty('valueGetter') && column['valueGetter']) {
-                column['getQuickFilterText'] = column['valueGetter'];
-            } else if (column.hasOwnProperty('valueFormatter') && column['valueFormatter']) {
-                column['getQuickFilterText'] = column['valueFormatter'];
-            } else {
-                column['getQuickFilterText'] = StingerSoftAggrid.Formatter.getFormatter('DefaultFormatter');
-            }
-
-            if (column.hasOwnProperty('keyCreator') && column['keyCreator']) {
-                column['keyCreator'] = StingerSoftAggrid.Creator.getKeyCreator(column['keyCreator']);
-            }
-            if (column.hasOwnProperty('tooltip') && column['tooltip']) {
-                column['tooltip'] = StingerSoftAggrid.Tooltip.getTooltip(column['tooltip']);
-            }
-            if (column.hasOwnProperty('checkboxSelection') && column['checkboxSelection'] !== true && column['checkboxSelection'] !== false) {
-                console.warn('Passing a callable via JSON configuration for the field [checkboxSelection] is not supported!');
-                delete column['checkboxSelection'];
-            }
-
-            // if(column.hasOwnProperty('comparator') && column['comparator']) {
-            //     column['comparator'] = StingerSoftAggrid.Comparator.getComparator(column['comparator']);
-            // }
-
-            if (column.hasOwnProperty('valueFormatterParams')) {
-                delete column['valueFormatterParams'];
-            }
-
-            if (column.hasOwnProperty('filterParams')) {
-                if (column['filterParams'] && column['filterParams'].hasOwnProperty('cellRenderer')) {
-                    column['filterParams'].cellRenderer = StingerSoftAggrid.Renderer.getRenderer(column['filterParams'].cellRenderer, column['filterParams'].cellRendererParams || {});
-                }
-                if (column['filterParams'] && column['filterParams'].hasOwnProperty('textFormatter')) {
-                    column['filterParams'].textFormatter = function (value) {
-                        var formatter = StingerSoftAggrid.TextFormatter.getFormatter(column['filterParams'].textFormatter, column['filterParams'].textFormatterParams || {});
-                        return formatter(value, this.colDef);
-                    }
-                }
-            }
+        for(const columnId in configuration.aggrid.columnDefs) {
+            const column = configuration.aggrid.columnDefs[columnId];
+            // @ts-ignore
+            StingerSoftAggrid.processJsonColumnConfiguration(column, configuration);
         }
         configuration.aggrid.localeTextFunc = function (key, defaultValue) {
             var gridKey = 'stingersoft_aggrid.' + key;

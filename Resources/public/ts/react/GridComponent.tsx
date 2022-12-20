@@ -4,7 +4,7 @@ import React from "react";
 import axios from 'axios';
 import {StingerSoftAggrid} from 'stingersoftaggrid/ts/StingerSoftAggrid';
 import {GridConfiguration} from 'stingersoftaggrid/ts/GridConfiguration';
-import type {BazingaTranslator} from 'bazingajstranslation/js/translator.min.js';
+import type { BazingaTranslator } from 'bazinga-translator';
 import "./GridComponent.scss";
 
 declare var Translator: BazingaTranslator;

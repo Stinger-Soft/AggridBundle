@@ -11,7 +11,7 @@ import {
     ComponentFactoryResolver,
     ViewContainerRef, ViewChildren, Directive, HostListener
 } from '@angular/core';
-import type {BazingaTranslator} from 'bazingajstranslation/js/translator.min.js';
+import type { BazingaTranslator } from 'bazinga-translator';
 import {Router} from '@angular/router';
 
 declare var Translator: BazingaTranslator;

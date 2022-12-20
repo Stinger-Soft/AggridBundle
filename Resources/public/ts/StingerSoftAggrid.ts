@@ -12,7 +12,7 @@ import {StingerSoftAggridStyler} from "./StingerSoftAggridStyler";
 import {StingerSoftAggridTextFormatter} from "./StingerSoftAggridTextFormatter";
 import {StingerSoftAggridKeyCreator} from "./StingerSoftAggridKeyCreator";
 import {StingerSoftAggridTooltip} from "./StingerSoftAggridTooltip";
-import type {BazingaTranslator} from 'bazingajstranslation/js/translator.min.js';
+import type { BazingaTranslator } from 'bazinga-translator';
 
 declare var Translator: BazingaTranslator;
 

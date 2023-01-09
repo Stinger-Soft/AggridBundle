@@ -39,9 +39,26 @@ export function invokeRenderer(aggridRenderer, rendererParams, value) {
 }
 
 
-export function RawHtmlRenderer(params) {
-    var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
-    return displayValue ? displayValue : '';
+export class RawHtmlRenderer implements ICellRendererComp {
+
+    private eGui: HTMLElement;
+
+    getGui(): HTMLElement {
+        return this.eGui;
+    }
+
+    init(params: ICellRendererParams): Promise<void> | void {
+        var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
+        var template = document.createElement('template');
+        displayValue = displayValue.trim(); // Never return a text node of whitespace as the result
+        template.innerHTML = displayValue;
+        this.eGui = template.content.firstChild as HTMLElement;
+    }
+
+    refresh(params: any): boolean {
+        this.init(params);
+        return true;
+    }
 }
 
 StingerSoftAggridRenderer.registerRenderer('RawHtmlRenderer', RawHtmlRenderer);

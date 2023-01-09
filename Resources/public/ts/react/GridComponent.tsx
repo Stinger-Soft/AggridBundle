@@ -6,12 +6,15 @@ import {StingerSoftAggrid} from 'stingersoftaggrid/ts/StingerSoftAggrid';
 import {GridConfiguration} from 'stingersoftaggrid/ts/GridConfiguration';
 import type { BazingaTranslator } from 'bazinga-translator';
 import "./GridComponent.scss";
+import { NavigateFunction } from "react-router-dom";
 
 declare var Translator: BazingaTranslator;
 
 
 interface IProps {
     src: string;
+    translator?: BazingaTranslator;
+    navigate?: NavigateFunction;
 }
 
 interface IState {
@@ -25,13 +28,19 @@ export class GridComponent extends React.Component<IProps, IState> {
     gridRef: React.RefObject<AgGridReact>;
     gridContainer: React.RefObject<HTMLDivElement>;
 
+    translator: BazingaTranslator;
+    navigate?: NavigateFunction;
+
     constructor(props) {
         super(props);
+        this.translator = props.translator || global.Translator;
+        this.navigate = props.navigate;
         this.gridRef = React.createRef<AgGridReact>();
         this.gridContainer = React.createRef<HTMLDivElement>();
         this.state = { configuration: null, stingerAggrid: null, loading: true }
         this.fetchColumnDefs(props.src);
         this.gridReadyListener = this.gridReadyListener.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
 
 
@@ -41,7 +50,6 @@ export class GridComponent extends React.Component<IProps, IState> {
                 'gridId': 1
             }
         }).then((p) => {
-            console.log(p);
             let configuration = p.data;
             configuration = this.processConfiguration(configuration);
             this.setState({ configuration: configuration, loading: false  });
@@ -83,6 +91,20 @@ export class GridComponent extends React.Component<IProps, IState> {
                 ...styleObj,
                 [style[0]]: style[1],
             }), {});
+    }
+
+    handleClick(event: Event): void {
+        if (event.target instanceof HTMLAnchorElement) {
+            const element = event.target as HTMLAnchorElement;
+            if (element.className === 'routerlink' && element?.hasAttribute('reacthref') && this.navigate) {
+                event.preventDefault();
+                const route = element?.getAttribute('reacthref');
+                if (route) {
+                    event.preventDefault();
+                    this.navigate(route);
+                }
+            }
+        }
     }
 
     render() {
@@ -157,6 +179,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                     </div>
                     <div
                         ref={this.gridContainer}
+                        onClick={this.handleClick}
                         {...configuration.stinger.attr}
                     >
                         <AgGridReact

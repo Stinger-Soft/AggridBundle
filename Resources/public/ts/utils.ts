@@ -2,7 +2,7 @@ export function deepFind(obj: object, path: string) {
     if (obj === undefined) {
         return null;
     }
-    const paths = path.split('.')
+    var paths = path.split('.')
         , current = obj
         , i;
 
@@ -16,7 +16,7 @@ export function deepFind(obj: object, path: string) {
     return current;
 }
 
-export function deepSet(obj: object, path: string, value: any): void {
+export function deepSet(obj: object, path: string, value: any) {
     if (path.length === 1) {
         obj[path] = value;
         return;

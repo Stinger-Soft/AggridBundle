@@ -38,7 +38,6 @@ export class GridComponent extends React.Component<IProps, IState> {
         this.gridRef = React.createRef<AgGridReact>();
         this.gridContainer = React.createRef<HTMLDivElement>();
         this.state = { configuration: null, stingerAggrid: null, loading: true }
-        this.fetchColumnDefs(props.src);
         this.gridReadyListener = this.gridReadyListener.bind(this);
         this.handleClick = this.handleClick.bind(this);
     }
@@ -57,6 +56,13 @@ export class GridComponent extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
+        this.fetchColumnDefs(this.props.src);
+    }
+    componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any) {
+        if(prevProps.src !== this.props.src) {
+            this.setState({ configuration: null, loading: true  });
+            this.fetchColumnDefs(this.props.src);
+        }
     }
 
     gridReadyListener() {

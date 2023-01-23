@@ -62,7 +62,7 @@ export class StingerSoftAggrid {
 
     public static Tooltip = StingerSoftAggridTooltip;
 
-    constructor(private aggridElement: HTMLElement, private api?: GridApi, private columnApi?: ColumnApi) {
+    constructor(private aggridElement: HTMLElement, public api?: GridApi, public columnApi?: ColumnApi) {
         this.gridId = aggridElement.id;
         this.stateSaveKey = this.gridId.replace("#", "");
     }

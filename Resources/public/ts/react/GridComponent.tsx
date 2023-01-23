@@ -7,6 +7,7 @@ import {GridConfiguration} from 'stingersoftaggrid/ts/GridConfiguration';
 import type { BazingaTranslator } from 'bazinga-translator';
 import "./GridComponent.scss";
 import { NavigateFunction } from "react-router-dom";
+import {GridReadyEvent} from "@ag-grid-community/core/dist/cjs/es5/events";
 
 declare var Translator: BazingaTranslator;
 
@@ -15,6 +16,7 @@ interface IProps {
     src: string;
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
+    onGridReady?: (event: GridReadyEvent) => void;
 }
 
 interface IState {
@@ -31,7 +33,7 @@ export class GridComponent extends React.Component<IProps, IState> {
     translator: BazingaTranslator;
     navigate?: NavigateFunction;
 
-    constructor(props) {
+    constructor(props: IProps) {
         super(props);
         this.translator = props.translator || global.Translator;
         this.navigate = props.navigate;
@@ -65,13 +67,21 @@ export class GridComponent extends React.Component<IProps, IState> {
         }
     }
 
-    gridReadyListener() {
+    gridReadyListener(event: GridReadyEvent) {
         const agGrid = this.gridRef.current;
         // @ts-ignore
         const stingerAggrid = new StingerSoftAggrid(this.gridContainer.current, agGrid.api, agGrid.columnApi);
         stingerAggrid.init(this.state.configuration);
         this.setState({ stingerAggrid: stingerAggrid});
+        if(this.props.onGridReady) {
+            this.props.onGridReady(event)
+        }
     }
+
+    getStingerApi(): StingerSoftAggrid {
+        return this.state.stingerAggrid;
+    }
+
 
     processConfiguration(configuration) {
         StingerSoftAggrid.processJsonConfiguration(configuration);

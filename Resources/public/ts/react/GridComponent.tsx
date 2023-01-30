@@ -142,73 +142,75 @@ export class GridComponent extends React.Component<IProps, IState> {
 
         return (<>
                 <div>
-                    <div className="mb-1 aggrid-topbar">
-                        {configuration.stinger.searchEnabled &&
-							<input type="text"
-								   className="pull-left form-control input-small col-lg-3 col-xl-2  aggrid-quick-search"
-								   placeholder={Translator.trans('stingersoft_aggrid.searchOoo', {}, 'StingerSoftAggridBundle')}
-								   onChange={(e) => stingerAggrid?.quickFilter(e.target.value)}/>
-                        }
+                    <div className="mb-1 d-flex aggrid-topbar">
+                        <div className="flex-row d-flex ">
+                            {configuration.stinger.searchEnabled &&
+                                <input type="text"
+                                       className="form-control input-small flex-column-auto d-flex aggrid-quick-search"
+                                       placeholder={Translator.trans('stingersoft_aggrid.searchOoo', {}, 'StingerSoftAggridBundle')}
+                                       onChange={(e) => stingerAggrid?.quickFilter(e.target.value)}/>
+                            }
 
-                        <div className="col-lg-9 col-xl-10 aggrid-actions row">
-                            {configuration?.aggrid.pagination && configuration?.stinger.paginationDropDown !== null && configuration?.stinger.paginationDropDown.length > 0 &&
-								<div className="form-group row col-lg-1 col-xl-2 aggrid-entries-per-page">
-									<label
-										className="col-6 col-form-label">{Translator.trans('stingersoft_aggrid.pagination.entries_per_page', {}, 'StingerSoftAggridBundle')}</label>
-									<div className="col-6">
-										<select className="form-control input-xsmall"
-												onChange={(e) => stingerAggrid?.setPaginationPageSize(e.target.value)}>
-                                            {configuration?.stinger.paginationDropDown.map(entry =>
+                            <div className="flex-column-fluid d-flex aggrid-actions">
+                                {configuration?.aggrid.pagination && configuration?.stinger.paginationDropDown !== null && configuration?.stinger.paginationDropDown.length > 0 &&
+                                    <div className="form-group row aggrid-entries-per-page">
+                                        <label
+                                            className="col-6 col-form-label text-end">{Translator.trans('stingersoft_aggrid.pagination.entries_per_page', {}, 'StingerSoftAggridBundle')}</label>
+                                        <div className="col-6">
+                                            <select className="form-select"
+                                                    onChange={(e) => stingerAggrid?.setPaginationPageSize(e.target.value)}>
+                                                {configuration?.stinger.paginationDropDown.map(entry =>
+                                                    <option
+                                                        selected={entry == configuration?.aggrid.paginationPageSize ? true : null}
+                                                        value={entry}> {entry}</option>
+                                                )}
+                                                {configuration?.stinger.paginationDropDown.indexOf(configuration?.aggrid.paginationPageSize) < 0 &&
+                                                    <option selected={true}
+                                                            value={configuration?.aggrid.paginationPageSize}> {configuration?.aggrid.paginationPageSize}</option>}
                                                 <option
-                                                    selected={entry == configuration?.aggrid.paginationPageSize ? true : null}
-                                                    value={entry}> {entry}</option>
-                                            )}
-                                            {configuration?.stinger.paginationDropDown.indexOf(configuration?.aggrid.paginationPageSize) < 0 &&
-												<option selected={true}
-														value={configuration?.aggrid.paginationPageSize}> {configuration?.aggrid.paginationPageSize}</option>}
-											<option
-												value="999999999">{Translator.trans('stingersoft_aggrid.selectAll', {}, 'StingerSoftAggridBundle')}</option>
-										</select>
-									</div>
-								</div>
-                            }
-                            {(configuration?.stinger.reloadButton || configuration?.stinger.clearFilterButton || configuration?.stinger.autosizeColumnsButton) &&
-								<div className="aggrid-action-buttons">
-                                    {configuration?.stinger.autosizeColumnsButton &&
-										<a href="" className="btn btn-default btn-icon aggrid-autosize"
-										   data-toggle="tooltip"
-										   onClick={(e) => {
-                                               e.preventDefault();
-                                               stingerAggrid?.autoSizeColumns()
-                                           }}
-										   title={Translator.trans('stingersoft_aggrid.autosizeAllColumns', {}, 'StingerSoftAggridBundle')}>
-											<i className="far fa-fw fa-text-width"></i>
-										</a>
-                                    }
-                                    {configuration?.stinger.reloadButton &&
-										<a href="" className="btn btn-default btn-icon aggrid-reload"
-										   data-toggle="tooltip"
-										   onClick={(e) => {
-                                               e.preventDefault();
-                                               stingerAggrid?.reload();
-                                           }}
-										   title={Translator.trans('stingersoft_aggrid.refresh', {}, 'StingerSoftAggridBundle')}>
-											<i className="far fa-fw fa-sync"></i>
-										</a>
-                                    }
-                                    {configuration?.stinger.clearFilterButton &&
-										<a href="" className="btn btn-default btn-icon aggrid-clear"
-										   data-toggle="tooltip"
-										   onClick={(e) => {
-                                               e.preventDefault();
-                                               stingerAggrid?.resetFilter();
-                                           }}
-										   title={Translator.trans('stingersoft_aggrid.clearFilter', {}, 'StingerSoftAggridBundle')}>
-											<i className="far fa-fw fa-trash"></i>
-										</a>
-                                    }
-								</div>
-                            }
+                                                    value="999999999">{Translator.trans('stingersoft_aggrid.selectAll', {}, 'StingerSoftAggridBundle')}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                }
+                                {(configuration?.stinger.reloadButton || configuration?.stinger.clearFilterButton || configuration?.stinger.autosizeColumnsButton) &&
+                                    <div className="aggrid-action-buttons">
+                                        {configuration?.stinger.autosizeColumnsButton &&
+                                            <a href="" className="btn btn-light btn-icon aggrid-autosize"
+                                               data-toggle="tooltip"
+                                               onClick={(e) => {
+                                                   e.preventDefault();
+                                                   stingerAggrid?.autoSizeColumns()
+                                               }}
+                                               title={Translator.trans('stingersoft_aggrid.autosizeAllColumns', {}, 'StingerSoftAggridBundle')}>
+                                                <i className="far fa-fw fa-text-width"></i>
+                                            </a>
+                                        }
+                                        {configuration?.stinger.reloadButton &&
+                                            <a href="" className="btn btn-light btn-icon aggrid-reload"
+                                               data-toggle="tooltip"
+                                               onClick={(e) => {
+                                                   e.preventDefault();
+                                                   stingerAggrid?.reload();
+                                               }}
+                                               title={Translator.trans('stingersoft_aggrid.refresh', {}, 'StingerSoftAggridBundle')}>
+                                                <i className="far fa-fw fa-sync"></i>
+                                            </a>
+                                        }
+                                        {configuration?.stinger.clearFilterButton &&
+                                            <a href="" className="btn btn-light btn-icon aggrid-clear"
+                                               data-toggle="tooltip"
+                                               onClick={(e) => {
+                                                   e.preventDefault();
+                                                   stingerAggrid?.resetFilter();
+                                               }}
+                                               title={Translator.trans('stingersoft_aggrid.clearFilter', {}, 'StingerSoftAggridBundle')}>
+                                                <i className="far fa-fw fa-trash"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                     <div

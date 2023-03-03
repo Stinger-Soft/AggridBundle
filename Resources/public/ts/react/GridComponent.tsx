@@ -27,11 +27,13 @@ interface IState {
 
 export class GridComponent extends React.Component<IProps, IState> {
 
-    gridRef: React.RefObject<AgGridReact>;
+        gridRef: React.RefObject<AgGridReact>;
     gridContainer: React.RefObject<HTMLDivElement>;
 
     translator: BazingaTranslator;
     navigate?: NavigateFunction;
+
+    abortController: AbortController|null;
 
     constructor(props: IProps) {
         super(props);
@@ -40,17 +42,20 @@ export class GridComponent extends React.Component<IProps, IState> {
         this.gridRef = React.createRef<AgGridReact>();
         this.gridContainer = React.createRef<HTMLDivElement>();
         this.state = {configuration: null, stingerAggrid: null, loading: true}
+        this.abortController = null;
+
         this.gridReadyListener = this.gridReadyListener.bind(this);
         this.handleClick = this.handleClick.bind(this);
     }
 
 
     fetchColumnDefs(url: string) {
+        this.abortController = new AbortController();
         axios.post<GridConfiguration>(url, {
             'agGrid': {
                 'gridId': 1
             }
-        }).then((p) => {
+        }, {signal: this.abortController?.signal}).then((p) => {
             let configuration = p.data;
             configuration = this.processConfiguration(configuration);
             this.setState({configuration: configuration, loading: false});
@@ -61,8 +66,13 @@ export class GridComponent extends React.Component<IProps, IState> {
         this.fetchColumnDefs(this.props.src);
     }
 
+    componentWillUnmount() {
+        this.abortController?.abort();
+    }
+
     componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any) {
         if (prevProps.src !== this.props.src) {
+            this.abortController?.abort();
             this.setState({configuration: null, loading: true});
             this.fetchColumnDefs(this.props.src);
         }

@@ -8,7 +8,7 @@ const moment = require('moment');
 moment.locale(language);
 
 import {StingerSoftAggrid} from "./StingerSoftAggrid";
-import {ICellRendererComp, ICellRendererParams, Promise} from "ag-grid-community";
+import {ICellRendererComp, ICellRendererParams, AgPromise} from "ag-grid-community";
 
 
 export class StingerSoftAggridFormatter {

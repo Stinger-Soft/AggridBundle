@@ -13,7 +13,8 @@ declare var Translator: BazingaTranslator;
 
 
 interface IProps {
-    src: string;
+    src?: string;
+    data?: Promise<GridConfiguration>;
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
     onGridReady?: (event: GridReadyEvent) => void;
@@ -63,6 +64,13 @@ export class GridComponent extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
+        if (this.props.data) {
+            this.props.data.then((result) => {
+                let configuration = this.processConfiguration(result);
+                this.setState({configuration: configuration, loading: false});
+            });
+            return;
+        }
         this.fetchColumnDefs(this.props.src);
     }
 

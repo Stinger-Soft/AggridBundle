@@ -14,7 +14,7 @@ declare var Translator: BazingaTranslator;
 
 interface IProps {
     src?: string;
-    gridHelper?: Object;
+    additionalAjaxRequestBody?: Object;
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
     onGridReady?: (event: GridReadyEvent) => void;
@@ -36,7 +36,7 @@ export class GridComponent extends React.Component<IProps, IState> {
 
     abortController: AbortController|null;
 
-    gridHelper: Object|null;
+    additionalAjaxRequestBody: Object|null;
 
     constructor(props: IProps) {
         super(props);
@@ -46,7 +46,7 @@ export class GridComponent extends React.Component<IProps, IState> {
         this.gridContainer = React.createRef<HTMLDivElement>();
         this.state = {configuration: null, stingerAggrid: null, loading: true}
         this.abortController = null;
-        this.gridHelper = props.gridHelper;
+        this.additionalAjaxRequestBody = props.additionalAjaxRequestBody;
 
         this.gridReadyListener = this.gridReadyListener.bind(this);
         this.handleClick = this.handleClick.bind(this);
@@ -57,9 +57,9 @@ export class GridComponent extends React.Component<IProps, IState> {
         this.abortController = new AbortController();
         axios.post<GridConfiguration>(url, {
             'agGrid': {
-                'gridId': 1
+                'gridId': 1,
+                ... this.additionalAjaxRequestBody,
             },
-            'gridHelper': this.gridHelper,
         }, {signal: this.abortController?.signal}).then((p) => {
             let configuration = p.data;
             configuration = this.processConfiguration(configuration);

@@ -1,6 +1,7 @@
 export class StingerConfiguration {
     attr: any
     ajaxUrl?: any
+    additionalAjaxRequestBody?: Object
     autoResizeFixedWidthColumns: any
     autoResizeManuallyResizedColumns: any
     autosizeColumnsButton: any

@@ -58,8 +58,8 @@ export class GridComponent extends React.Component<IProps, IState> {
         axios.post<GridConfiguration>(url, {
             'agGrid': {
                 'gridId': 1,
-                ... this.additionalAjaxRequestBody,
             },
+            ...this.additionalAjaxRequestBody
         }, {signal: this.abortController?.signal}).then((p) => {
             let configuration = p.data;
             configuration = this.processConfiguration(configuration);
@@ -68,13 +68,6 @@ export class GridComponent extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
-        if (this.props.data) {
-            this.props.data.then((result) => {
-                let configuration = this.processConfiguration(result);
-                this.setState({configuration: configuration, loading: false});
-            });
-            return;
-        }
         this.fetchColumnDefs(this.props.src);
     }
 
@@ -108,6 +101,9 @@ export class GridComponent extends React.Component<IProps, IState> {
 
 
     processConfiguration(configuration) {
+        if (this.additionalAjaxRequestBody) {
+            configuration.stinger.additionalAjaxRequestBody = this.additionalAjaxRequestBody;
+        }
         StingerSoftAggrid.processJsonConfiguration(configuration);
         return configuration;
     }

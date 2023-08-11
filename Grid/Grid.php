@@ -283,7 +283,7 @@ class Grid implements GridInterface {
 			$view->jsonConfiguration['columnDefs'][] = $column->jsonConfiguration;
 		}
 
-		$template = '{"gridId": ' . json_encode($view->getGridId()) . ', "aggrid": ' . json_encode($view->jsonConfiguration) . ', "stinger": ' . $jsonStinger . '}';
+		$template = '{"gridId": ' . json_encode($view->getGridId()) . ', "aggrid": ' . json_encode($view->jsonConfiguration) . ', "stinger": ' . $jsonStinger . ', "gridHelper": '. json_encode($this->options['gridHelper']) .'}';
 		return new JsonResponse($template, 200, [], true);
 	}
 

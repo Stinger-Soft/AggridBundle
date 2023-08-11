@@ -111,7 +111,7 @@ export class StingerSoftAggrid {
             'agGrid': {
                 'gridId': '#' + that.gridId
             },
-            'extraData': this.options['extraData']
+            'gridHelper': this.options['gridHelper']
         }, function (data) {
             that.api.setRowData(data.items);
         });

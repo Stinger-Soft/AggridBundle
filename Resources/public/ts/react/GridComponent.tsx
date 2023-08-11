@@ -14,7 +14,7 @@ declare var Translator: BazingaTranslator;
 
 interface IProps {
     src?: string;
-    extraData?: Object;
+    gridHelper?: Object;
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
     onGridReady?: (event: GridReadyEvent) => void;
@@ -36,7 +36,7 @@ export class GridComponent extends React.Component<IProps, IState> {
 
     abortController: AbortController|null;
 
-    extraData: Object|null;
+    gridHelper: Object|null;
 
     constructor(props: IProps) {
         super(props);
@@ -46,7 +46,7 @@ export class GridComponent extends React.Component<IProps, IState> {
         this.gridContainer = React.createRef<HTMLDivElement>();
         this.state = {configuration: null, stingerAggrid: null, loading: true}
         this.abortController = null;
-        this.extraData = props.extraData;
+        this.gridHelper = props.gridHelper;
 
         this.gridReadyListener = this.gridReadyListener.bind(this);
         this.handleClick = this.handleClick.bind(this);
@@ -59,7 +59,7 @@ export class GridComponent extends React.Component<IProps, IState> {
             'agGrid': {
                 'gridId': 1
             },
-            'extraData': this.extraData,
+            'gridHelper': this.gridHelper,
         }, {signal: this.abortController?.signal}).then((p) => {
             let configuration = p.data;
             configuration = this.processConfiguration(configuration);

@@ -109,8 +109,9 @@ export class StingerSoftAggrid {
         var that = this;
         return jQuery.getJSON(this.options.stinger.ajaxUrl, {
             'agGrid': {
-                'gridId': '#' + that.gridId
-            }
+                'gridId': '#' + that.gridId,
+            },
+            ...this.options.stinger.additionalAjaxRequestBody
         }, function (data) {
             that.api.setRowData(data.items);
         });

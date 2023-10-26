@@ -1,4 +1,4 @@
-import {AllCommunityModules} from "@ag-grid-community/all-modules";
+import {AllCommunityModules, RowClassRules} from "@ag-grid-community/all-modules";
 import {AgGridReact} from "@ag-grid-community/react";
 import React from "react";
 import axios from 'axios';
@@ -18,6 +18,7 @@ interface IProps {
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
     onGridReady?: (event: GridReadyEvent) => void;
+    rowClassRules?: RowClassRules;
 }
 
 interface IState {
@@ -69,6 +70,14 @@ export class GridComponent extends React.Component<IProps, IState> {
 
     componentDidMount() {
         this.fetchColumnDefs(this.props.src);
+    }
+
+    reload() {
+        this.state.stingerAggrid.reload();
+    }
+
+    refresh() {
+        this.state.stingerAggrid.refresh(true);
     }
 
     componentWillUnmount() {
@@ -243,6 +252,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                             rowData={[]}
                             columnDefs={this.state.configuration.aggrid.columnDefs}
                             gridOptions={this.state.configuration.aggrid}
+                            rowClassRules={this.props.rowClassRules}
                         ></AgGridReact>
                     </div>
                 </div>

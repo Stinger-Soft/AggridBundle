@@ -1,5 +1,5 @@
 import {StingerSoftAggrid} from "./StingerSoftAggrid";
-import {ICellRendererComp, ICellRendererParams, Promise} from "ag-grid-community";
+import {ICellRendererComp, ICellRendererParams, AgPromise} from "ag-grid-community";
 import {invokeRenderer, StingerSoftAggridRenderer} from "./StingerSoftAggridRenderer";
 
 

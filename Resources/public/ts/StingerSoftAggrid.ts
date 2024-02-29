@@ -257,7 +257,7 @@ export class StingerSoftAggrid {
             });
         }
         if (this.options.stinger.hasOwnProperty('dataMode') && this.options.stinger.dataMode === 'enterprise') {
-            this.api.purgeServerSideCache();
+            this.api.refreshServerSide({ purge: true });
         }
         this.refresh(true);
     }
@@ -357,7 +357,7 @@ export class StingerSoftAggrid {
             var storageObject = {
                 columns: this.columnApi.getColumnState(),
                 groups: this.columnApi.getColumnGroupState(),
-                sorts: this.api.getSortModel(),
+                sorts: this.api.getModel(),
                 filters: this.api.getFilterModel(),
                 version: this.options.stinger.versionHash
             };
@@ -378,13 +378,16 @@ export class StingerSoftAggrid {
                     var sortModel = storageObject.hasOwnProperty('sorts') && storageObject.sorts ? storageObject.sorts : [];
                     var filterModel = storageObject.hasOwnProperty('filters') && storageObject.filters ? storageObject.filters : {};
                     if (columnState && Array.isArray(columnState) && columnState.length) {
-                        this.columnApi.setColumnState(columnState);
+                        this.columnApi.applyColumnState({
+                            state:columnState,
+                            applyOrder: true,
+                          });
                     }
                     if (columnGroupState && Array.isArray(columnGroupState) && columnGroupState.length) {
                         this.columnApi.setColumnGroupState(columnGroupState);
                     }
                     if (sortModel && Array.isArray(sortModel) && sortModel.length) {
-                        this.api.setSortModel(sortModel);
+                        this.columnApi.applyColumnState({ state: sortModel }); 
                     }
                     if (filterModel && Object.keys(filterModel).length !== 0) {
                         this.api.setFilterModel(filterModel);
@@ -496,15 +499,15 @@ export class StingerSoftAggrid {
             // @ts-ignore
             StingerSoftAggrid.processJsonColumnConfiguration(column, configuration);
         }
-        configuration.aggrid.localeTextFunc = function (key, defaultValue) {
-            var gridKey = 'stingersoft_aggrid.' + key;
-            var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
-            if (value === gridKey) {
-                console.warn('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
-                return defaultValue;
-            }
-            return value;
-        }
+        // configuration.aggrid.localeTextFunc = function (key, defaultValue) {
+        //     var gridKey = 'stingersoft_aggrid.' + key;
+        //     var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
+        //     if (value === gridKey) {
+        //         console.warn('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
+        //         return defaultValue;
+        //     }
+        //     return value;
+        // }
 
         console.log(configuration);
     }

@@ -7,7 +7,7 @@ if(language !== 'en') {
 const moment = require('moment');
 moment.locale(language);
 
-import {IAfterGuiAttachedParams, ICellEditorComp, ICellEditorParams, Promise} from "ag-grid-community";
+import {IAfterGuiAttachedParams, ICellEditorComp, ICellEditorParams, AgPromise} from "ag-grid-community";
 
 export class StingerSoftAggridEditor {
     private static editor = [];
@@ -39,7 +39,7 @@ export class DatePicker implements ICellEditorComp {
         return this.eInput;
     }
 
-    init(params: ICellEditorParams): Promise<void> | void {
+    init(params: ICellEditorParams): AgPromise<void> | void {
         // create the cell
         this.eInput = document.createElement('input');
 

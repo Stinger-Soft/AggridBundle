@@ -18,7 +18,7 @@ interface IProps {
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
     onGridReady?: (event: GridReadyEvent) => void;
-    showSideBar?: boolean
+    showSideBar?: string | string[] | boolean | null;
 }
 
 interface IState {
@@ -38,7 +38,7 @@ export class GridComponent extends React.Component<IProps, IState> {
     abortController: AbortController|null;
 
     additionalAjaxRequestBody: Object|null;
-    showSideBar: boolean;
+    showSideBar: string | string[] | boolean | null;
 
     constructor(props: IProps) {
         super(props);

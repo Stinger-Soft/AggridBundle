@@ -1,6 +1,6 @@
+import React from 'react'
 import {AllCommunityModules} from "@ag-grid-community/all-modules";
 import {AgGridReact} from "@ag-grid-community/react";
-import React from "react";
 import axios from 'axios';
 import {StingerSoftAggrid} from 'stingersoftaggrid/ts/StingerSoftAggrid';
 import {GridConfiguration} from 'stingersoftaggrid/ts/GridConfiguration';
@@ -18,6 +18,7 @@ interface IProps {
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
     onGridReady?: (event: GridReadyEvent) => void;
+    showSideBar?: boolean
 }
 
 interface IState {
@@ -28,7 +29,7 @@ interface IState {
 
 export class GridComponent extends React.Component<IProps, IState> {
 
-        gridRef: React.RefObject<AgGridReact>;
+    gridRef: React.RefObject<AgGridReact>;
     gridContainer: React.RefObject<HTMLDivElement>;
 
     translator: BazingaTranslator;
@@ -37,6 +38,7 @@ export class GridComponent extends React.Component<IProps, IState> {
     abortController: AbortController|null;
 
     additionalAjaxRequestBody: Object|null;
+    showSideBar: boolean;
 
     constructor(props: IProps) {
         super(props);
@@ -47,6 +49,7 @@ export class GridComponent extends React.Component<IProps, IState> {
         this.state = {configuration: null, stingerAggrid: null, loading: true}
         this.abortController = null;
         this.additionalAjaxRequestBody = props.additionalAjaxRequestBody;
+        this.showSideBar = props.showSideBar ?? false;
 
         this.gridReadyListener = this.gridReadyListener.bind(this);
         this.handleClick = this.handleClick.bind(this);
@@ -241,6 +244,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                             modules={AllCommunityModules}
                             ref={this.gridRef}
                             rowData={[]}
+                            sideBar={this.showSideBar}
                             columnDefs={this.state.configuration.aggrid.columnDefs}
                             gridOptions={this.state.configuration.aggrid}
                         ></AgGridReact>

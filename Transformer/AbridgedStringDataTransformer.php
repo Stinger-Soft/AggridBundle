@@ -51,6 +51,9 @@ class AbridgedStringDataTransformer implements DataTransformerInterface {
 		if(is_array($value)) {
 			$value = implode(', ', $value);
 		}
+		if($value === null && isset($options['nl2space'])) {
+			$value = '';
+		}
 
 		//$value = $value ?: $this->getDelegateValueOrScalar('empty_value', $item, $path, $options);
 		return $this->environment->render('@StingerSoftAggrid/Column/abridged_string.html.twig', [

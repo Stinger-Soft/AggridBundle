@@ -29,18 +29,18 @@
 	},
 	"license": "Apache-2.0",
 	"require": {
-		"php": ">=7.2",
+		"php": "^8.1",
 		"ext-json": "*",
 		"foxy/foxy":"^1.0.0",
-		"knplabs/knp-components": "~1.3.3||^2.0||^3.0",
+		"knplabs/knp-components": "^4.0||^5.0",
 		"npm-asset/ag-grid-community": ">=21.0",
 		"npm-asset/moment": "~2.24",
 		"stinger-soft/php-commons": "^1.0.0",
-		"symfony/framework-bundle": "^4.0||^5.0",
-		"symfony/property-access": "^4.0||^5.0",
-		"symfony/console": "^4.0||^5.0",
-		"symfony/form": "^4.0||^5.0",
-		"twig/twig": "^2.0||^3.0"
+		"symfony/framework-bundle": "^6.4",
+		"symfony/property-access": "^6.4",
+		"symfony/console": "^6.4",
+		"symfony/form": "^6.4",
+		"twig/twig": "^3.0"
 	},
 	"suggest": {
 		"npm-asset/ag-grid-enterprise": "Enterprise edition to support set filter etc."
@@ -49,12 +49,12 @@
 	  "npm-asset/ag-grid-enterprise": "21.2.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "~7.5.6",
-		"php-coveralls/php-coveralls": "~2.1.0",
-		"doctrine/orm": "^2.5",
-		"doctrine/common": "^2.5",
-		"symfony/validator": "^3.4||^4.0||^5.0",
-		"symfony/phpunit-bridge": "^3.4||^4.0||^5.0"
+		"php-coveralls/php-coveralls": "^2.1.0",
+		"doctrine/orm": "^3",
+		"doctrine/common": "^3",
+		"symfony/validator": "^6.4",
+		"symfony/phpunit-bridge": "^6.4",
+		"symfony/test-pack": "*"
 	},
 	"repositories": [
 		{
@@ -69,6 +69,11 @@
 		"branch-alias": {
 			"dev-master": "2.2.x-dev",
 			"dev-develop": "3.0.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"foxy/foxy": true
 		}
 	}
 }

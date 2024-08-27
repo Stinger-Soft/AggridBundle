@@ -24,6 +24,9 @@ use StingerSoft\AggridBundle\Components\StatusBar\StatusBarComponentInterface;
 use StingerSoft\AggridBundle\Exception\InvalidArgumentTypeException;
 use Traversable;
 
+/**
+ * @implements Traversable<string, ColumnInterface>
+ */
 interface GridBuilderInterface extends ArrayAccess, Traversable, Countable {
 
 	/**

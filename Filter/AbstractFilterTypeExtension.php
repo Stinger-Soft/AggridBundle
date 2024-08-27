@@ -24,4 +24,8 @@ abstract class AbstractFilterTypeExtension implements FilterTypeExtensionInterfa
 
 	public function buildView(FilterView $view, FilterInterface $filter, array $options, $dataSource, string $queryPath, string $rootAlias): void {
 	}
+
+	public function buildJsonConfiguration(FilterView $view, FilterInterface $filter, array $options): void {
+		
+	}
 }

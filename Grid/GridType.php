@@ -17,6 +17,7 @@ use Doctrine\ORM\QueryBuilder;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Filter\FilterType;
 use StingerSoft\AggridBundle\StingerSoftAggridBundle;
+use StingerSoft\AggridBundle\View\AbstractBaseView;
 use StingerSoft\AggridBundle\View\GridView;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
@@ -64,6 +65,86 @@ class GridType extends AbstractGridType {
 	public function configureOptions(OptionsResolver $resolver): void {
 		$this->configureStingerOptions($resolver);
 		$this->configureAggridOptions($resolver);
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 * @see \StingerSoft\AggridBundle\Grid\GridTypeInterface::buildJsonConfiguration()
+	 */
+	public function buildJsonConfiguration(GridView $view, GridInterface $grid, array $gridOptions, array $columns): void {
+		$view->jsonConfiguration = $view->jsonConfiguration ?? [];
+		// todo in TS/JS: $aggridConfig['processCellForClipboard']
+		$view->jsonConfiguration['enableBrowserTooltips'] = $view->vars['enableBrowserTooltips'];
+		$view->jsonConfiguration['enableRangeSelection'] = $view->vars['enableRangeSelection'];
+
+		$view->jsonConfiguration['columnDefs'] = [];
+
+		$view->jsonConfiguration['components'] = [];
+		foreach($view->getAdditionalComponents() as $componentAlias => $component) {
+			$view->jsonConfiguration['components'][$componentAlias] = $component;
+		}
+
+		if(count($view->getStatusBarComponents()) > 0) {
+			$view->jsonConfiguration['statusBar'] = ['statusPanels' => []];
+			foreach($view->getStatusBarComponents() as $statusBarComponent) {
+				// todo add infos from component
+			}
+		}
+		if(count($view->getSideBarComponents()) > 0 || $view->vars['sideBar'] !== false) {
+			if(count($view->getSideBarComponents()) > 0) {
+				$view->jsonConfiguration['sideBar'] = ['toolPanels' => []];
+				if($view->vars['sideBarOptions']['defaultToolPanel'] !== null) {
+					$view->jsonConfiguration['sideBar']['defaultToolPanel'] = $view->vars['sideBarOptions']['defaultToolPanel'];
+				}
+				if($view->vars['sideBarOptions']['position'] !== null) {
+					$view->jsonConfiguration['sideBar']['position'] = $view->vars['sideBarOptions']['position'];
+				}
+				if($view->vars['sideBarOptions']['hiddenByDefault'] !== null) {
+					$view->jsonConfiguration['sideBar']['hiddenByDefault'] = $view->vars['sideBarOptions']['hiddenByDefault'];
+				}
+				foreach($view->getSideBarComponents() as $sideBarComponent) {
+					// todo add infos from component
+				}
+			} else {
+				$view->jsonConfiguration['sideBar'] = $view->vars['sideBar'];
+			}
+		}
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowStyle');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'getRowNodeId');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowHeight');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'getRowStyle', null, true);
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowClass');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'getRowClass', null, true);
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowClassRules'); // todo implement deserializeOptionArray
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'icons');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'suppressCsvExport');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'suppressExcelExport');
+		if($view->vars['pagination']) {
+			$view->jsonConfiguration['pagination'] = true;
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'paginationPageSize');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'paginationAutoPageSize');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'suppressPaginationPanel');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'domLayout');
+		if($view->vars['dataMode'] === GridType::DATA_MODE_INLINE) {
+			$view->jsonConfiguration['rowData'] = $view->getInlineData();
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowSelection');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowMultiSelectWithClick', false);
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'suppressRowClickSelection', false);
+
+		if($view->vars['dataMode'] === GridType::DATA_MODE_ENTERPRISE) {
+			$view->jsonConfiguration['rowModelType'] = 'serverSide';
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cacheBlockSize');
+			$view->jsonConfiguration['blockLoadDebounceMillis'] = 500;
+		}
+		if($view->vars['treeData']) {
+			//todo add
+		}
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'suppressPaginationPanel');
 	}
 
 	/** @noinspection PhpUnusedParameterInspection */
@@ -114,6 +195,7 @@ class GridType extends AbstractGridType {
 		$view->vars['rowSelection'] = $gridOptions['rowSelection'];
 		$view->vars['rowMultiSelectWithClick'] = $gridOptions['rowMultiSelectWithClick'];
 		$view->vars['suppressRowClickSelection'] = $gridOptions['suppressRowClickSelection'];
+		$view->vars['getContextMenuItems'] = $gridOptions['getContextMenuItems'];
 		$view->vars['nativeOptions'] = $gridOptions['nativeOptions'];
 		$view->vars['getRowNodeId'] = $gridOptions['getRowNodeId'];
 		$view->vars['components'] = $gridOptions['components'];
@@ -457,6 +539,7 @@ class GridType extends AbstractGridType {
 		$resolver->setDefault('getRowNodeId', null);
 		$resolver->setAllowedTypes('getRowNodeId', ['string', 'null']);
 
+		$resolver->setDefault('getContextMenuItems', false);
 
 		$resolver->setDefault('applyCellrendererOnPivotHeader', false);
 		$resolver->setAllowedTypes('applyCellrendererOnPivotHeader', 'bool');

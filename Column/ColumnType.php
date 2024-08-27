@@ -16,12 +16,15 @@ namespace StingerSoft\AggridBundle\Column;
 use Closure;
 use StingerSoft\AggridBundle\Filter\SetFilterType;
 use StingerSoft\AggridBundle\Filter\TextFilterType;
+use StingerSoft\AggridBundle\Grid\Grid;
 use StingerSoft\AggridBundle\Transformer\LinkDataTransformer;
+use StingerSoft\AggridBundle\View\AbstractBaseView;
 use StingerSoft\AggridBundle\View\ColumnView;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ColumnType extends AbstractColumnType {
 
@@ -30,8 +33,14 @@ class ColumnType extends AbstractColumnType {
 	 */
 	protected $linkTransformer;
 
-	public function __construct(LinkDataTransformer $linkTransformer) {
+	/**
+	 * @var TranslatorInterface
+	 */
+	protected $translator;
+
+	public function __construct(LinkDataTransformer $linkTransformer, TranslatorInterface $translator) {
 		$this->linkTransformer = $linkTransformer;
+		$this->translator = $translator;
 	}
 
 	/**
@@ -100,9 +109,9 @@ class ColumnType extends AbstractColumnType {
 			'callable',
 		]);
 		$that = $this;
-		$resolver->setNormalizer('value_delegate', static function (Options $options, $value) use ($that) {
+		$resolver->setNormalizer('value_delegate', static function(Options $options, $value) use ($that) {
 			if($value === null) {
-				$value = static function ($item, $path, $options) use ($that) {
+				$value = static function($item, $path, $options) use ($that) {
 					return $that->generateItemValue($item, $path, $options);
 				};
 			}
@@ -151,7 +160,7 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setDefault('exportable', true);
 		$resolver->setAllowedTypes('exportable', 'bool');
 
-		$resolver->setDefault('exportValueFormatter', static function (Options $options, $previousValue) {
+		$resolver->setDefault('exportValueFormatter', static function(Options $options, $previousValue) {
 			if($previousValue !== null) {
 				return $previousValue;
 			}
@@ -162,7 +171,7 @@ class ColumnType extends AbstractColumnType {
 		});
 		$resolver->setAllowedTypes('exportValueFormatter', ['null', 'string']);
 
-		$resolver->setDefault('filter_type', static function (Options $options, $previousValue) use ($gridOptions) {
+		$resolver->setDefault('filter_type', static function(Options $options, $previousValue) use ($gridOptions) {
 			if($previousValue !== null) {
 				return $previousValue;
 			}
@@ -199,7 +208,7 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('tokenize_search_term', false);
 		$resolver->setAllowedTypes('tokenize_search_term', ['bool', 'string']);
-		$resolver->setNormalizer('tokenize_search_term',  static function (Options $options, $value) {
+		$resolver->setNormalizer('tokenize_search_term', static function(Options $options, $value) {
 			if($value === '') {
 				throw new InvalidOptionsException('An empty string cannot be used as a token!');
 			}
@@ -215,7 +224,7 @@ class ColumnType extends AbstractColumnType {
 			'string',
 			'array',
 		]);
-		$resolver->setAllowedValues('position', static function ($valueToCheck) {
+		$resolver->setAllowedValues('position', static function($valueToCheck) {
 			if(is_string($valueToCheck)) {
 				return !($valueToCheck !== 'last' && $valueToCheck !== 'first');
 			}
@@ -234,7 +243,7 @@ class ColumnType extends AbstractColumnType {
 			'callable',
 			'null',
 		]);
-		$resolver->setNormalizer('route', static function (Options $options, $value) {
+		$resolver->setNormalizer('route', static function(Options $options, $value) {
 			if(is_array($value)) {
 				if(!array_key_exists('route', $value)) {
 					throw new InvalidOptionsException('When using "route" option with an array value, you must add a "route" key pointing to the route to be used!');
@@ -283,7 +292,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('rowGroup', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('rowGroup', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
 			}
@@ -298,7 +307,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('enableRowGroup', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('enableRowGroup', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('enableRowGroup is only available in the enterprise edition. Please set a license key!');
 			}
@@ -310,7 +319,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('pivot', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('pivot', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('pivot is only available in the enterprise edition. Please set a license key!');
 			}
@@ -322,7 +331,7 @@ class ColumnType extends AbstractColumnType {
 			true,
 			false,
 		]);
-		$resolver->setNormalizer('enablePivot', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('enablePivot', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('enablePivot is only available in the enterprise edition. Please set a license key!');
 			}
@@ -331,7 +340,7 @@ class ColumnType extends AbstractColumnType {
 
 		$resolver->setDefault('aggFunc', false);
 		$resolver->setAllowedTypes('aggFunc', ['bool', 'string']);
-		$resolver->setNormalizer('aggFunc', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('aggFunc', static function(Options $options, $value) use ($gridOptions) {
 			if($value !== false && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('aggFunc is only available in the enterprise edition. Please set a license key!');
 			}
@@ -353,18 +362,18 @@ class ColumnType extends AbstractColumnType {
 			'boolean',
 		]);
 
-		$resolver->setNormalizer('rowGroup', static function (Options $options, $value) use ($gridOptions) {
+		$resolver->setNormalizer('rowGroup', static function(Options $options, $value) use ($gridOptions) {
 			if($value === true && !isset($gridOptions['enterpriseLicense'])) {
 				throw new InvalidArgumentException('rowGroup is only available in the enterprise edition. Please set a license key!');
 			}
 			return $value;
 		});
 
-		$resolver->setDefault('menuTabs', static function (Options $options, $previousValue) use ($gridOptions) {
+		$resolver->setDefault('menuTabs', static function(Options $options, $previousValue) use ($gridOptions) {
 			return $previousValue ?? $gridOptions['menuTabs'];
 		});
 		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);
-		$resolver->setNormalizer('menuTabs', static function (Options $options, $value) {
+		$resolver->setNormalizer('menuTabs', static function(Options $options, $value) {
 			if($value === null) {
 				return null;
 			}
@@ -426,7 +435,7 @@ class ColumnType extends AbstractColumnType {
 		$resolver->setAllowedTypes('headerCheckboxSelectionFilteredOnly', 'bool');
 
 		$resolver->setDefault('cellRenderer', null);
-		$resolver->setDefault('cellRenderer', static function (Options $options, $previousValue) {
+		$resolver->setDefault('cellRenderer', static function(Options $options, $previousValue) {
 			if($previousValue === null && $options['route'] !== null) {
 				return 'RawHtmlRenderer';
 			}
@@ -522,4 +531,110 @@ class ColumnType extends AbstractColumnType {
 		$view->vars['toolPanelClass'] = $options['toolPanelClass'];
 		$view->vars['comparator'] = $options['comparator'];
 	}
+
+	public function buildJsonConfiguration(ColumnView $view, ColumnInterface $column, array $options): void {
+		$view->jsonConfiguration = $view->jsonConfiguration ?? [];
+		$gridOptions = $column->getGridOptions();
+
+		$label = $view->vars['label'];
+		$labelIsTranslatable = $label !== null;
+		if(empty($label) && $label !== null) {
+			$label = str_replace('.', '_', $view->path);
+			$labelIsTranslatable = false;
+		}
+
+		$translated_label = $label;
+		$translationDomain = $view->vars['translation_domain'] === null ? $gridOptions['translation_domain'] : $view->vars['translation_domain'];
+		if($translationDomain !== false && $labelIsTranslatable) {
+			$translated_label = $this->translator->trans($label, [], $translationDomain);
+		}
+
+		$view->jsonConfiguration['headerName'] = $translated_label;
+		$view->jsonConfiguration['field'] = $view->path;
+		$view->jsonConfiguration['sortable'] = $view->vars['orderable'];
+
+		if(isset($view->filter) && $view->filter) {
+			$view->jsonConfiguration['filter'] = $view->filter->jsonConfiguration['filter'];
+			$view->jsonConfiguration['filterParams'] = $view->filter->jsonConfiguration['filterParams'];
+		} else {
+			$view->jsonConfiguration['filter'] = $view->vars['filterable'];
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'width');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'minWidth');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'maxWidth');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'pinned');
+
+		//todo menuTabs
+
+		$view->jsonConfiguration['suppressMenu'] = $view->vars['suppressMenu'] ?? false;
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'autoHeight');
+
+		//todo cellEditr
+		//AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellEditor');
+		//cellEditorParams
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellRenderer');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellRendererParams');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueGetter');
+		if(!isset($view->jsonConfiguration['valueGetter'])) {
+			$view->jsonConfiguration['valueGetter'] = 'DisplayValueGetter';
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueGetterParams');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueSetter');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueSetterParams');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueFormatter');
+		if(!isset($view->jsonConfiguration['valueFormatter'])) {
+			$view->jsonConfiguration['valueFormatter'] = 'DefaultFormatter';
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'valueFormatterParams');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'filterValueGetter');
+		if(!isset($view->jsonConfiguration['filterValueGetter'])) {
+			$view->jsonConfiguration['filterValueGetter'] = 'DisplayValueGetter';
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'filterValueGetterParams');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'getQuickFilterText');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'keyCreator');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'tooltipField');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'tooltip');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerTooltip');
+		if(isset($view->jsonConfiguration['headerTooltip']) && isset($view->vars['headerTooltip_translation_domain']) && $view->vars['headerTooltip_translation_domain'] != false) {
+			$view->jsonConfiguration['headerTooltip'] = $this->translator->trans($view->jsonConfiguration['headerTooltip'], [], $view->vars['headerTooltip_translation_domain']);
+		}
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'columnGroupShow');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellStyle');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellClass');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerClass');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'toolPanelClass');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'cellClassRules');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'checkboxSelection');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerCheckboxSelection');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'headerCheckboxSelectionFilteredOnly');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'suppressFilter');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'checkboxSelection');
+		$view->jsonConfiguration['hide'] = !$view->vars['visible'];
+
+		if(isset($view->vars['enterpriseLicense']) && $view->vars['treeData'] !== true) {
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'rowGroup');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'enableRowGroup');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'enableValue');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'pivot');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'enablePivot');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'aggFunc');
+		}
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'resizable');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'editable');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'comparator');
+		if(isset($view->vars['children']) && $view->vars['children'] !== null && count($view->vars['children']) > 0) {
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'groupId');
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration, 'marryChildren');
+		}
+
+	}
+
 }

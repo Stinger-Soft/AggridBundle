@@ -1,6 +1,7 @@
 export class StingerConfiguration {
     attr: any
     ajaxUrl?: any
+    additionalAjaxRequestBody?: Object
     autoResizeFixedWidthColumns: any
     autoResizeManuallyResizedColumns: any
     autosizeColumnsButton: any
@@ -15,4 +16,6 @@ export class StingerConfiguration {
     reloadButton: any
     searchEnabled: any
     stingerVersion: any
+    versionHash: any
+    paginationDropDown: any
 }

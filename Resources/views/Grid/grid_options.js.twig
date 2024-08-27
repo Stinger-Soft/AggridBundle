@@ -107,6 +107,9 @@
 	{% if grid.vars.suppressRowClickSelection is defined and grid.vars.suppressRowClickSelection is not same as(false) %}
 		, suppressRowClickSelection: {{ grid.vars.suppressRowClickSelection|json_encode|raw }}
 	{% endif %}
+	{% if grid.vars.getContextMenuItems is defined and grid.vars.getContextMenuItems is not same as(false) %}
+		, getContextMenuItems: {{ grid.vars.getContextMenuItems|raw }}
+	{% endif %}
 	{% if grid.vars.dataMode == 'enterprise' %}
 		, rowModelType: 'serverSide'
 		, cacheBlockSize: {{ grid.vars.cacheBlockSize|json_encode|raw }}

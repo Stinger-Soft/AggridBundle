@@ -14,7 +14,10 @@ declare(strict_types=1);
 namespace StingerSoft\AggridBundle\Filter;
 
 use Closure;
+use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Grid\GridType;
+use StingerSoft\AggridBundle\View\AbstractBaseView;
+use StingerSoft\AggridBundle\View\ColumnView;
 use StingerSoft\AggridBundle\View\FilterView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -45,6 +48,24 @@ final class FilterType extends AbstractFilterType {
 		]);
 	}
 
+	public function buildJsonConfiguration(FilterView $view, FilterInterface $filter, array $options): void {
+		$view->jsonConfiguration = $view->jsonConfiguration ?? [];
+		$view->jsonConfiguration['filter'] = $view->vars['filter_type'];
+		$view->jsonConfiguration['filterParams'] = $view->jsonConfiguration['filterParams'] ?? [];
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'cellRenderer');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'cellRendererParams');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'newRowsAction');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'includeBlanksInEquals');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'includeBlanksInLessThan');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'includeBlanksInGreaterThan');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'clearButton');
+
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'applyButton');
+		if(!isset($view->vars['applyButton']) || $view->vars['applyButton'] !== true) {
+			AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['debounceMs'], 'debounceMs');
+		}
+	}
+
 	/**
 	 * {@inheritdoc}
 	 * @see \StingerSoft\AggridBundle\Filter\FilterTypeInterface::configureOptions()
@@ -70,7 +91,7 @@ final class FilterType extends AbstractFilterType {
 		]);
 		$resolver->setDefined('newRowsAction');
 		$resolver->setAllowedValues('newRowsAction', [null, self::NEW_ROWS_ACTION_DEFAULT, self::NEW_ROWS_ACTION_KEEP]);
-		$resolver->setDefault('newRowsAction', static function (Options $options, $previousValue) use ($gridOptions) {
+		$resolver->setDefault('newRowsAction', static function(Options $options, $previousValue) use ($gridOptions) {
 			if($previousValue === null) {
 				$previousValue = $gridOptions['filterNewRowsAction'];
 			}

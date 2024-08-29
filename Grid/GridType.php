@@ -453,7 +453,7 @@ class GridType extends AbstractGridType {
 			}
 			return $valueToNormalize;
 		});
-		$resolver->setDeprecated('sideBar', 'Add components to the sidebar by using the GridBuilder::addComponent method!');
+		$resolver->setDeprecated('sideBar', "stinger-soft/aggrid-bundle", "2.2", 'Add components to the sidebar by using the GridBuilder::addComponent method!');
 
 		$resolver->setDefault('menuTabs', null);
 		$resolver->setAllowedTypes('menuTabs', ['null', 'array']);

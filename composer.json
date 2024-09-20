@@ -31,7 +31,6 @@
 	"require": {
 		"php": "^8.1",
 		"ext-json": "*",
-		"foxy/foxy":"^1.0.0",
 		"knplabs/knp-components": "^4.0||^5.0",
 		"npm-asset/ag-grid-community": ">=21.0",
 		"npm-asset/moment": "~2.24",
@@ -49,6 +48,7 @@
 	  "npm-asset/ag-grid-enterprise": "21.2.0"
 	},
 	"require-dev": {
+		"foxy/foxy":"^1.0.0",
 		"php-coveralls/php-coveralls": "^2.1.0",
 		"doctrine/orm": "^3",
 		"doctrine/common": "^3",

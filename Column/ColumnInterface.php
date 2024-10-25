@@ -34,6 +34,8 @@ interface ColumnInterface {
 
 	public function addChild(ColumnInterface $child): self;
 
+    public function applyChildrenOrder(array $keys): void;
+
 	/**
 	 * Get the path to access the property on the bound object
 	 *

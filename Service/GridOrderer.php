@@ -33,13 +33,17 @@ class GridOrderer implements GridOrdererInterface {
 	/** @var integer */
 	protected $lastWeight;
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function order(GridInterface $grid): array {
+    public function order(GridInterface $grid): array {
+        return $this->orderColumns($grid->getColumns());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function orderColumns(iterable $columns): array {
 		$this->reset();
 
-		foreach($grid->getColumns() as $column) {
+		foreach($columns as $column) {
 			$options = $column->getColumnOptions();
 			$position = $options['position'];
 

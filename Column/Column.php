@@ -221,6 +221,24 @@ class Column implements ColumnInterface {
 		return $this;
 	}
 
+    public function applyChildrenOrder(array $keys): void {
+        $tmpChildren = [];
+        foreach($this->children->toArray() as $child) {
+            $tmpChildren[$child->getPath()] = $child;
+        }
+        $this->children = new ArrayCollection();
+        foreach($keys as $name) {
+            if(!isset($tmpChildren[$name])) {
+                continue;
+            }
+            $this->children[$name] = $tmpChildren[$name];
+            unset($tmpChildren[$name]);
+        }
+        foreach($tmpChildren as $name => $child) {
+            $this->children[$name] = $child;
+        }
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */

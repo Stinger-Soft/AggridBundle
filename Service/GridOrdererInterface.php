@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\AggridBundle\Service;
 
+use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Grid\GridInterface;
 
 interface GridOrdererInterface {
@@ -24,4 +25,10 @@ interface GridOrdererInterface {
 	 * @return array The ordered column child names.
 	 */
 	public function order(GridInterface $grid) : array;
+
+    /**
+     * @param iterable<ColumnInterface> $columns The columns to sort
+     * @return array<string>
+     */
+    public function orderColumns(iterable $columns): array;
 }

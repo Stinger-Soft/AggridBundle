@@ -22,6 +22,7 @@ use Knp\Component\Pager\Pagination\AbstractPagination;
 use Knp\Component\Pager\PaginatorInterface;
 use ReflectionException;
 use StingerSoft\AggridBundle\Column\Column;
+use StingerSoft\AggridBundle\Column\ColumnGroupType;
 use StingerSoft\AggridBundle\Column\ColumnInterface;
 use StingerSoft\AggridBundle\Column\ColumnTypeInterface;
 use StingerSoft\AggridBundle\Components\ComponentInterface;
@@ -850,25 +851,36 @@ class Grid implements GridInterface {
 	}
 
 
-	protected function orderColumns(): void {
-		// order columns according to position!
-		$tmpColumns = $this->columns;
-		$newColumnKeys = $this->orderer->order($this);
-		$this->columns = [];
+    protected function orderGroupColumn(Column $column): void {
+        $children = $column->getChildren();
+        $orderedChildrenKeys = $this->orderer->orderColumns($column->getChildren());
+        $column->applyChildrenOrder($orderedChildrenKeys);
+    }
 
-		foreach ($newColumnKeys as $name) {
-			if (!isset($tmpColumns[$name])) {
-				continue;
-			}
+    protected function orderColumns(): void {
+        // order columns according to position!
+        $tmpColumns = $this->columns;
+        $newColumnKeys = $this->orderer->order($this);
+        $this->columns = [];
+        $groupColumns = [];
 
-			$this->columns[$name] = $tmpColumns[$name];
-			unset($tmpColumns[$name]);
-		}
-
-		foreach ($tmpColumns as $name => $child) {
-			$this->columns[$name] = $child;
-		}
-	}
+        foreach($newColumnKeys as $name) {
+            if(!isset($tmpColumns[$name])) {
+                continue;
+            }
+            if($tmpColumns[$name]->getColumnType() instanceof ColumnGroupType) {
+                $groupColumns[$name] = $tmpColumns[$name];
+            }
+            $this->columns[$name] = $tmpColumns[$name];
+            unset($tmpColumns[$name]);
+        }
+        foreach($tmpColumns as $name => $child) {
+            $this->columns[$name] = $child;
+        }
+        foreach($groupColumns as $column) {
+            $this->orderGroupColumn($column);
+        }
+    }
 
 	protected function getPaginationOptions(): array {
 		return $this->options['paginationOptions'] ?? [];

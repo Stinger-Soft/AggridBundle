@@ -1,5 +1,10 @@
-import {AllCommunityModules} from "@ag-grid-community/all-modules";
+import {ModuleRegistry, GridReadyEvent} from "@ag-grid-community/core";
 import {AgGridReact} from "@ag-grid-community/react";
+import {ClientSideRowModelModule} from "@ag-grid-community/client-side-row-model";
+import {StatusBarModule} from '@ag-grid-enterprise/status-bar';
+import {SideBarModule} from '@ag-grid-enterprise/side-bar';
+import {SetFilterModule} from '@ag-grid-enterprise/set-filter';
+import {RowGroupingModule} from "@ag-grid-enterprise/row-grouping";
 import React from "react";
 import axios from 'axios';
 import {StingerSoftAggrid} from 'stingersoftaggrid/ts/StingerSoftAggrid';
@@ -7,8 +12,8 @@ import {GridConfiguration} from 'stingersoftaggrid/ts/GridConfiguration';
 import type {BazingaTranslator} from 'bazinga-translator';
 import "./GridComponent.scss";
 import {NavigateFunction} from "react-router-dom";
-import {GridReadyEvent} from "@ag-grid-community/core/dist/cjs/es5/events";
 
+ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule, StatusBarModule, SideBarModule, SetFilterModule]);
 declare var Translator: BazingaTranslator;
 
 
@@ -28,15 +33,15 @@ interface IState {
 
 export class GridComponent extends React.Component<IProps, IState> {
 
-        gridRef: React.RefObject<AgGridReact>;
+    gridRef: React.RefObject<AgGridReact>;
     gridContainer: React.RefObject<HTMLDivElement>;
 
     translator: BazingaTranslator;
     navigate?: NavigateFunction;
 
-    abortController: AbortController|null;
+    abortController: AbortController | null;
 
-    additionalAjaxRequestBody: Object|null;
+    additionalAjaxRequestBody: Object | null;
 
     constructor(props: IProps) {
         super(props);
@@ -238,7 +243,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                     >
                         <AgGridReact
                             onGridReady={this.gridReadyListener}
-                            modules={AllCommunityModules}
+                            // modules={AllCommunityModules}
                             ref={this.gridRef}
                             rowData={[]}
                             columnDefs={this.state.configuration.aggrid.columnDefs}

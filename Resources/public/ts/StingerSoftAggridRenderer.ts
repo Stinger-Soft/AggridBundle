@@ -199,7 +199,7 @@ export class StateRenderer implements ICellRendererComp {
 
     init(params: ICellRendererParams): Promise<void> | void {
         this.eGui = document.createElement('span');
-        this.states = params['states'];
+        this.states = Object.hasOwn(params, "states") ? params['states'] : [];
 
         if (params.value !== "" && params.value !== undefined && params.value !== null) {
             var value = params.value;

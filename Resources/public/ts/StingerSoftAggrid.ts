@@ -238,11 +238,9 @@ export class StingerSoftAggrid {
 
         //Save to local storage
         jQuery(this.aggridElement).on("remove", function () {
-            console.log('remove');
             that.saveState();
         });
         window.addEventListener("beforeunload", function () {
-            console.log('beforeunload');
             that.saveState();
         });
         //Refresh
@@ -372,7 +370,6 @@ export class StingerSoftAggrid {
     }
 
     public saveState() {
-        console.log(this.getSortState());
         if (window.localStorage && this.options.stinger.persistState) {
             var storage = window.localStorage;
 
@@ -400,7 +397,6 @@ export class StingerSoftAggrid {
     }
 
     public loadState() {
-        console.log(this.options.stinger.persistState);
         if (window.localStorage && this.options.stinger.persistState) {
             var storage = window.localStorage;
 

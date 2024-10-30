@@ -77,11 +77,13 @@ export class GridComponent extends React.Component<IProps, IState> {
     }
 
     componentWillUnmount() {
+        this.getStingerApi()?.saveState();
         this.abortController?.abort();
     }
 
     componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any) {
         if (prevProps.src !== this.props.src) {
+            this.getStingerApi()?.saveState();
             this.abortController?.abort();
             this.setState({configuration: null, loading: true});
             this.fetchColumnDefs(this.props.src);

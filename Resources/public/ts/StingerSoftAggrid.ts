@@ -154,15 +154,31 @@ export class StingerSoftAggrid {
         if (this.options.stinger.defaultOrderProperties) {
             var orderColumns = this.options.stinger.defaultOrderProperties || [];
             var keys = Object.keys(orderColumns);
+            const newSortState = [];
             for (let path in orderColumns) {
                 var column = that.api.getColumn(path);
                 if (column !== null) {
                     // column.setSort(orderColumns[path] || 'asc');
+                    newSortState.push({
+                        state: [{ colId: path, sort: orderColumns[path] || 'asc' }],
+                        defaultState: { sort: null },
+                    });
                 }
             }
+            that.api!.applyColumnState({
+                state: newSortState,
+                defaultState: { sort: null },
+            });
         } else if (this.options.hasOwnProperty('defaultOrderProperty')) {
             var column = this.api?.getColumn(this.options.stinger.defaultOrderProperty);
             if (column !== null) {
+                that.api!.applyColumnState({
+                    state: [{
+                        colId: this.options.stinger.defaultOrderProperty,
+                        sort: this.options.stinger.defaultOrderDirection ? this.options.stinger.defaultOrderDirection : 'asc'
+                    }],
+                    defaultState: { sort: null },
+                });
                 // column.setSort(this.options.stinger.defaultOrderDirection ? this.options.stinger.defaultOrderDirection : 'asc');
             }
         }
@@ -196,7 +212,7 @@ export class StingerSoftAggrid {
             paginationDropdown = jQuery(this.gridId + '_paginationDropdown');
             paginationDropdown.on('change', function () {
                 var value = jQuery(this).val();
-                // that.api.paginationSetPageSize(Number(value));
+                that.api?.setGridOption('paginationPageSize', Number(value));
             });
         }
 
@@ -222,9 +238,11 @@ export class StingerSoftAggrid {
 
         //Save to local storage
         jQuery(this.aggridElement).on("remove", function () {
+            console.log('remove');
             that.saveState();
         });
         window.addEventListener("beforeunload", function () {
+            console.log('beforeunload');
             that.saveState();
         });
         //Refresh
@@ -246,7 +264,7 @@ export class StingerSoftAggrid {
     }
 
     public setPaginationPageSize(entriesPerPage) {
-        // this.api.paginationSetPageSize(Number(entriesPerPage));
+        this.api?.setGridOption('paginationPageSize', Number(entriesPerPage));
     }
 
     public reload() {
@@ -354,6 +372,7 @@ export class StingerSoftAggrid {
     }
 
     public saveState() {
+        console.log(this.getSortState());
         if (window.localStorage && this.options.stinger.persistState) {
             var storage = window.localStorage;
 
@@ -361,7 +380,7 @@ export class StingerSoftAggrid {
             var storageObject = {
                 columns: this.api.getColumnState(),
                 groups: this.api.getColumnGroupState(),
-                sorts: [], //this.api.getSortModel(),
+                sorts: this.getSortState(),
                 filters: this.api.getFilterModel(),
                 version: this.options.stinger.versionHash
             };
@@ -369,7 +388,19 @@ export class StingerSoftAggrid {
         }
     }
 
+    protected getSortState() {
+        const colState = this.api!.getColumnState();
+        return colState
+            .filter(function (s) {
+                return s.sort != null;
+            })
+            .map(function (s) {
+                return { colId: s.colId, sort: s.sort, sortIndex: s.sortIndex };
+            });
+    }
+
     public loadState() {
+        console.log(this.options.stinger.persistState);
         if (window.localStorage && this.options.stinger.persistState) {
             var storage = window.localStorage;
 
@@ -388,7 +419,10 @@ export class StingerSoftAggrid {
                         this.api.setColumnGroupState(columnGroupState);
                     }
                     if (sortModel && Array.isArray(sortModel) && sortModel.length) {
-                        // this.api.setSortModel(sortModel);
+                        this.api.applyColumnState({
+                            state: sortModel,
+                            defaultState: { sort: null },
+                        });
                     }
                     if (filterModel && Object.keys(filterModel).length !== 0) {
                         this.api.setFilterModel(filterModel);
@@ -506,13 +540,11 @@ export class StingerSoftAggrid {
             var gridKey = 'stingersoft_aggrid.' + key;
             var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
             if (value === gridKey) {
-                console.warn('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
+                console.debug('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
                 return defaultValue;
             }
             return value;
         }
-
-        console.log(configuration);
     }
 
 }

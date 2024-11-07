@@ -12,6 +12,7 @@ import {GridConfiguration} from 'stingersoftaggrid/ts/GridConfiguration';
 import type {BazingaTranslator} from 'bazinga-translator';
 import "./GridComponent.scss";
 import {NavigateFunction} from "react-router-dom";
+import {LicenseManager} from "@ag-grid-enterprise/core";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule, RowGroupingModule, StatusBarModule, SideBarModule, SetFilterModule]);
 declare var Translator: BazingaTranslator;
@@ -110,6 +111,9 @@ export class GridComponent extends React.Component<IProps, IState> {
     processConfiguration(configuration) {
         if (this.additionalAjaxRequestBody) {
             configuration.stinger.additionalAjaxRequestBody = this.additionalAjaxRequestBody;
+        }
+        if (typeof configuration.stinger.enterpriseLicense === "string" && configuration.stinger.enterpriseLicense.length > 0) {
+            LicenseManager.setLicenseKey(configuration.stinger.enterpriseLicense)
         }
         StingerSoftAggrid.processJsonConfiguration(configuration);
         return configuration;

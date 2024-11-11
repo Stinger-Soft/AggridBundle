@@ -247,7 +247,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                             onGridReady={this.gridReadyListener}
                             // modules={AllCommunityModules}
                             ref={this.gridRef}
-                            rowData={[]}
+                            //rowData={[]}
                             columnDefs={this.state.configuration.aggrid.columnDefs}
                             gridOptions={this.state.configuration.aggrid}
                         ></AgGridReact>

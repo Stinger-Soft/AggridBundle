@@ -387,6 +387,9 @@ export class StingerSoftAggrid {
 
     protected getSortState() {
         const colState = this.api!.getColumnState();
+        if(!colState) {
+            return [];
+        }
         return colState
             .filter(function (s) {
                 return s.sort != null;

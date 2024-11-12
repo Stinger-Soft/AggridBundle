@@ -1,6 +1,15 @@
 declare var jQuery: JQueryStatic;
 
-import {ColDef, ColGroupDef, Column, ColumnResizedEvent, Grid, GridApi, GridOptions, GetLocaleTextParams} from "@ag-grid-community/core";
+import {
+    ColDef,
+    ColGroupDef,
+    Column,
+    ColumnResizedEvent,
+    Grid,
+    GridApi,
+    GridOptions,
+    GetLocaleTextParams
+} from "@ag-grid-community/core";
 import {GridConfiguration} from "./GridConfiguration";
 import {StingerSoftAggridRenderer} from "./StingerSoftAggridRenderer";
 import {StingerSoftAggridValueGetter} from "./StingerSoftAggridValueGetter";
@@ -12,7 +21,7 @@ import {StingerSoftAggridStyler} from "./StingerSoftAggridStyler";
 import {StingerSoftAggridTextFormatter} from "./StingerSoftAggridTextFormatter";
 import {StingerSoftAggridKeyCreator} from "./StingerSoftAggridKeyCreator";
 import {StingerSoftAggridTooltip} from "./StingerSoftAggridTooltip";
-import type { BazingaTranslator } from 'bazinga-translator';
+import type {BazingaTranslator} from 'bazinga-translator';
 
 declare var Translator: BazingaTranslator;
 
@@ -148,7 +157,7 @@ export class StingerSoftAggrid {
         }
         if (this.options.stinger.dataMode === 'enterprise') {
             this.isServerSide = true;
-            this.api.setGridOption('serverSideDatasource',this.getEnterpriseDatasource());
+            this.api.setGridOption('serverSideDatasource', this.getEnterpriseDatasource());
             // this.api.setServerSideDatasource(this.getEnterpriseDatasource());
         }
         if (this.options.stinger.defaultOrderProperties) {
@@ -160,14 +169,14 @@ export class StingerSoftAggrid {
                 if (column !== null) {
                     // column.setSort(orderColumns[path] || 'asc');
                     newSortState.push({
-                        state: [{ colId: path, sort: orderColumns[path] || 'asc' }],
-                        defaultState: { sort: null },
+                        state: [{colId: path, sort: orderColumns[path] || 'asc'}],
+                        defaultState: {sort: null},
                     });
                 }
             }
             that.api!.applyColumnState({
                 state: newSortState,
-                defaultState: { sort: null },
+                defaultState: {sort: null},
             });
         } else if (this.options.hasOwnProperty('defaultOrderProperty')) {
             var column = this.api?.getColumn(this.options.stinger.defaultOrderProperty);
@@ -177,7 +186,7 @@ export class StingerSoftAggrid {
                         colId: this.options.stinger.defaultOrderProperty,
                         sort: this.options.stinger.defaultOrderDirection ? this.options.stinger.defaultOrderDirection : 'asc'
                     }],
-                    defaultState: { sort: null },
+                    defaultState: {sort: null},
                 });
                 // column.setSort(this.options.stinger.defaultOrderDirection ? this.options.stinger.defaultOrderDirection : 'asc');
             }
@@ -372,7 +381,6 @@ export class StingerSoftAggrid {
     public saveState() {
         if (window.localStorage && this.options.stinger.persistState) {
             var storage = window.localStorage;
-
             var storageKey = this.stateSavePrefix + this.stateSaveKey;
             var storageObject = {
                 columns: this.api.getColumnState(),
@@ -395,11 +403,12 @@ export class StingerSoftAggrid {
                 return s.sort != null;
             })
             .map(function (s) {
-                return { colId: s.colId, sort: s.sort, sortIndex: s.sortIndex };
+                return {colId: s.colId, sort: s.sort, sortIndex: s.sortIndex};
             });
     }
 
     public loadState() {
+        this.getSortState();
         if (window.localStorage && this.options.stinger.persistState) {
             var storage = window.localStorage;
 
@@ -413,6 +422,7 @@ export class StingerSoftAggrid {
                     var filterModel = storageObject.hasOwnProperty('filters') && storageObject.filters ? storageObject.filters : {};
                     if (columnState && Array.isArray(columnState) && columnState.length) {
                         this.api.applyColumnState({state: columnState});
+                        this.api.applyColumnState({state: columnState, applyOrder: true});
                     }
                     if (columnGroupState && Array.isArray(columnGroupState) && columnGroupState.length) {
                         this.api.setColumnGroupState(columnGroupState);
@@ -420,7 +430,7 @@ export class StingerSoftAggrid {
                     if (sortModel && Array.isArray(sortModel) && sortModel.length) {
                         this.api.applyColumnState({
                             state: sortModel,
-                            defaultState: { sort: null },
+                            defaultState: {sort: null},
                         });
                     }
                     if (filterModel && Object.keys(filterModel).length !== 0) {
@@ -520,15 +530,15 @@ export class StingerSoftAggrid {
             }
         }
         if (column.hasOwnProperty('children')) {
-            for(const childColumn of (column as ColGroupDef).children) {
-                StingerSoftAggrid.processJsonColumnConfiguration(childColumn as  (ColDef | ColGroupDef), configuration);
+            for (const childColumn of (column as ColGroupDef).children) {
+                StingerSoftAggrid.processJsonColumnConfiguration(childColumn as (ColDef | ColGroupDef), configuration);
             }
         }
         return column;
     }
 
     public static processJsonConfiguration(configuration: GridConfiguration): void {
-        for(const columnId in configuration.aggrid.columnDefs) {
+        for (const columnId in configuration.aggrid.columnDefs) {
             const column = configuration.aggrid.columnDefs[columnId];
             // @ts-ignore
             StingerSoftAggrid.processJsonColumnConfiguration(column, configuration);
@@ -545,5 +555,4 @@ export class StingerSoftAggrid {
             return value;
         }
     }
-
 }

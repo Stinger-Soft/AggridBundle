@@ -52,6 +52,7 @@ export class GridComponent extends React.Component<IProps, IState> {
 
         this.gridReadyListener = this.gridReadyListener.bind(this);
         this.handleClick = this.handleClick.bind(this);
+        this.handleWindowBeforeUnload = this.handleWindowBeforeUnload.bind(this);
     }
 
 
@@ -70,15 +71,22 @@ export class GridComponent extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
+        window.addEventListener("beforeunload", this.handleWindowBeforeUnload);
         this.fetchColumnDefs(this.props.src);
     }
 
     componentWillUnmount() {
+        window.removeEventListener("beforeunload", this.handleWindowBeforeUnload);
         this.getStingerApi()?.saveState();
         this.abortController?.abort();
     }
 
+    handleWindowBeforeUnload(ev: BeforeUnloadEvent): void  {
+        this.getStingerApi()?.saveState();
+    }
+
     componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any) {
+        this.getStingerApi()?.saveState();
         if (prevProps.src !== this.props.src) {
             this.getStingerApi()?.saveState();
             this.abortController?.abort();

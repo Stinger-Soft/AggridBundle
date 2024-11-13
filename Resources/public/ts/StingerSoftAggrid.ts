@@ -387,7 +387,7 @@ export class StingerSoftAggrid {
     }
 
     public saveState() {
-        if (window.localStorage && this.options.stinger.persistState) {
+        if (window.localStorage && this.options.stinger.persistState && this.api.getColumnState()) {
             var storage = window.localStorage;
             var storageKey = this.stateSavePrefix + this.stateSaveKey;
             var storageObject = {

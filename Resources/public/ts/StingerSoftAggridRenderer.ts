@@ -1,7 +1,7 @@
 declare var jQuery: JQueryStatic;
 
 import {StingerSoftAggrid} from "./StingerSoftAggrid";
-import {ICellRendererComp, ICellRendererParams, Promise} from "ag-grid-community";
+import {ICellRendererComp, ICellRendererParams, AgPromise} from "@ag-grid-community/core";
 import {isConstructor} from "./utils";
 
 declare var Translator: any;
@@ -47,7 +47,7 @@ export class RawHtmlRenderer implements ICellRendererComp {
         return this.eGui;
     }
 
-    init(params: ICellRendererParams): Promise<void> | void {
+    init(params: ICellRendererParams): AgPromise<void> | void {
         var displayValue = StingerSoftAggrid.getDisplayValueFromParams(params);
         var template = document.createElement('template');
         displayValue = displayValue.trim(); // Never return a text node of whitespace as the result
@@ -119,7 +119,7 @@ export class YesNoRenderer implements ICellRendererComp {
         return this.eGui;
     }
 
-    init(params: ICellRendererParams): Promise<void> | void {
+    init(params: ICellRendererParams): AgPromise<void> | void {
         this.eGui = document.createElement('span');
         this.noIconClass = params['no_icon'];
         this.yesIconClass = params['yes_icon'];
@@ -197,7 +197,7 @@ export class StateRenderer implements ICellRendererComp {
         return this.eGui;
     }
 
-    init(params: ICellRendererParams): Promise<void> | void {
+    init(params: ICellRendererParams): AgPromise<void> | void {
         this.eGui = document.createElement('span');
         this.states = Object.hasOwn(params, "states") ? params['states'] : [];
 

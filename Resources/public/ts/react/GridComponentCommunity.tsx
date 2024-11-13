@@ -98,7 +98,7 @@ export class GridComponent extends React.Component<IProps, IState> {
     gridReadyListener(event: GridReadyEvent) {
         const agGrid = this.gridRef.current;
         // @ts-ignore
-        const stingerAggrid = new StingerSoftAggrid(this.gridContainer.current, agGrid.api, agGrid.columnApi);
+        const stingerAggrid = new StingerSoftAggrid(this.gridContainer.current, agGrid.api);
         stingerAggrid.init(this.state.configuration);
         this.setState({stingerAggrid: stingerAggrid}, () => {
             if (this.props.onGridReady) {
@@ -110,7 +110,6 @@ export class GridComponent extends React.Component<IProps, IState> {
     getStingerApi(): StingerSoftAggrid {
         return this.state.stingerAggrid;
     }
-
 
     processConfiguration(configuration) {
         if (this.additionalAjaxRequestBody) {

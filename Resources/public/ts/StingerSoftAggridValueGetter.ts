@@ -1,7 +1,7 @@
 declare var jQuery: JQueryStatic;
 
 import {StingerSoftAggrid} from "./StingerSoftAggrid";
-import {ValueGetterParams} from "ag-grid-community";
+import {ValueGetterParams} from "@ag-grid-community/core";
 import {deepFind} from "./utils";
 
 

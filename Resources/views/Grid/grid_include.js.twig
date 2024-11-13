@@ -20,8 +20,12 @@ jQuery(document).ready(function () {
 
 	{% block grid_js_before_init %}{% endblock grid_js_before_init %}
 	{% block grid_js_init %}
-	{{ varAggrid }} = new StingerSoftAggrid('#{{ grid.vars.aggrid_id }}');
-	{{ varAggrid }}.init({{ varAggridOptions }}, {{ varOptions }});
+	{{ varAggrid }} = new StingerSoftAggrid(jQuery('#{{ grid.vars.aggrid_id }}')[0]);
+	{{ varAggrid }}.init({
+			"aggrid": {{ varAggridOptions }},
+			"gridId": {{ grid.vars.aggrid_id|json_encode|raw }},
+			"stinger": {{ varOptions }}
+	});
 	{% endblock grid_js_init %}
 	{% block grid_js_after_init %}{% endblock grid_js_after_init %}
 

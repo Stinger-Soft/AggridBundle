@@ -1,3 +1,5 @@
+import {LicenseManager} from "@ag-grid-enterprise/core";
+
 declare var jQuery: JQueryStatic;
 
 import {
@@ -6,9 +8,12 @@ import {
     Column,
     ColumnResizedEvent,
     Grid,
+    createGrid,
     GridApi,
     GridOptions,
-    GetLocaleTextParams
+    GetLocaleTextParams,
+    ProcessCellForExportParams,
+    ExcelExportParams
 } from "@ag-grid-community/core";
 import {GridConfiguration} from "./GridConfiguration";
 import {StingerSoftAggridRenderer} from "./StingerSoftAggridRenderer";
@@ -39,7 +44,9 @@ export class StingerSoftAggrid {
 
     private resizedColumns: Column[] = [];
 
-    private clipboardValueFormatters: any = {};
+    private exportableColumns: Record<string, {exportValueFormatter?: string}> = {};
+
+    private clipboardValueFormatters:  Record<string, string> = {};
 
     private filterTimeout: number = 500;
 
@@ -84,8 +91,7 @@ export class StingerSoftAggrid {
             if (this.options.stinger.hasOwnProperty('enterpriseLicense')) {
                 this.setLicenseKey(this.options.stinger.enterpriseLicense);
             }
-            var aggrid = new Grid(this.aggridElement, this.options.aggrid);
-            this.api = this.options.aggrid.api;
+            this.api = createGrid(this.aggridElement, this.options.aggrid);
         }
 
         //Init
@@ -96,7 +102,9 @@ export class StingerSoftAggrid {
 
     private setLicenseKey(licenseKey: string) {
         this.licenseKey = licenseKey;
-
+        if(licenseKey) {
+            LicenseManager.setLicenseKey(this.licenseKey);
+        }
     }
 
     public static getValueFromParams = function (params) {
@@ -462,6 +470,50 @@ export class StingerSoftAggrid {
         }, this.filterTimeout);
     }
 
+    public addExportableColumn(colId: string, params: {exportValueFormatter?: string}) {
+        this.exportableColumns[colId] = params || {};
+    };
+
+    public exportXlsx(fileName: string, sheetName: string): void {
+        var that = this;
+        var params = {
+            fileName: fileName,
+            sheetName: sheetName,
+            processCellCallback: function (params) {
+                var columnConfig: {exportValueFormatter?: string} = {};
+                if (that.exportableColumns.hasOwnProperty(params.column.getColId())) {
+                    columnConfig = that.exportableColumns[params.column.getColId()];
+                }
+                var valueGetter = columnConfig.hasOwnProperty('exportValueFormatter') && columnConfig.exportValueFormatter ? StingerSoftAggrid.Formatter.getFormatter(columnConfig.exportValueFormatter) : StingerSoftAggrid.Formatter.getFormatter("DisplayValueFormatter");
+                return valueGetter(params);
+            }
+        } as ExcelExportParams;
+
+        params.columnKeys = Object.keys(this.exportableColumns);
+        this.api.exportDataAsExcel(params);
+    }
+
+    public processCellForClipboard(params: ProcessCellForExportParams<any>) {
+        var value = params.value.displayValue;
+        var callbackName = this.clipboardValueFormatters.hasOwnProperty(params.column.getColId()) ?
+            this.clipboardValueFormatters[params.column.getColId()] : false;
+        if(callbackName === false) {
+            value = params.value.displayValue;
+        }
+        if(typeof callbackName === 'string') {
+            var renderer = StingerSoftAggrid.Formatter.getFormatter(callbackName);
+            value = renderer(params);
+        }
+        value = typeof value === "string" ? value.trim() : value;
+        return value;
+    };
+
+    public setClipboardValueFormatter(colId: string, callback: string): void {
+        if(!this.clipboardValueFormatters.hasOwnProperty(colId)) {
+            this.clipboardValueFormatters[colId] = callback;
+        }
+    }
+
     protected static processJsonColumnConfiguration(column: (ColDef | ColGroupDef), configuration: GridConfiguration): (ColDef | ColGroupDef) {
         if (column.hasOwnProperty('render_html') && column['render_html']) {
             column['cellRenderer'] = (params) => {
@@ -555,4 +607,6 @@ export class StingerSoftAggrid {
             return value;
         }
     }
+
+
 }

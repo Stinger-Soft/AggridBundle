@@ -130,7 +130,7 @@
 		}
 	{% endif %}
 	, onGridReady: function(params) {
-		{{ varAggrid }}.load(params.columnApi, params.api);
+		{{ varAggrid }}.loadState();
 		{% if grid.vars.dataMode == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::DATA_MODE_INLINE') %}
 			{% if grid.vars.autoResizeColumns is defined and grid.vars.autoResizeColumns is not same as(false) %}
 				{% if grid.vars.autoResizeColumns == constant('\\StingerSoft\\AggridBundle\\Grid\\GridType::COLUMN_AUTO_SIZE_TO_FIT') %}

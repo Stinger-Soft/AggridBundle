@@ -88,7 +88,12 @@ class GridType extends AbstractGridType {
 		if(count($view->getStatusBarComponents()) > 0) {
 			$view->jsonConfiguration['statusBar'] = ['statusPanels' => []];
 			foreach($view->getStatusBarComponents() as $statusBarComponent) {
-				// todo add infos from component
+                $view->jsonConfiguration['statusBar']['statusPanels'][] = [
+                    'id' => $statusBarComponent->id,
+                    'statusPanel' => $statusBarComponent->componentAlias,
+                    'align' => $statusBarComponent->vars['align'] ?? 'left',
+                    'statusPanelParams' => $statusBarComponent->vars['statusPanelParams'] ?? [],
+                ];
 			}
 		}
 		if(count($view->getSideBarComponents()) > 0 || $view->vars['sideBar'] !== false) {
@@ -104,7 +109,13 @@ class GridType extends AbstractGridType {
 					$view->jsonConfiguration['sideBar']['hiddenByDefault'] = $view->vars['sideBarOptions']['hiddenByDefault'];
 				}
 				foreach($view->getSideBarComponents() as $sideBarComponent) {
-					// todo add infos from component
+                    $view->jsonConfiguration['sideBar']['toolPanels'][] = [
+                        'id' => $sideBarComponent->id,
+                        'toolPanel' => $sideBarComponent->componentAlias,
+                        'labelDefault' => $sideBarComponent->vars['labelDefault'] ?? 'unknown',
+                        'labelKey' => $sideBarComponent->vars['labelKey'] ?? 'unknown',
+                        'iconKey' => $sideBarComponent->vars['iconKey'] ?? 'unknown',
+                    ];
 				}
 			} else {
 				$view->jsonConfiguration['sideBar'] = $view->vars['sideBar'];

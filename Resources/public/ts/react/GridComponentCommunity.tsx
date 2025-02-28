@@ -173,7 +173,7 @@ export class GridComponent extends React.Component<IProps, IState> {
         }
 
         return (<>
-                <div>
+                <div style={{height: "inherit"}}>
                     <div className="mb-1 d-flex aggrid-topbar">
                         <div className="flex-row d-flex ">
                             {configuration.stinger.searchEnabled &&

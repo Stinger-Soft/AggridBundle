@@ -1,4 +1,4 @@
-{%- spaceless -%}
+{%- apply spaceless -%}
 	{% if tooltipWrap == -1 %}{% set tooltipWrap = max %}{% endif %}
 	{% if tooltipMax == -1 %}{% set tooltipMax = max %}{% endif %}
 	{% if max != -1 and value and value|length > max %}
@@ -19,4 +19,4 @@
 	{% else %}
 		{{ nl2br ? valueCleansed|nl2br|raw : valueCleansed|raw }}
 	{% endif %}
-{%- endspaceless -%}
+{%- endapply -%}

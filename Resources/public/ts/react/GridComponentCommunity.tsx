@@ -1,7 +1,7 @@
+import React, {FunctionComponent} from "react";
 import {ModuleRegistry, GridReadyEvent} from "@ag-grid-community/core";
 import {AgGridReact} from "@ag-grid-community/react";
 import {ClientSideRowModelModule} from "@ag-grid-community/client-side-row-model";
-import React from "react";
 import axios from 'axios';
 import {StingerSoftAggrid} from 'stingersoftaggrid/ts/StingerSoftAggrid';
 import {GridConfiguration} from 'stingersoftaggrid/ts/GridConfiguration';
@@ -17,6 +17,7 @@ declare var Translator: BazingaTranslator;
 interface IProps {
     src?: string;
     additionalAjaxRequestBody?: Object;
+    additionalGridAction?: Array<{component: FunctionComponent, props: any}>
     translator?: BazingaTranslator;
     navigate?: NavigateFunction;
     onGridReady?: (event: GridReadyEvent) => void;
@@ -242,6 +243,13 @@ export class GridComponent extends React.Component<IProps, IState> {
                                         }
                                     </div>
                                 }
+                                {this.props.additionalGridAction && Array.from(this.props.additionalGridAction).map((actionItem, key) => {
+                                    return (
+                                        <div className="aggrid-action-buttons" key={`additional_actiom_item_${key}`}>
+                                            {React.createElement(actionItem.component, actionItem.props)}
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </div>
                     </div>

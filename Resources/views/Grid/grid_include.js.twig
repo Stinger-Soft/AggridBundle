@@ -26,6 +26,7 @@ jQuery(document).ready(function () {
 			"gridId": {{ grid.vars.aggrid_id|json_encode|raw }},
 			"stinger": {{ varOptions }}
 	});
+	{{ varAggrid }}.registerjQueryListeners();
 	{% endblock grid_js_init %}
 	{% block grid_js_after_init %}{% endblock grid_js_after_init %}
 

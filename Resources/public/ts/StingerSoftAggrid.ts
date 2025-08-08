@@ -217,7 +217,7 @@ export class StingerSoftAggrid {
 
         let searchField: JQuery = undefined;
         if (this.options.stinger.searchEnabled) {
-            searchField = jQuery(this.gridId + '_search');
+            searchField = jQuery("#" + this.gridId + '_search');
             searchField.on('input keyup change', function () {
                 var value = jQuery(this).val();
                 that.quickFilter(String(value));
@@ -226,7 +226,7 @@ export class StingerSoftAggrid {
 
         let paginationDropdown: JQuery = undefined;
         if (this.options.aggrid.hasOwnProperty('pagination') && this.options.aggrid.pagination) {
-            paginationDropdown = jQuery(this.gridId + '_paginationDropdown');
+            paginationDropdown = jQuery("#" + this.gridId + '_paginationDropdown');
             paginationDropdown.on('change', function () {
                 var value = jQuery(this).val();
                 that.api?.setGridOption('paginationPageSize', Number(value));
@@ -234,7 +234,7 @@ export class StingerSoftAggrid {
         }
 
         if (this.options.stinger.hasOwnProperty('clearFilterButton') && this.options.stinger.clearFilterButton) {
-            jQuery(this.gridId + '_clear').on('click', () => {
+            jQuery("#" + this.gridId + '_clear').on('click', () => {
                 searchField.val('');
                 that.resetFilter();
             });
@@ -242,13 +242,13 @@ export class StingerSoftAggrid {
 
         if (this.options.stinger.hasOwnProperty('reloadButton') && this.options.stinger.reloadButton) {
             var that = this;
-            jQuery(this.gridId + '_reload').on('click', function () {
+            jQuery("#" + this.gridId + '_reload').on('click', function () {
                 that.reload();
             });
         }
 
         if (this.options.stinger.hasOwnProperty('autosizeColumnsButton') && this.options.stinger.autosizeColumnsButton) {
-            jQuery(this.gridId + '_autosize').on('click', function () {
+            jQuery("#" + this.gridId + '_autosize').on('click', function () {
                 that.autoSizeColumns();
             });
         }

@@ -182,9 +182,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                                        id="aggrid-quick-search"
                                        className="form-control input-small flex-column-auto d-flex aggrid-quick-search"
                                        placeholder={Translator.trans('stingersoft_aggrid.searchOoo', {}, 'StingerSoftAggridBundle')}
-                                       onChange={(e) => {
-                                           stingerAggrid?.quickFilter(e.target.value)
-                                       }}/>
+                                       onChange={(e) => stingerAggrid?.quickFilter(e.target.value)}/>
                             }
 
                             <div className="flex-column-fluid d-flex aggrid-actions">
@@ -241,7 +239,6 @@ export class GridComponent extends React.Component<IProps, IState> {
                                                    if (input && input.value.length > 0) {
                                                        input.value = "";
                                                    }
-
                                                    e.preventDefault();
                                                    stingerAggrid?.resetFilter();
                                                }}

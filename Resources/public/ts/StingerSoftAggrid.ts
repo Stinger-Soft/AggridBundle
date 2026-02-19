@@ -147,11 +147,19 @@ export class StingerSoftAggrid {
                 this.ajaxReq = jQuery.post(this.url, {
                     'agGrid': requestObject,
                 }, function (data) {
-                    params.successCallback(data.items, data.total);
+                    if(typeof params.successCallback === "function") {
+                        params.successCallback(data.items, data.total);
+                    } elseif (typeof params.success === "function") {
+                        params.success({rowData: data.items, total: data.total});
+                    }
                     that.api.hideOverlay();
                 }, "json").fail(function () {
                     that.api.hideOverlay();
-                    params.failCallback();
+                    if(typeof params.failCallback === "function") {
+                        params.failCallback();
+                    } elseif (typeof params.fail === "function") {
+                        params.fail();
+                    }
                 });
             }
         }

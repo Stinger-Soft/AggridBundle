@@ -149,7 +149,7 @@ export class StingerSoftAggrid {
                 }, function (data) {
                     if(typeof params.successCallback === "function") {
                         params.successCallback(data.items, data.total);
-                    } elseif (typeof params.success === "function") {
+                    } else if (typeof params.success === "function") {
                         params.success({rowData: data.items, total: data.total});
                     }
                     that.api.hideOverlay();
@@ -157,7 +157,7 @@ export class StingerSoftAggrid {
                     that.api.hideOverlay();
                     if(typeof params.failCallback === "function") {
                         params.failCallback();
-                    } elseif (typeof params.fail === "function") {
+                    } else if (typeof params.fail === "function") {
                         params.fail();
                     }
                 });

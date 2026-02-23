@@ -181,7 +181,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                                 <input type="text"
                                        id="aggrid-quick-search"
                                        className="form-control input-small flex-column-auto d-flex aggrid-quick-search"
-                                       placeholder={Translator.trans('stingersoft_aggrid.searchOoo', {}, 'StingerSoftAggridBundle')}
+                                       placeholder={this.translator.trans('stingersoft_aggrid.searchOoo', {}, 'StingerSoftAggridBundle')}
                                        onChange={(e) => stingerAggrid?.quickFilter(e.target.value)}/>
                             }
 
@@ -189,7 +189,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                                 {configuration?.aggrid.pagination && configuration?.stinger.paginationDropDown !== null && configuration?.stinger.paginationDropDown.length > 0 &&
                                     <div className="form-group row aggrid-entries-per-page">
                                         <label
-                                            className="col-6 col-form-label text-end">{Translator.trans('stingersoft_aggrid.pagination.entries_per_page', {}, 'StingerSoftAggridBundle')}</label>
+                                            className="col-6 col-form-label text-end">{this.translator.trans('stingersoft_aggrid.pagination.entries_per_page', {}, 'StingerSoftAggridBundle')}</label>
                                         <div className="col-6">
                                             <select className="form-select"
                                                     onChange={(e) => stingerAggrid?.setPaginationPageSize(e.target.value)}>
@@ -202,7 +202,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                                                     <option selected={true}
                                                             value={configuration?.aggrid.paginationPageSize}> {configuration?.aggrid.paginationPageSize}</option>}
                                                 <option
-                                                    value="999999999">{Translator.trans('stingersoft_aggrid.selectAll', {}, 'StingerSoftAggridBundle')}</option>
+                                                    value="999999999">{this.translator.trans('stingersoft_aggrid.selectAll', {}, 'StingerSoftAggridBundle')}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -216,7 +216,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                                                    e.preventDefault();
                                                    stingerAggrid?.autoSizeColumns()
                                                }}
-                                               title={Translator.trans('stingersoft_aggrid.autosizeAllColumns', {}, 'StingerSoftAggridBundle')}>
+                                               title={this.translator.trans('stingersoft_aggrid.autosizeAllColumns', {}, 'StingerSoftAggridBundle')}>
                                                 <i className="far fa-fw fa-text-width"></i>
                                             </a>
                                         }
@@ -227,7 +227,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                                                    e.preventDefault();
                                                    stingerAggrid?.reload();
                                                }}
-                                               title={Translator.trans('stingersoft_aggrid.refresh', {}, 'StingerSoftAggridBundle')}>
+                                               title={this.translator.trans('stingersoft_aggrid.refresh', {}, 'StingerSoftAggridBundle')}>
                                                 <i className="far fa-fw fa-sync"></i>
                                             </a>
                                         }
@@ -242,7 +242,7 @@ export class GridComponent extends React.Component<IProps, IState> {
                                                    e.preventDefault();
                                                    stingerAggrid?.resetFilter();
                                                }}
-                                               title={Translator.trans('stingersoft_aggrid.clearFilter', {}, 'StingerSoftAggridBundle')}>
+                                               title={this.translator.trans('stingersoft_aggrid.clearFilter', {}, 'StingerSoftAggridBundle')}>
                                                 <i className="far fa-fw fa-trash"></i>
                                             </a>
                                         }

@@ -119,7 +119,7 @@ export class GridComponent extends React.Component<IProps, IState> {
         if (typeof configuration.stinger.enterpriseLicense === "string" && configuration.stinger.enterpriseLicense.length > 0) {
             LicenseManager.setLicenseKey(configuration.stinger.enterpriseLicense)
         }
-        StingerSoftAggrid.processJsonConfiguration(configuration);
+        StingerSoftAggrid.processJsonConfiguration(configuration, this.translator);
         return configuration;
     }
 

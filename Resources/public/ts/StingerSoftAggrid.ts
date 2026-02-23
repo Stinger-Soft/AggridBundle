@@ -597,7 +597,7 @@ export class StingerSoftAggrid {
         return column;
     }
 
-    public static processJsonConfiguration(configuration: GridConfiguration): void {
+    public static processJsonConfiguration(configuration: GridConfiguration, translator: BazingaTranslator|null = null): void {
         for (const columnId in configuration.aggrid.columnDefs) {
             const column = configuration.aggrid.columnDefs[columnId];
             // @ts-ignore
@@ -607,7 +607,7 @@ export class StingerSoftAggrid {
             const key = params.key;
             const defaultValue = params.defaultValue;
             var gridKey = 'stingersoft_aggrid.' + key;
-            var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
+            var value = (translator || Translator).trans(gridKey, {}, 'StingerSoftAggridBundle');
             if (value === gridKey) {
                 console.debug('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
                 return defaultValue;

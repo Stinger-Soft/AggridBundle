@@ -2,7 +2,7 @@ import React, {createRef, type FunctionComponent} from "react";
 import {ModuleRegistry, type GridReadyEvent} from "@ag-grid-community/core";
 import {AgGridReact} from "@ag-grid-community/react";
 import {ClientSideRowModelModule} from "@ag-grid-community/client-side-row-model";
-import axios, {AxiosResponse} from 'axios';
+import axios, {type AxiosResponse} from 'axios';
 import {StingerSoftAggrid} from '../utils/StingerSoftAggrid';
 import type {GridConfiguration} from '../utils/GridConfiguration';
 import type {BazingaTranslator} from 'bazinga-translator';
@@ -23,7 +23,7 @@ interface IProps {
 }
 
 interface IState {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     configuration: GridConfiguration | null;
     stingerAggrid: StingerSoftAggrid | null;
     loading: boolean;
@@ -43,13 +43,14 @@ export class GridComponent extends React.Component<IProps, IState> {
 
     constructor(props: IProps) {
         super(props);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.translator = props.translator ?? (globalThis as any).Translator;
         this.navigate = props.navigate;
         this.gridRef = createRef<AgGridReact>();
         this.gridContainer = createRef<HTMLDivElement>();
-        this.state = {configuration: null, stingerAggrid: null, loading: true} as IState;
+        const initialState: IState = {configuration: null, stingerAggrid: null, loading: true};
+        this.state = initialState;
         this.abortController = null;
         this.additionalAjaxRequestBody = props.additionalAjaxRequestBody;
 
@@ -67,7 +68,7 @@ export class GridComponent extends React.Component<IProps, IState> {
             },
             ...this.additionalAjaxRequestBody
         }, {signal: this.abortController.signal}).then((p: AxiosResponse<GridConfiguration>) => {
-            let configuration = p.data as GridConfiguration;
+            let configuration = p.data;
             configuration = this.processConfiguration(configuration);
             this.setState({configuration, loading: false, stingerAggrid: null});
         }).catch((err: unknown) => {
@@ -77,7 +78,7 @@ export class GridComponent extends React.Component<IProps, IState> {
 
     componentDidMount(): void {
         window.addEventListener("beforeunload", this.handleWindowBeforeUnload);
-        this.fetchColumnDefs(this.props.src as string);
+        this.fetchColumnDefs(this.props.src!);
     }
 
     componentWillUnmount(): void {
@@ -97,7 +98,7 @@ export class GridComponent extends React.Component<IProps, IState> {
             this.getStingerApi()?.saveState();
             this.abortController?.abort();
             this.setState({configuration: null, loading: true, stingerAggrid: null});
-            this.fetchColumnDefs(this.props.src as string);
+            this.fetchColumnDefs(this.props.src!);
         }
     }
 
@@ -139,6 +140,7 @@ export class GridComponent extends React.Component<IProps, IState> {
             .split(';')
             .filter(style => style.split(':')[0] && style.split(':')[1])
             .map(style => [
+                // eslint-disable-next-line require-unicode-regexp -- v flag requires ES2024+
                 style.split(':')[0].trim().replace(/-./g, c => c.substring(1).toUpperCase()),
                 style.split(':')[1].trim()
             ])
@@ -168,7 +170,7 @@ export class GridComponent extends React.Component<IProps, IState> {
             return "";
         }
         const {configuration, stingerAggrid} = this.state;
-        if (!configuration || !configuration.stinger || !configuration.stinger.attr || !configuration.aggrid) {
+        if (!configuration?.stinger?.attr || !configuration.aggrid) {
             return "";
         }
 

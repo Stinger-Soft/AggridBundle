@@ -8,7 +8,8 @@ import {
     type GridApi,
     type GetLocaleTextParams,
     type ProcessCellForExportParams,
-    type ExcelExportParams, ColumnState
+    type ExcelExportParams,
+    type ColumnState
 } from "@ag-grid-community/core";
 import type {GridConfiguration} from "./GridConfiguration";
 import {StingerSoftAggridRenderer} from "./StingerSoftAggridRenderer";
@@ -181,7 +182,7 @@ export class StingerSoftAggrid {
         }
         if (this.options.stinger.defaultOrderProperties) {
             const orderColumns = this.options.stinger.defaultOrderProperties || [];
-            const newSortState: Array<ColumnState> = [];
+            const newSortState: ColumnState[] = [];
             for (const path of Object.keys(orderColumns)) {
                 const column = this.api!.getColumn(path);
                 if (column !== null) {

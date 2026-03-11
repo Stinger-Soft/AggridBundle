@@ -1,0 +1,14 @@
+src/
+Resources/
+vendor/
+composer.json
+composer.lock
+phpunit.xml*
+.idea/
+.git/
+.gitignore
+tsconfig.json
+tsconfig.build.json
+.eslintrc*
+.prettierrc*
+node_modules/

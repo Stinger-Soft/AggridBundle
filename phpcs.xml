@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
+    <!--    http://edorian.github.io/php-coding-standard-generator/#phpcs-->
+    <arg name="report-checkstyle" value="build/logs/phpcs.checkstyle.xml"/>
+    <arg name="cache" value="build/cache/codesniffer.phpcs"/>
+    <arg name="extensions" value="php"/>
+    <!--    <arg name="warning-severity" value="5"/>-->
+    <config name="ignore_errors_on_exit" value="1"/>
+    <config name="ignore_warnings_on_exit" value="1"/>
+    <exclude-pattern type="relative">*vendor/*</exclude-pattern>
+    <exclude-pattern type="relative">*node_modules/*</exclude-pattern>
+    <exclude-pattern type="relative">*Resource/*</exclude-pattern>
+    <exclude-pattern type="relative">*build/*</exclude-pattern>
+    <arg name="basepath" value="./src"/>
+    <arg name="colors"/>
+    <arg name="parallel" value="75"/>
+    <arg value="np"/>
+    <rule ref="PSR12">
+        <exclude name="Generic.Files.LineEndings.InvalidEOLChar"/>
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent.TabsUsed"/>
+        <exclude name="Generic.Commenting.DocComment.TagValueIndent"/>
+        <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
+        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent.NonIndentTabsUsed"/>
+        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
+        <exclude name="PSR12.Files.FileHeader.IncorrectOrder"/>
+        <exclude name="PSR12.Classes.OpeningBraceSpace.Found"/>
+        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterHint"/>
+        <!--        <exclude name=""/>-->
+    </rule>
+
+    <rule ref="PSR2.Files.EndFileNewline.NoneFound">
+        <severity>4</severity>
+    </rule>
+
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="tabIndent" value="true"/>
+        </properties>
+    </rule>
+
+    <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+    <rule ref="Generic.Metrics.NestingLevel"/>
+
+</ruleset>

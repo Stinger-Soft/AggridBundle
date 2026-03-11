@@ -13,3 +13,11 @@ stingersoft_aggrid:
     yes_no:
       no: No
       yes: Yes
+
+
+  ariaRowToggleSelection: Press Space to toggle row selection
+  ariaUnchecked: Unchecked
+  ariaFilterColumn: Press CTRL ENTER to open filter
+  ariaSortableColumn: Press ENTER to sort
+  ariaHeaderSelection: Column with Header Selection
+  ariaRowSelectAll: Press Space to toggle all rows selection

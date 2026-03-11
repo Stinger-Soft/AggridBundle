@@ -1,8 +1,7 @@
-import {ColDef, GridApi, ColumnApi} from 'ag-grid-community';
+import {ColDef, GridApi} from '@ag-grid-community/core';
 
 export class AggridConfiguration {
     api?: GridApi
-    columnApi?: ColumnApi
     columnDefs: ColDef[]
     components?: any
     statusBar?: any

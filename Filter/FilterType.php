@@ -38,13 +38,14 @@ final class FilterType extends AbstractFilterType {
 			$cellRendererParams = [];
 		}
 		$view->vars = array_replace($view->vars, [
-			'newRowsAction'      => $options['newRowsAction'] !== null && $options['newRowsAction'] !== self::NEW_ROWS_ACTION_DEFAULT ? $options['newRowsAction'] : null,
-			'cellRenderer'       => $options['cellRenderer'],
-			'cellRendererParams' => $cellRendererParams,
-			'translation_domain' => $options['translation_domain'],
-			'debounceMs'         => $options['debounceMs'],
-			'applyButton'        => $options['applyButton'],
-			'clearButton'        => $options['clearButton'],
+			'newRowsAction'            => $options['newRowsAction'] !== null && $options['newRowsAction'] !== self::NEW_ROWS_ACTION_DEFAULT ? $options['newRowsAction'] : null,
+			'cellRenderer'             => $options['cellRenderer'],
+			'cellRendererParams'       => $cellRendererParams,
+			'translation_domain'       => $options['translation_domain'],
+			'debounceMs'               => $options['debounceMs'],
+			'applyButton'              => $options['applyButton'],
+			'clearButton'              => $options['clearButton'],
+			'defaultToNothingSelected' => $options['defaultToNothingSelected'],
 		]);
 	}
 
@@ -59,6 +60,7 @@ final class FilterType extends AbstractFilterType {
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'includeBlanksInLessThan');
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'includeBlanksInGreaterThan');
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'clearButton');
+		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'defaultToNothingSelected');
 
 		AbstractBaseView::addFieldIfSet($view->vars, $view->jsonConfiguration['filterParams'], 'applyButton');
 		if(!isset($view->vars['applyButton']) || $view->vars['applyButton'] !== true) {
@@ -118,6 +120,9 @@ final class FilterType extends AbstractFilterType {
 
 		$resolver->setDefault('server_delegate', null);
 		$resolver->setAllowedTypes('server_delegate', ['null', 'callable', Closure::class]);
+
+		$resolver->setDefault('defaultToNothingSelected', false);
+		$resolver->setAllowedTypes('defaultToNothingSelected', ['bool']);
 	}
 
 	public function getParent(): ?string {

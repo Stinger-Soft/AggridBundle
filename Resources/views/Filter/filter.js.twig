@@ -31,7 +31,10 @@ filterParams: {
 		{% endif %}
 	{% endif %}
 	{% if filter.vars.clearButton is defined and filter.vars.clearButton is not same as(null) %}
-	clearButton: {{ filter.vars.clearButton|json_encode|raw }}
+	clearButton: {{ filter.vars.clearButton|json_encode|raw }},
+	{% endif %}
+	{% if filter.vars.defaultToNothingSelected is defined and filter.vars.defaultToNothingSelected is not same as(null) %}
+	defaultToNothingSelected: {{ filter.vars.defaultToNothingSelected|default(false)|json_encode|raw }}
 	{% endif %}
 	{% endblock filter_params %}
 },

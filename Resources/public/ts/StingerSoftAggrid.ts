@@ -1,6 +1,20 @@
+import {LicenseManager} from "@ag-grid-enterprise/core";
+
 declare var jQuery: JQueryStatic;
 
-import {ColDef, ColGroupDef, Column, ColumnApi, ColumnResizedEvent, Grid, GridApi, GridOptions} from "ag-grid-community";
+import {
+    ColDef,
+    ColGroupDef,
+    Column,
+    ColumnResizedEvent,
+    Grid,
+    createGrid,
+    GridApi,
+    GridOptions,
+    GetLocaleTextParams,
+    ProcessCellForExportParams,
+    ExcelExportParams
+} from "@ag-grid-community/core";
 import {GridConfiguration} from "./GridConfiguration";
 import {StingerSoftAggridRenderer} from "./StingerSoftAggridRenderer";
 import {StingerSoftAggridValueGetter} from "./StingerSoftAggridValueGetter";
@@ -12,7 +26,7 @@ import {StingerSoftAggridStyler} from "./StingerSoftAggridStyler";
 import {StingerSoftAggridTextFormatter} from "./StingerSoftAggridTextFormatter";
 import {StingerSoftAggridKeyCreator} from "./StingerSoftAggridKeyCreator";
 import {StingerSoftAggridTooltip} from "./StingerSoftAggridTooltip";
-import type { BazingaTranslator } from 'bazinga-translator';
+import type {BazingaTranslator} from 'bazinga-translator';
 
 declare var Translator: BazingaTranslator;
 
@@ -30,7 +44,9 @@ export class StingerSoftAggrid {
 
     private resizedColumns: Column[] = [];
 
-    private clipboardValueFormatters: any = {};
+    private exportableColumns: Record<string, {exportValueFormatter?: string}> = {};
+
+    private clipboardValueFormatters:  Record<string, string> = {};
 
     private filterTimeout: number = 500;
 
@@ -62,7 +78,7 @@ export class StingerSoftAggrid {
 
     public static Tooltip = StingerSoftAggridTooltip;
 
-    constructor(private aggridElement: HTMLElement, public api?: GridApi, public columnApi?: ColumnApi) {
+    constructor(private aggridElement: HTMLElement, public api?: GridApi) {
         this.gridId = aggridElement.id;
         this.stateSaveKey = this.gridId.replace("#", "");
     }
@@ -75,9 +91,7 @@ export class StingerSoftAggrid {
             if (this.options.stinger.hasOwnProperty('enterpriseLicense')) {
                 this.setLicenseKey(this.options.stinger.enterpriseLicense);
             }
-            var aggrid = new Grid(this.aggridElement, this.options.aggrid);
-            this.api = this.options.aggrid.api;
-            this.columnApi = this.options.aggrid.columnApi;
+            this.api = createGrid(this.aggridElement, this.options.aggrid);
         }
 
         //Init
@@ -88,7 +102,9 @@ export class StingerSoftAggrid {
 
     private setLicenseKey(licenseKey: string) {
         this.licenseKey = licenseKey;
-
+        if(licenseKey) {
+            LicenseManager.setLicenseKey(this.licenseKey);
+        }
     }
 
     public static getValueFromParams = function (params) {
@@ -113,7 +129,7 @@ export class StingerSoftAggrid {
             },
             ...this.options.stinger.additionalAjaxRequestBody
         }, function (data) {
-            that.api.setRowData(data.items);
+            that.api.setGridOption("rowData", data.items);
         });
     }
 
@@ -131,11 +147,19 @@ export class StingerSoftAggrid {
                 this.ajaxReq = jQuery.post(this.url, {
                     'agGrid': requestObject,
                 }, function (data) {
-                    params.successCallback(data.items, data.total);
+                    if(typeof params.successCallback === "function") {
+                        params.successCallback(data.items, data.total);
+                    } else if (typeof params.success === "function") {
+                        params.success({rowData: data.items, total: data.total});
+                    }
                     that.api.hideOverlay();
                 }, "json").fail(function () {
                     that.api.hideOverlay();
-                    params.failCallback();
+                    if(typeof params.failCallback === "function") {
+                        params.failCallback();
+                    } else if (typeof params.fail === "function") {
+                        params.fail();
+                    }
                 });
             }
         }
@@ -149,21 +173,38 @@ export class StingerSoftAggrid {
         }
         if (this.options.stinger.dataMode === 'enterprise') {
             this.isServerSide = true;
-            this.api.setServerSideDatasource(this.getEnterpriseDatasource());
+            this.api.setGridOption('serverSideDatasource', this.getEnterpriseDatasource());
+            // this.api.setServerSideDatasource(this.getEnterpriseDatasource());
         }
         if (this.options.stinger.defaultOrderProperties) {
             var orderColumns = this.options.stinger.defaultOrderProperties || [];
             var keys = Object.keys(orderColumns);
+            const newSortState = [];
             for (let path in orderColumns) {
-                var column = that.columnApi.getColumn(path);
+                var column = that.api.getColumn(path);
                 if (column !== null) {
-                    column.setSort(orderColumns[path] || 'asc');
+                    // column.setSort(orderColumns[path] || 'asc');
+                    newSortState.push({
+                        state: [{colId: path, sort: orderColumns[path] || 'asc'}],
+                        defaultState: {sort: null},
+                    });
                 }
             }
+            that.api!.applyColumnState({
+                state: newSortState,
+                defaultState: {sort: null},
+            });
         } else if (this.options.hasOwnProperty('defaultOrderProperty')) {
-            var column = this.columnApi.getColumn(this.options.stinger.defaultOrderProperty);
+            var column = this.api?.getColumn(this.options.stinger.defaultOrderProperty);
             if (column !== null) {
-                column.setSort(this.options.stinger.defaultOrderDirection ? this.options.stinger.defaultOrderDirection : 'asc');
+                that.api!.applyColumnState({
+                    state: [{
+                        colId: this.options.stinger.defaultOrderProperty,
+                        sort: this.options.stinger.defaultOrderDirection ? this.options.stinger.defaultOrderDirection : 'asc'
+                    }],
+                    defaultState: {sort: null},
+                });
+                // column.setSort(this.options.stinger.defaultOrderDirection ? this.options.stinger.defaultOrderDirection : 'asc');
             }
         }
     }
@@ -184,7 +225,7 @@ export class StingerSoftAggrid {
 
         let searchField: JQuery = undefined;
         if (this.options.stinger.searchEnabled) {
-            searchField = jQuery(this.gridId + '_search');
+            searchField = jQuery("#" + this.gridId + '_search');
             searchField.on('input keyup change', function () {
                 var value = jQuery(this).val();
                 that.quickFilter(String(value));
@@ -193,15 +234,15 @@ export class StingerSoftAggrid {
 
         let paginationDropdown: JQuery = undefined;
         if (this.options.aggrid.hasOwnProperty('pagination') && this.options.aggrid.pagination) {
-            paginationDropdown = jQuery(this.gridId + '_paginationDropdown');
+            paginationDropdown = jQuery("#" + this.gridId + '_paginationDropdown');
             paginationDropdown.on('change', function () {
                 var value = jQuery(this).val();
-                that.api.paginationSetPageSize(Number(value));
+                that.api?.setGridOption('paginationPageSize', Number(value));
             });
         }
 
         if (this.options.stinger.hasOwnProperty('clearFilterButton') && this.options.stinger.clearFilterButton) {
-            jQuery(this.gridId + '_clear').on('click', () => {
+            jQuery("#" + this.gridId + '_clear').on('click', () => {
                 searchField.val('');
                 that.resetFilter();
             });
@@ -209,13 +250,13 @@ export class StingerSoftAggrid {
 
         if (this.options.stinger.hasOwnProperty('reloadButton') && this.options.stinger.reloadButton) {
             var that = this;
-            jQuery(this.gridId + '_reload').on('click', function () {
+            jQuery("#" + this.gridId + '_reload').on('click', function () {
                 that.reload();
             });
         }
 
         if (this.options.stinger.hasOwnProperty('autosizeColumnsButton') && this.options.stinger.autosizeColumnsButton) {
-            jQuery(this.gridId + '_autosize').on('click', function () {
+            jQuery("#" + this.gridId + '_autosize').on('click', function () {
                 that.autoSizeColumns();
             });
         }
@@ -246,7 +287,7 @@ export class StingerSoftAggrid {
     }
 
     public setPaginationPageSize(entriesPerPage) {
-        this.api.paginationSetPageSize(Number(entriesPerPage));
+        this.api?.setGridOption('paginationPageSize', Number(entriesPerPage));
     }
 
     public reload() {
@@ -257,7 +298,7 @@ export class StingerSoftAggrid {
             });
         }
         if (this.options.stinger.hasOwnProperty('dataMode') && this.options.stinger.dataMode === 'enterprise') {
-            this.api.purgeServerSideCache();
+            this.api?.refreshServerSide({purge: true});
         }
         this.refresh(true);
     }
@@ -284,20 +325,20 @@ export class StingerSoftAggrid {
 
         var that = this;
         var columnIdsToResize = [];
-        this.columnApi.getAllColumns().forEach((column: Column) => {
+        this.api.getAllGridColumns().forEach((column: Column) => {
             var columnWasManuallyResized = that.resizedColumns.indexOf(column) !== -1;
             if (columnWasManuallyResized && !resizeManuallyResized) {
                 return;
             }
             var columnHasWidthSpecified = "width" in column.getColDef();
             if (columnHasWidthSpecified && !resizeWithWidthSpecified) {
-                this.columnApi.setColumnWidth(column, column.getColDef().width);
+                this.api.setColumnWidth(column, column.getColDef().width);
             } else {
                 columnIdsToResize.push(column.getColId());
             }
         });
         if (columnIdsToResize.length > 0) {
-            this.columnApi.autoSizeColumns(columnIdsToResize);
+            this.api.autoSizeColumns(columnIdsToResize);
         }
     }
 
@@ -339,25 +380,28 @@ export class StingerSoftAggrid {
         return status === 'loaded';
     }
 
+    private setQuickFilter(filterText: string) {
+        this.api.setGridOption('quickFilterText', filterText);
+    }
+
     public resetFilter() {
         if (this.isServerSide) {
             this.quickFilterSearchString = '';
         } else {
-            this.api.setQuickFilter('');
+            this.setQuickFilter('');
         }
         this.api.setFilterModel(null);
         this.api.onFilterChanged();
     }
 
     public saveState() {
-        if (window.localStorage && this.options.stinger.persistState) {
+        if (window.localStorage && this.options.stinger.persistState && this.api.getColumnState()) {
             var storage = window.localStorage;
-
             var storageKey = this.stateSavePrefix + this.stateSaveKey;
             var storageObject = {
-                columns: this.columnApi.getColumnState(),
-                groups: this.columnApi.getColumnGroupState(),
-                sorts: this.api.getSortModel(),
+                columns: this.api.getColumnState(),
+                groups: this.api.getColumnGroupState(),
+                sorts: this.getSortState(),
                 filters: this.api.getFilterModel(),
                 version: this.options.stinger.versionHash
             };
@@ -365,7 +409,22 @@ export class StingerSoftAggrid {
         }
     }
 
+    protected getSortState() {
+        const colState = this.api!.getColumnState();
+        if(!colState) {
+            return [];
+        }
+        return colState
+            .filter(function (s) {
+                return s.sort != null;
+            })
+            .map(function (s) {
+                return {colId: s.colId, sort: s.sort, sortIndex: s.sortIndex};
+            });
+    }
+
     public loadState() {
+        this.getSortState();
         if (window.localStorage && this.options.stinger.persistState) {
             var storage = window.localStorage;
 
@@ -378,13 +437,17 @@ export class StingerSoftAggrid {
                     var sortModel = storageObject.hasOwnProperty('sorts') && storageObject.sorts ? storageObject.sorts : [];
                     var filterModel = storageObject.hasOwnProperty('filters') && storageObject.filters ? storageObject.filters : {};
                     if (columnState && Array.isArray(columnState) && columnState.length) {
-                        this.columnApi.setColumnState(columnState);
+                        this.api.applyColumnState({state: columnState});
+                        this.api.applyColumnState({state: columnState, applyOrder: true});
                     }
                     if (columnGroupState && Array.isArray(columnGroupState) && columnGroupState.length) {
-                        this.columnApi.setColumnGroupState(columnGroupState);
+                        this.api.setColumnGroupState(columnGroupState);
                     }
                     if (sortModel && Array.isArray(sortModel) && sortModel.length) {
-                        this.api.setSortModel(sortModel);
+                        this.api.applyColumnState({
+                            state: sortModel,
+                            defaultState: {sort: null},
+                        });
                     }
                     if (filterModel && Object.keys(filterModel).length !== 0) {
                         this.api.setFilterModel(filterModel);
@@ -410,9 +473,53 @@ export class StingerSoftAggrid {
             if (that.isServerSide) {
                 that.api.onFilterChanged();
             } else {
-                that.api.setQuickFilter(searchString);
+                that.setQuickFilter(searchString);
             }
         }, this.filterTimeout);
+    }
+
+    public addExportableColumn(colId: string, params: {exportValueFormatter?: string}) {
+        this.exportableColumns[colId] = params || {};
+    };
+
+    public exportXlsx(fileName: string, sheetName: string): void {
+        var that = this;
+        var params = {
+            fileName: fileName,
+            sheetName: sheetName,
+            processCellCallback: function (params) {
+                var columnConfig: {exportValueFormatter?: string} = {};
+                if (that.exportableColumns.hasOwnProperty(params.column.getColId())) {
+                    columnConfig = that.exportableColumns[params.column.getColId()];
+                }
+                var valueGetter = columnConfig.hasOwnProperty('exportValueFormatter') && columnConfig.exportValueFormatter ? StingerSoftAggrid.Formatter.getFormatter(columnConfig.exportValueFormatter) : StingerSoftAggrid.Formatter.getFormatter("DisplayValueFormatter");
+                return valueGetter(params);
+            }
+        } as ExcelExportParams;
+
+        params.columnKeys = Object.keys(this.exportableColumns);
+        this.api.exportDataAsExcel(params);
+    }
+
+    public processCellForClipboard(params: ProcessCellForExportParams<any>) {
+        var value = params.value.displayValue;
+        var callbackName = this.clipboardValueFormatters.hasOwnProperty(params.column.getColId()) ?
+            this.clipboardValueFormatters[params.column.getColId()] : false;
+        if(callbackName === false) {
+            value = params.value.displayValue;
+        }
+        if(typeof callbackName === 'string') {
+            var renderer = StingerSoftAggrid.Formatter.getFormatter(callbackName);
+            value = renderer(params);
+        }
+        value = typeof value === "string" ? value.trim() : value;
+        return value;
+    };
+
+    public setClipboardValueFormatter(colId: string, callback: string): void {
+        if(!this.clipboardValueFormatters.hasOwnProperty(colId)) {
+            this.clipboardValueFormatters[colId] = callback;
+        }
     }
 
     protected static processJsonColumnConfiguration(column: (ColDef | ColGroupDef), configuration: GridConfiguration): (ColDef | ColGroupDef) {
@@ -483,30 +590,31 @@ export class StingerSoftAggrid {
             }
         }
         if (column.hasOwnProperty('children')) {
-            for(const childColumn of (column as ColGroupDef).children) {
-                StingerSoftAggrid.processJsonColumnConfiguration(childColumn as  (ColDef | ColGroupDef), configuration);
+            for (const childColumn of (column as ColGroupDef).children) {
+                StingerSoftAggrid.processJsonColumnConfiguration(childColumn as (ColDef | ColGroupDef), configuration);
             }
         }
         return column;
     }
 
-    public static processJsonConfiguration(configuration: GridConfiguration): void {
-        for(const columnId in configuration.aggrid.columnDefs) {
+    public static processJsonConfiguration(configuration: GridConfiguration, translator: BazingaTranslator|null = null): void {
+        for (const columnId in configuration.aggrid.columnDefs) {
             const column = configuration.aggrid.columnDefs[columnId];
             // @ts-ignore
             StingerSoftAggrid.processJsonColumnConfiguration(column, configuration);
         }
-        configuration.aggrid.localeTextFunc = function (key, defaultValue) {
+        configuration.aggrid.getLocaleText = function (params: GetLocaleTextParams) {
+            const key = params.key;
+            const defaultValue = params.defaultValue;
             var gridKey = 'stingersoft_aggrid.' + key;
-            var value = Translator.trans(gridKey, {}, 'StingerSoftAggridBundle');
+            var value = (translator || Translator).trans(gridKey, {}, 'StingerSoftAggridBundle');
             if (value === gridKey) {
-                console.warn('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
+                console.debug('falling back to default value "' + defaultValue + '", as no translation was found for "' + key + '" (tried "' + gridKey + '" within the domain "StingerSoftAggridBundle"!');
                 return defaultValue;
             }
             return value;
         }
-
-        console.log(configuration);
     }
+
 
 }
